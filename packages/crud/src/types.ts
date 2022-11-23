@@ -5,26 +5,6 @@ interface CacheInsMethods {
   get: (key: string) => unknown
   set: (key: string, value: unknown) => void
 }
-// interface LoadingInstance {
-//   open: (payload: boolean | string | Record<string, any>) => void
-//   close: () => void
-// }
-export interface CreateCRUDOptions {
-  baseURL?: string
-  headers?: Record<string, string | number | boolean>
-  timeout?: number
-  responseHandle?: (response: any) => unknown
-  cache?: {
-    instance: CacheInsMethods
-    keySuffix: string
-    canCache: (data: any) => boolean
-  }
-  overlayImplement?: any // todo
-  errorReport?: (err: Error) => void
-}
-export type MethodType = (Method & ('cache' | 'CACHE')) | string
-export type ContentType = 'form' | 'json' | 'file' | string
-
 // overlay UI types
 export interface ConfirmOverlayType {
   style?: number
@@ -40,7 +20,34 @@ export interface SuccessOrErrorOverlayType {
   style?: number
   title: string | (() => VNodeChild)
   content?: string | (() => VNodeChild)
+  callback?: (act: any) => void
 }
+interface OverlayImplement {
+  loadingOpen: (options: LoadingOverlayType) => void
+  loadingClose: () => void
+  success: (options: SuccessOrErrorOverlayType) => void
+  error: (options: SuccessOrErrorOverlayType, err: Error) => void
+  confirm: (options: ConfirmOverlayType) => Promise<boolean>
+}
+
+export interface CreateCRUDOptions {
+  baseURL?: string
+  headers?: Record<string, string | number | boolean>
+  timeout?: number
+  responseHandle?: (response: unknown) => unknown
+  cache?: {
+    // ssr only
+    instance: CacheInsMethods
+    keySuffix: string
+    canCache: (data: any) => boolean
+  }
+  errorReport?: (err: Error) => void
+  overlayImplement?: OverlayImplement
+  loadingDelay?: number
+  debounceTime?: number
+}
+export type MethodType = (Method & ('cache' | 'CACHE')) | string
+export type ContentType = 'formUrlEncode' | 'json' | 'formData' | string
 
 export interface RequestOptions<T, TStart = any> {
   url: string
@@ -66,7 +73,9 @@ export interface CRUDInput<TI, TO, TStart = any>
    * default: first
    * */
   debounce?: 'first' | 'last'
+  debounceTime?: number
   initialData?: TO
+  toRef?: boolean
   confirmOverlay?:
   | string
   | ((param?: TStart) => VNodeChild)
@@ -89,6 +98,7 @@ export interface CRUDInput<TI, TO, TStart = any>
   onError?: (e: Error) => void
 }
 export interface CRUDOutput<T, TStart = any> {
+  pending: boolean
   loading: boolean
   success: boolean
   error: Error | null
