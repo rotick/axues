@@ -32,7 +32,9 @@ interface OverlayImplement {
 
 export interface CreateCRUDOptions {
   baseURL?: string
-  headers?: Record<string, string | number | boolean>
+  headers?:
+  | Record<string, string | number | boolean>
+  | (() => Record<string, string | number | boolean>)
   timeout?: number
   responseHandle?: (response: unknown) => unknown
   cache?: {
@@ -42,9 +44,9 @@ export interface CreateCRUDOptions {
     canCache: (data: any) => boolean
   }
   errorReport?: (err: Error) => void
-  overlayImplement?: OverlayImplement
   loadingDelay?: number
   debounceTime?: number
+  overlayImplement?: OverlayImplement
 }
 export type MethodType = (Method & ('cache' | 'CACHE')) | string
 export type ContentType = 'formUrlEncode' | 'json' | 'formData' | string
@@ -109,4 +111,6 @@ export interface CRUDOutput<T, TStart = any> {
   start: (param: TStart) => void
   refresh: (param: TStart) => void
 }
-export type IO = (i: CRUDInput<any, any>) => CRUDOutput<any, any>
+export type IO = (i: CRUDInput<any, any, any>) => CRUDOutput<any, any>
+
+export type ImplementOverlay = (options: OverlayImplement) => void

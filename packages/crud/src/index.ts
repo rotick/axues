@@ -8,4 +8,4 @@ export function useCRUD<TI extends object, TO extends object> (
   const CRUD = inject(key) as IO
   return CRUD(options)
 }
-export { createCRUD } from './create'
+export { request, createCRUD } from './create'
