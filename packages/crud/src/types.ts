@@ -22,7 +22,7 @@ export interface SuccessOrErrorOverlayType {
   content?: string | (() => VNodeChild)
   callback?: (act: any) => void
 }
-interface OverlayImplement {
+export interface OverlayImplement {
   loadingOpen: (options: LoadingOverlayType) => void
   loadingClose: () => void
   success: (options: SuccessOrErrorOverlayType) => void
@@ -56,7 +56,9 @@ export interface RequestOptions<T, TStart = any> {
   params?: T | ((param?: TStart) => T)
   method: MethodType
   contentType: ContentType
-  headers?: Record<string, string | number | boolean>
+  headers?:
+  | Record<string, string | number | boolean>
+  | ((param?: TStart) => Record<string, string | number | boolean>)
   timeout?: number
   responseType?: ResponseType
   // axiosConfig?: AxiosRequestConfig // todo do we need this?
@@ -77,7 +79,7 @@ export interface CRUDInput<TI, TO, TStart = any>
   debounce?: 'first' | 'last'
   debounceTime?: number
   initialData?: TO
-  toRef?: boolean
+  // toRef?: boolean
   confirmOverlay?:
   | string
   | ((param?: TStart) => VNodeChild)
