@@ -30,11 +30,13 @@ export interface OverlayImplement {
   confirm: (options: ConfirmOverlayType) => Promise<boolean>
 }
 
-export interface CreateCRUDOptions {
-  baseURL?: string
-  headers?:
+export type Headers =
   | Record<string, string | number | boolean>
   | (() => Record<string, string | number | boolean>)
+
+export interface CreateCRUDOptions {
+  baseURL?: string
+  headers?: Headers
   timeout?: number
   responseHandle?: (response: unknown) => unknown
   cache?: {
@@ -45,20 +47,18 @@ export interface CreateCRUDOptions {
   }
   errorReport?: (err: Error) => void
   loadingDelay?: number
-  debounceTime?: number
   overlayImplement?: OverlayImplement
 }
 export type MethodType = (Method & ('cache' | 'CACHE')) | string
-export type ContentType = 'formUrlEncode' | 'json' | 'formData' | string
+export type ContentType = 'urlEncode' | 'json' | 'formData' | string
 
 export interface RequestOptions<T, TStart = any> {
-  url: string
-  params?: T | ((param?: TStart) => T)
+  url?: string
+  // WTF https://github.com/microsoft/TypeScript/issues/37663
+  params?: T extends any ? T | ((param?: TStart) => T) : never
   method: MethodType
   contentType: ContentType
-  headers?:
-  | Record<string, string | number | boolean>
-  | ((param?: TStart) => Record<string, string | number | boolean>)
+  headers?: Headers
   timeout?: number
   responseType?: ResponseType
   // axiosConfig?: AxiosRequestConfig // todo do we need this?
@@ -66,20 +66,30 @@ export interface RequestOptions<T, TStart = any> {
 
 export interface CRUDInput<TI, TO, TStart = any>
   extends RequestOptions<TI, TStart> {
-  promise?: Promise<TO> | Array<Promise<unknown>>
+  /*
+   * request(s) promise function
+   * */
+  api?: Promise<TO> | Array<Promise<unknown>>
   /*
    * if start when create
    * default: false
    * */
   immediate?: boolean
   /*
+   * will set to data before request response
+   * default: null
+   * */
+  initialData?: TO
+  /*
    * accept first or last
    * default: first
    * */
   debounce?: 'first' | 'last'
+  /*
+   * only effect when debounce is last
+   * default: 500
+   * */
   debounceTime?: number
-  initialData?: TO
-  // toRef?: boolean
   confirmOverlay?:
   | string
   | ((param?: TStart) => VNodeChild)

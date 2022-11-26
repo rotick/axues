@@ -1,8 +1,10 @@
 import { ref } from 'vue'
 import axios from 'axios'
+import { mergeHeaders, transformParams } from './util'
 import type { App } from 'vue'
 import type { AxiosResponse } from 'axios'
-import { CreateCRUDOptions, OverlayImplement } from './types'
+import type { CreateCRUDOptions, OverlayImplement } from './types'
+import { CRUDInput } from './types'
 
 export const key = Symbol('')
 
@@ -14,8 +16,7 @@ export function createCRUD (options: CreateCRUDOptions) {
     responseHandle,
     cache,
     errorReport,
-    loadingDelay = 300,
-    debounceTime = 500
+    loadingDelay = 300
   } = options
 
   function request ({
@@ -25,19 +26,15 @@ export function createCRUD (options: CreateCRUDOptions) {
     contentType = '',
     headers,
     timeout,
-    responseType
+    responseType = 'json'
   }: any) {
     return new Promise((resolve, reject) => {
       axios({
         baseURL,
         url,
-        data: params,
+        data: transformParams(params, contentType),
         method,
-        headers: {
-          ...baseHeaders,
-          ...headers,
-          'Content-Type': contentType
-        },
+        headers: mergeHeaders(baseHeaders, headers, contentType),
         responseType,
         timeout: timeout || baseTimeout
       })
@@ -55,7 +52,27 @@ export function createCRUD (options: CreateCRUDOptions) {
 
   function overlayImplement (options: OverlayImplement) {}
 
-  function CRUD () {
+  function CRUD<TI, TO, TStart> ({
+    url = '',
+    params,
+    method = 'get',
+    contentType = '',
+    headers,
+    timeout,
+    responseType = 'json',
+    api,
+    immediate = false,
+    initialData = null as TO,
+    debounce = 'first',
+    debounceTime = 500,
+    confirmOverlay,
+    loadingOverlay,
+    successOverlay,
+    errorOverlay,
+    onData,
+    onSuccess,
+    onError
+  }: CRUDInput<TI, TO, TStart>) {
     const pending = ref(false)
     const loading = ref(false)
     const success = ref(false)
@@ -68,28 +85,36 @@ export function createCRUD (options: CreateCRUDOptions) {
       const loadingTimer = setTimeout(() => {
         loading.value = true
       }, loadingDelay)
+
+      const requestOptions = {
+        url,
+        params: typeof params === 'function' ? params(param) : params,
+        method,
+        contentType,
+        headers,
+        timeout,
+        responseType
+      }
+
       if (cache?.instance) {
         console.log('cache')
         console.log(debounceTime)
       }
-      request({
-        timeout: baseTimeout,
-        method: 'get',
-        url: '',
-        params: {},
-        headers: {},
-        responseHandle
-      })
+      request(requestOptions)
         .then(res => {})
         .catch((err: Error) => {
           errorReport?.(err)
         })
         .finally(() => {
+          pending.value = false
+          loading.value = false
+          refreshing.value = false
           clearTimeout(loadingTimer)
         })
     }
     const refresh = (param: any) => {
       refreshing.value = true
+      start(param)
     }
     return {
       pending,
