@@ -20,13 +20,13 @@ export interface SuccessOrErrorOverlayType {
   style?: number
   title: string | (() => VNodeChild)
   content?: string | (() => VNodeChild)
-  callback?: (act: any) => void
+  callback?: (act?: any) => void
 }
 export interface OverlayImplement {
   loadingOpen?: (options: LoadingOverlayType) => void
   loadingClose?: () => void
   success?: (options: SuccessOrErrorOverlayType) => void
-  error?: (options: SuccessOrErrorOverlayType, err: Error) => void
+  error?: (options: SuccessOrErrorOverlayType) => void
   confirm?: (options: ConfirmOverlayType) => Promise<unknown>
 }
 

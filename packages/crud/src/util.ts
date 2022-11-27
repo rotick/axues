@@ -2,9 +2,12 @@ import {
   ConfirmOverlayOptions,
   ConfirmOverlayType,
   ContentType,
+  ErrorOverlayOptions,
   Headers,
   LoadingOverlayOptions,
-  LoadingOverlayType
+  LoadingOverlayType,
+  SuccessOrErrorOverlayType,
+  SuccessOverlayOptions
 } from './types'
 
 function transformContentType (ct: ContentType) {
@@ -72,6 +75,50 @@ export function transformLoadingOptions<T> (
     opt.text = options
   } else if (typeof options === 'function') {
     opt.text = () => options(param)
+  } else {
+    opt = options
+  }
+
+  return opt
+}
+
+export function transformSuccessOptions<TStart, TO> (
+  options: SuccessOverlayOptions<TStart, TO>,
+  param?: TStart,
+  data?: TO
+): SuccessOrErrorOverlayType {
+  let opt: SuccessOrErrorOverlayType = {
+    style: 1,
+    title: '',
+    content: '',
+    callback: undefined
+  }
+  if (typeof options === 'string') {
+    opt.title = options
+  } else if (typeof options === 'function') {
+    opt.title = () => options(param, data)
+  } else {
+    opt = options
+  }
+
+  return opt
+}
+
+export function transformErrorOptions<TStart> (
+  options: ErrorOverlayOptions<TStart>,
+  param?: TStart,
+  err?: Error
+): SuccessOrErrorOverlayType {
+  let opt: SuccessOrErrorOverlayType = {
+    style: 1,
+    title: '',
+    content: '',
+    callback: undefined
+  }
+  if (typeof options === 'string') {
+    opt.title = options
+  } else if (typeof options === 'function') {
+    opt.title = () => options(param, err)
   } else {
     opt = options
   }

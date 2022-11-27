@@ -3,8 +3,10 @@ import axios from 'axios'
 import {
   mergeHeaders,
   transformConfirmOptions,
+  transformErrorOptions,
   transformLoadingOptions,
-  transformParams
+  transformParams,
+  transformSuccessOptions
 } from './util'
 import type { App, Ref } from 'vue'
 import type { AxiosResponse } from 'axios'
@@ -136,9 +138,23 @@ export function createCRUD ({
           onData(data, res)
           success.value = true
           onSuccess?.(data.value)
+          if (successOverlay) {
+            overlayInstance?.success?.(
+              transformSuccessOptions<TStart, TO>(
+                successOverlay,
+                param,
+                data.value
+              )
+            )
+          }
         })
         .catch((err: Error) => {
           onError?.(err)
+          if (errorOverlay) {
+            overlayInstance?.error?.(
+              transformErrorOptions<TStart>(errorOverlay, param, err)
+            )
+          }
           errorReport?.(err)
         })
         .finally(() => {
