@@ -126,7 +126,7 @@ export function createCRUD ({
       let requestApi = request(options || requestOptions)
 
       if (api && Array.isArray(api)) {
-        Promise.all(api)
+        requestApi = Promise.all(api)
       } else if (api) {
         requestApi = api
       }
