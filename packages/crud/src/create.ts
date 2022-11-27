@@ -1,25 +1,29 @@
 import { ref } from 'vue'
 import axios from 'axios'
-import { mergeHeaders, transformParams } from './util'
-import type { App } from 'vue'
+import {
+  mergeHeaders,
+  transformConfirmOptions,
+  transformLoadingOptions,
+  transformParams
+} from './util'
+import type { App, Ref } from 'vue'
 import type { AxiosResponse } from 'axios'
 import type { CreateCRUDOptions, OverlayImplement } from './types'
 import { CRUDInput } from './types'
 
 export const key = Symbol('')
 
-export function createCRUD (options: CreateCRUDOptions) {
-  const {
-    baseURL = '',
-    headers: baseHeaders,
-    timeout: baseTimeout = 0,
-    responseHandle,
-    cache,
-    errorReport,
-    loadingDelay = 300
-  } = options
-
-  function request ({
+export function createCRUD ({
+  baseURL = '',
+  headers: baseHeaders,
+  timeout: baseTimeout = 0,
+  responseHandle,
+  cache,
+  errorReport,
+  loadingDelay = 300,
+  overlayImplement: baseOverlayImplement
+}: CreateCRUDOptions) {
+  const request = ({
     url = '',
     params = {},
     method = 'get',
@@ -27,7 +31,7 @@ export function createCRUD (options: CreateCRUDOptions) {
     headers,
     timeout,
     responseType = 'json'
-  }: any) {
+  }: any) => {
     return new Promise((resolve, reject) => {
       axios({
         baseURL,
@@ -49,10 +53,12 @@ export function createCRUD (options: CreateCRUDOptions) {
         .catch(reject)
     })
   }
+  let overlayInstance: OverlayImplement | undefined = baseOverlayImplement
+  const overlayImplement = (options: OverlayImplement) => {
+    overlayInstance = options
+  }
 
-  function overlayImplement (options: OverlayImplement) {}
-
-  function CRUD<TI, TO, TStart> ({
+  const CRUD = <TI, TO, TStart>({
     url = '',
     params,
     method = 'get',
@@ -69,40 +75,70 @@ export function createCRUD (options: CreateCRUDOptions) {
     loadingOverlay,
     successOverlay,
     errorOverlay,
-    onData,
+    onData = (data, newData) => {
+      data.value = newData as TO
+    },
     onSuccess,
     onError
-  }: CRUDInput<TI, TO, TStart>) {
+  }: CRUDInput<TI, TO, TStart>) => {
     const pending = ref(false)
     const loading = ref(false)
     const success = ref(false)
     const error = ref<Error | null>(null)
     const refreshing = ref(false)
-    const data = ref(null)
+    const data = ref(initialData) as Ref<TO>
 
-    const start = (param: any) => {
-      pending.value = true
-      const loadingTimer = setTimeout(() => {
-        loading.value = true
-      }, loadingDelay)
-
-      const requestOptions = {
+    let requestTimes = 0
+    let initialRequestOptions: any = null
+    const getRequestOptions = (param?: TStart) => {
+      const opt = {
         url,
         params: typeof params === 'function' ? params(param) : params,
         method,
         contentType,
-        headers,
+        headers: mergeHeaders(baseHeaders, headers, contentType),
         timeout,
         responseType
       }
+      if (requestTimes === 0) {
+        initialRequestOptions = opt
+      }
+      return opt
+    }
+
+    const run = (param?: TStart, options?: any) => {
+      pending.value = true
+      const loadingTimer = setTimeout(() => {
+        loading.value = true
+        if (loadingOverlay) {
+          overlayInstance?.loadingOpen?.(
+            transformLoadingOptions<TStart>(loadingOverlay, param)
+          )
+        }
+      }, loadingDelay)
+
+      const requestOptions = getRequestOptions(param)
+      requestTimes++
 
       if (cache?.instance) {
         console.log('cache')
-        console.log(debounceTime)
       }
-      request(requestOptions)
-        .then(res => {})
+      let requestApi = request(options || requestOptions)
+
+      if (api && Array.isArray(api)) {
+        Promise.all(api)
+      } else if (api) {
+        requestApi = api
+      }
+
+      requestApi
+        .then((res: unknown) => {
+          onData(data, res)
+          success.value = true
+          onSuccess?.(data.value)
+        })
         .catch((err: Error) => {
+          onError?.(err)
           errorReport?.(err)
         })
         .finally(() => {
@@ -112,10 +148,26 @@ export function createCRUD (options: CreateCRUDOptions) {
           clearTimeout(loadingTimer)
         })
     }
-    const refresh = (param: any) => {
+
+    const refresh = (param?: TStart) => {
       refreshing.value = true
-      start(param)
+      run(param, initialRequestOptions)
     }
+
+    const start = (param?: TStart) => {
+      if (confirmOverlay) {
+        overlayInstance
+          ?.confirm?.(transformConfirmOptions<TStart>(confirmOverlay, param))
+          .then(() => {
+            run(param)
+          })
+      } else {
+        run(param)
+      }
+    }
+
+    if (immediate) start()
+
     return {
       pending,
       loading,
@@ -129,7 +181,6 @@ export function createCRUD (options: CreateCRUDOptions) {
   }
   return {
     request,
-    overlayImplement,
     CRUD,
     install (app: App) {
       app.provide(key, {

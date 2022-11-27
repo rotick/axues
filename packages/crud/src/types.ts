@@ -23,11 +23,11 @@ export interface SuccessOrErrorOverlayType {
   callback?: (act: any) => void
 }
 export interface OverlayImplement {
-  loadingOpen: (options: LoadingOverlayType) => void
-  loadingClose: () => void
-  success: (options: SuccessOrErrorOverlayType) => void
-  error: (options: SuccessOrErrorOverlayType, err: Error) => void
-  confirm: (options: ConfirmOverlayType) => Promise<boolean>
+  loadingOpen?: (options: LoadingOverlayType) => void
+  loadingClose?: () => void
+  success?: (options: SuccessOrErrorOverlayType) => void
+  error?: (options: SuccessOrErrorOverlayType, err: Error) => void
+  confirm?: (options: ConfirmOverlayType) => Promise<unknown>
 }
 
 export type Headers =
@@ -64,6 +64,24 @@ export interface RequestOptions<T, TStart = any> {
   // axiosConfig?: AxiosRequestConfig // todo do we need this?
 }
 
+export type ConfirmOverlayOptions<T> =
+  | string
+  | ((param?: T) => VNodeChild)
+  | ConfirmOverlayType
+export type LoadingOverlayOptions<T> =
+  | boolean
+  | string
+  | ((param?: T) => VNodeChild)
+  | LoadingOverlayType
+export type SuccessOverlayOptions<TStart, TO> =
+  | string
+  | ((param?: TStart, data?: TO) => VNodeChild)
+  | SuccessOrErrorOverlayType
+export type ErrorOverlayOptions<T> =
+  | string
+  | ((param?: T, err?: Error) => VNodeChild)
+  | SuccessOrErrorOverlayType
+
 export interface CRUDInput<TI, TO, TStart = any>
   extends RequestOptions<TI, TStart> {
   /*
@@ -90,23 +108,10 @@ export interface CRUDInput<TI, TO, TStart = any>
    * default: 500
    * */
   debounceTime?: number
-  confirmOverlay?:
-  | string
-  | ((param?: TStart) => VNodeChild)
-  | ConfirmOverlayType
-  loadingOverlay?:
-  | boolean
-  | string
-  | ((param: TStart) => VNodeChild)
-  | LoadingOverlayType
-  successOverlay?:
-  | string
-  | ((param: TStart, data: TO) => VNodeChild)
-  | SuccessOrErrorOverlayType
-  errorOverlay?:
-  | string
-  | ((param: TStart, err: Error) => VNodeChild)
-  | SuccessOrErrorOverlayType
+  confirmOverlay?: ConfirmOverlayOptions<TStart>
+  loadingOverlay?: LoadingOverlayOptions<TStart>
+  successOverlay?: SuccessOverlayOptions<TStart, TO>
+  errorOverlay?: ErrorOverlayOptions<TStart>
   onData?: (data: Ref<TO>, newData: unknown | unknown[]) => void
   onSuccess?: (data: TO) => void
   onError?: (e: Error) => void
@@ -120,8 +125,8 @@ export interface CRUDOutput<T, TStart = any> {
   // noData: boolean
   // permissionDenied: boolean
   data: T
-  start: (param: TStart) => void
-  refresh: (param: TStart) => void
+  start: (param?: TStart) => void
+  refresh: (param?: TStart) => void
 }
 export type IO = (i: CRUDInput<any, any, any>) => CRUDOutput<any, any>
 
