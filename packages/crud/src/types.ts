@@ -99,12 +99,12 @@ export interface CRUDInput<TI, TO, TStart = any>
    * */
   initialData?: TO
   /*
-   * accept first or last
-   * default: first
+   * only accept first or last time
+   * default: firstOnly
    * */
-  debounce?: 'first' | 'last'
+  debounceMode?: 'firstOnly' | 'lastOnly' | 'none'
   /*
-   * only effect when debounce is last
+   * only effect when debounceMode is lastOnly
    * default: 500
    * */
   debounceTime?: number

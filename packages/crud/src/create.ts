@@ -8,6 +8,7 @@ import {
   transformParams,
   transformSuccessOptions
 } from './util'
+import { debounce } from './debounce'
 import type { App, Ref } from 'vue'
 import type { AxiosResponse } from 'axios'
 import type { CreateCRUDOptions, OverlayImplement } from './types'
@@ -71,7 +72,7 @@ export function createCRUD ({
     api,
     immediate = false,
     initialData = null as TO,
-    debounce = 'first',
+    debounceMode = 'firstOnly',
     debounceTime = 500,
     confirmOverlay,
     loadingOverlay,
@@ -162,12 +163,26 @@ export function createCRUD ({
           loading.value = false
           refreshing.value = false
           clearTimeout(loadingTimer)
+          if (loadingOverlay) {
+            overlayInstance?.loadingClose?.()
+          }
         })
+    }
+
+    const debounceHandle = () => {
+      if (!pending.value && debounceMode === 'firstOnly') {
+        return run
+      }
+      if (debounceMode === 'lastOnly') {
+        // todo pending state and return order will be confusion?
+        return debounce(run, debounceTime)
+      }
+      if (debounceMode === 'none') return run
     }
 
     const refresh = (param?: TStart) => {
       refreshing.value = true
-      run(param, initialRequestOptions)
+      debounceHandle()?.(param, initialRequestOptions)
     }
 
     const start = (param?: TStart) => {
@@ -175,10 +190,10 @@ export function createCRUD ({
         overlayInstance
           ?.confirm?.(transformConfirmOptions<TStart>(confirmOverlay, param))
           .then(() => {
-            run(param)
+            debounceHandle()?.(param)
           })
       } else {
-        run(param)
+        debounceHandle()?.(param)
       }
     }
 
