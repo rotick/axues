@@ -89,9 +89,9 @@ export function createCRUD ({
     const success = ref(false)
     const error = ref<Error | null>(null)
     const refreshing = ref(false)
+    const requestTime = ref(0)
     const data = ref(initialData) as Ref<TO>
 
-    let requestTimes = 0
     let initialRequestOptions: any = null
     const getRequestOptions = (param?: TStart) => {
       const opt = {
@@ -103,13 +103,18 @@ export function createCRUD ({
         timeout,
         responseType
       }
-      if (requestTimes === 0) {
-        initialRequestOptions = opt
+      if (requestTime.value === 0) {
+        if (initialRequestOptions) {
+          return initialRequestOptions
+        } else {
+          initialRequestOptions = Object.assign({}, opt)
+        }
       }
       return opt
     }
 
-    const run = (param?: TStart, options?: any) => {
+    const run = (param?: TStart) => {
+      // todo first in first out
       pending.value = true
       const loadingTimer = setTimeout(() => {
         loading.value = true
@@ -121,17 +126,16 @@ export function createCRUD ({
       }, loadingDelay)
 
       const requestOptions = getRequestOptions(param)
-      requestTimes++
+      requestTime.value++
 
       if (cache?.instance) {
+        // todo
         console.log('cache')
       }
-      let requestApi = request(options || requestOptions)
 
-      if (api && Array.isArray(api)) {
-        requestApi = Promise.all(api)
-      } else if (api) {
-        requestApi = api
+      let requestApi = request(requestOptions)
+      if (api) {
+        requestApi = Array.isArray(api) ? Promise.all(api) : api
       }
 
       requestApi
@@ -174,15 +178,15 @@ export function createCRUD ({
         return run
       }
       if (debounceMode === 'lastOnly') {
-        // todo pending state and return order will be confusion?
         return debounce(run, debounceTime)
       }
       if (debounceMode === 'none') return run
     }
 
     const refresh = (param?: TStart) => {
+      requestTime.value = 0
       refreshing.value = true
-      debounceHandle()?.(param, initialRequestOptions)
+      debounceHandle()?.(param)
     }
 
     const start = (param?: TStart) => {

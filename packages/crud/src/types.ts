@@ -122,7 +122,8 @@ export interface CRUDOutput<T, TStart = any> {
   success: boolean
   error: Error | null
   refreshing: boolean
-  // noData: boolean
+  requestTime: number
+  // noData: boolean // todo extend in create
   // permissionDenied: boolean
   data: T
   start: (param?: TStart) => void
