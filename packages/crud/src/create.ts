@@ -92,7 +92,9 @@ export function createCRUD ({
     const requestTime = ref(0)
     const data = ref(initialData) as Ref<TO>
 
+    let responseTime = 0
     let initialRequestOptions: any = null
+    let loadingTimer: ReturnType<typeof setTimeout>
     const getRequestOptions = (param?: TStart) => {
       const opt = {
         url,
@@ -114,9 +116,9 @@ export function createCRUD ({
     }
 
     const run = (param?: TStart) => {
-      // todo first in first out
       pending.value = true
-      const loadingTimer = setTimeout(() => {
+      clearTimeout(loadingTimer)
+      loadingTimer = setTimeout(() => {
         loading.value = true
         if (loadingOverlay) {
           overlayInstance?.loadingOpen?.(
@@ -125,22 +127,24 @@ export function createCRUD ({
         }
       }, loadingDelay)
 
-      const requestOptions = getRequestOptions(param)
-      requestTime.value++
-
       if (cache?.instance) {
         // todo
         console.log('cache')
       }
 
-      let requestApi = request(requestOptions)
+      let requestApi
       if (api) {
         requestApi = Array.isArray(api) ? Promise.all(api) : api
+      } else {
+        requestApi = request(getRequestOptions(param))
       }
 
+      requestTime.value++
       requestApi
         .then((res: unknown) => {
-          onData(data, res)
+          responseTime++
+          if (responseTime !== requestTime.value) return
+          onData(data, res as TO)
           success.value = true
           onSuccess?.(data.value)
           if (successOverlay) {
@@ -154,6 +158,9 @@ export function createCRUD ({
           }
         })
         .catch((err: Error) => {
+          responseTime++
+          if (responseTime !== requestTime.value) return
+          error.value = err
           onError?.(err)
           if (errorOverlay) {
             overlayInstance?.error?.(
@@ -163,6 +170,7 @@ export function createCRUD ({
           errorReport?.(err)
         })
         .finally(() => {
+          if (responseTime !== requestTime.value) return
           pending.value = false
           loading.value = false
           refreshing.value = false
@@ -209,6 +217,7 @@ export function createCRUD ({
       success,
       error,
       refreshing,
+      requestTime,
       data,
       start,
       refresh
