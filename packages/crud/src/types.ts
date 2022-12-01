@@ -108,6 +108,9 @@ export interface CRUDInput<TI, TO, TStart = any>
    * default: 500
    * */
   debounceTime?: number
+  retryTime: number
+  retryFreq: number
+  cacheKey: string
   confirmOverlay?: ConfirmOverlayOptions<TStart>
   loadingOverlay?: LoadingOverlayOptions<TStart>
   successOverlay?: SuccessOverlayOptions<TStart, TO>
@@ -127,7 +130,8 @@ export interface CRUDOutput<T, TStart = any> {
   // permissionDenied: boolean
   data: T
   start: (param?: TStart) => void
-  refresh: (param?: TStart) => void
+  refresh: () => void
+  clearCache: () => void
 }
 export type IO = (i: CRUDInput<any, any, any>) => CRUDOutput<any, any>
 

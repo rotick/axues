@@ -78,9 +78,7 @@ export function createCRUD ({
     loadingOverlay,
     successOverlay,
     errorOverlay,
-    onData = (data, newData) => {
-      data.value = newData as TO
-    },
+    onData,
     onSuccess,
     onError
   }: CRUDInput<TI, TO, TStart>) => {
@@ -93,27 +91,17 @@ export function createCRUD ({
     const data = ref(initialData) as Ref<TO>
 
     let responseTime = 0
-    let initialRequestOptions: any = null
     let loadingTimer: ReturnType<typeof setTimeout>
-    const getRequestOptions = (param?: TStart) => {
-      const opt = {
-        url,
-        params: typeof params === 'function' ? params(param) : params,
-        method,
-        contentType,
-        headers: mergeHeaders(baseHeaders, headers, contentType),
-        timeout,
-        responseType
-      }
-      if (requestTime.value === 0) {
-        if (initialRequestOptions) {
-          return initialRequestOptions
-        } else {
-          initialRequestOptions = Object.assign({}, opt)
-        }
-      }
-      return opt
-    }
+    const getRequestOptions = (startParam?: TStart) => ({
+      url,
+      params: typeof params === 'function' ? params(startParam) : params,
+      method,
+      contentType,
+      // todo
+      headers: mergeHeaders(baseHeaders, headers, contentType),
+      timeout,
+      responseType
+    })
 
     const run = (param?: TStart) => {
       pending.value = true
@@ -144,7 +132,11 @@ export function createCRUD ({
         .then((res: unknown) => {
           responseTime++
           if (responseTime !== requestTime.value) return
-          onData(data, res as TO)
+          if (onData) {
+            onData(data, res as TO)
+          } else {
+            data.value = res as TO
+          }
           success.value = true
           onSuccess?.(data.value)
           if (successOverlay) {
@@ -191,13 +183,17 @@ export function createCRUD ({
       if (debounceMode === 'none') return run
     }
 
-    const refresh = (param?: TStart) => {
+    let initialParam: TStart
+    const refresh = () => {
       requestTime.value = 0
       refreshing.value = true
-      debounceHandle()?.(param)
+      debounceHandle()?.(initialParam)
     }
 
     const start = (param?: TStart) => {
+      if (requestTime.value === 0 && param) {
+        initialParam = param
+      }
       if (confirmOverlay) {
         overlayInstance
           ?.confirm?.(transformConfirmOptions<TStart>(confirmOverlay, param))
