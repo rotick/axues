@@ -1,9 +1,10 @@
 import type { Method, ResponseType } from 'axios'
 import type { Ref, VNodeChild } from 'vue'
 
-interface CacheInsMethods {
+interface CacheInstance {
   get: (key: string) => unknown
   set: (key: string, value: unknown) => void
+  delete: (key: string) => void
 }
 // overlay UI types
 export interface ConfirmOverlayType {
@@ -39,15 +40,12 @@ export interface CreateCRUDOptions {
   headers?: Headers
   timeout?: number
   responseHandle?: (response: unknown) => unknown
-  cache?: {
-    // ssr only
-    instance: CacheInsMethods
-    keySuffix: string
-    canCache: (data: any) => boolean
-  }
+  cache?: CacheInstance
+  howToRemember?: 'memory' | 'sessionStorage' | 'localStorage'
   errorReport?: (err: Error) => void
   loadingDelay?: number
   overlayImplement?: OverlayImplement
+  optionsValidation?: any // todo validation useCRUD options
 }
 export type MethodType = (Method & ('cache' | 'CACHE')) | string
 export type ContentType = 'urlEncode' | 'json' | 'formData' | string
@@ -61,7 +59,7 @@ export interface RequestOptions<T, TStart = any> {
   headers?: Headers
   timeout?: number
   responseType?: ResponseType
-  // axiosConfig?: AxiosRequestConfig // todo do we need this?
+  // axiosConfig?: AxiosRequestConfig // todo do we need this? axios.config maybe better
 }
 
 export type ConfirmOverlayOptions<T> =
@@ -108,9 +106,13 @@ export interface CRUDInput<TI, TO, TStart = any>
    * default: 500
    * */
   debounceTime?: number
-  retryTime: number
-  retryFreq: number
-  cacheKey: string
+  maxRetryTimes?: number // todo
+  retryInterval?: number // todo
+  throwErrorBeforeRetry?: boolean
+  cacheKey?: string | ((param?: TStart) => string)
+  // https://router.vuejs.org/zh/guide/advanced/scroll-behavior.html#%E5%BB%B6%E8%BF%9F%E6%BB%9A%E5%8A%A8
+  remember?: boolean // todo restore all data when recreate, e.g. pagination list go detail then back
+  rememberPayload?: any // todo is this a good idea?
   confirmOverlay?: ConfirmOverlayOptions<TStart>
   loadingOverlay?: LoadingOverlayOptions<TStart>
   successOverlay?: SuccessOverlayOptions<TStart, TO>
@@ -125,13 +127,14 @@ export interface CRUDOutput<T, TStart = any> {
   success: boolean
   error: Error | null
   refreshing: boolean
-  requestTime: number
+  retrying: boolean
+  requestTimes: number
   // noData: boolean // todo extend in create
   // permissionDenied: boolean
   data: T
   start: (param?: TStart) => void
   refresh: () => void
-  clearCache: () => void
+  deleteCache: (param?: TStart) => void
 }
 export type IO = (i: CRUDInput<any, any, any>) => CRUDOutput<any, any>
 

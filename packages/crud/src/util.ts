@@ -23,7 +23,8 @@ export function transformParams (
   params: Record<string, any>,
   contentType: ContentType
 ) {
-  return contentType === 'application/x-www-form-urlencoded'
+  return transformContentType(contentType) ===
+    'application/x-www-form-urlencoded'
     ? new URLSearchParams(params as URLSearchParams)
     : params
 }
@@ -124,4 +125,11 @@ export function transformErrorOptions<TStart> (
   }
 
   return opt
+}
+
+export function getCacheKey<T> (
+  cacheKey?: string | ((param?: T) => string),
+  param?: T
+) {
+  return typeof cacheKey === 'function' ? cacheKey(param) : cacheKey
 }

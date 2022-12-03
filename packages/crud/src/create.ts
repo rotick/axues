@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import axios from 'axios'
 import {
+  getCacheKey,
   mergeHeaders,
   transformConfirmOptions,
   transformErrorOptions,
@@ -35,6 +36,7 @@ export function createCRUD ({
     timeout,
     responseType = 'json'
   }: any) => {
+    // todo any type
     return new Promise((resolve, reject) => {
       axios({
         baseURL,
@@ -74,6 +76,9 @@ export function createCRUD ({
     initialData = null as TO,
     debounceMode = 'firstOnly',
     debounceTime = 500,
+    maxRetryTimes = 0,
+    retryInterval = 500,
+    cacheKey,
     confirmOverlay,
     loadingOverlay,
     successOverlay,
@@ -87,21 +92,11 @@ export function createCRUD ({
     const success = ref(false)
     const error = ref<Error | null>(null)
     const refreshing = ref(false)
-    const requestTime = ref(0)
+    const requestTimes = ref(0)
     const data = ref(initialData) as Ref<TO>
 
-    let responseTime = 0
+    let responseTimes = 0
     let loadingTimer: ReturnType<typeof setTimeout>
-    const getRequestOptions = (startParam?: TStart) => ({
-      url,
-      params: typeof params === 'function' ? params(startParam) : params,
-      method,
-      contentType,
-      // todo
-      headers: mergeHeaders(baseHeaders, headers, contentType),
-      timeout,
-      responseType
-    })
 
     const run = (param?: TStart) => {
       pending.value = true
@@ -115,43 +110,69 @@ export function createCRUD ({
         }
       }, loadingDelay)
 
-      if (cache?.instance) {
-        // todo
-        console.log('cache')
+      const successLogic = (res: TO) => {
+        if (onData) {
+          onData(data, res)
+        } else {
+          data.value = res
+        }
+        success.value = true
+        onSuccess?.(data.value)
+        if (successOverlay) {
+          overlayInstance?.success?.(
+            transformSuccessOptions<TStart, TO>(
+              successOverlay,
+              param,
+              data.value
+            )
+          )
+        }
+      }
+
+      const finallyLogic = () => {
+        pending.value = false
+        loading.value = false
+        refreshing.value = false
+        clearTimeout(loadingTimer)
+        if (loadingOverlay) {
+          overlayInstance?.loadingClose?.()
+        }
+      }
+
+      const realCacheKey = getCacheKey<TStart>(cacheKey, param)
+      if (realCacheKey && cache?.get(realCacheKey)) {
+        successLogic(cache.get(realCacheKey) as TO)
+        finallyLogic()
+        return
       }
 
       let requestApi
       if (api) {
         requestApi = Array.isArray(api) ? Promise.all(api) : api
       } else {
-        requestApi = request(getRequestOptions(param))
+        requestApi = request({
+          url,
+          params: typeof params === 'function' ? params(param) : params,
+          method,
+          contentType,
+          headers,
+          timeout,
+          responseType
+        })
       }
 
-      requestTime.value++
+      requestTimes.value++
       requestApi
         .then((res: unknown) => {
-          responseTime++
-          if (responseTime !== requestTime.value) return
-          if (onData) {
-            onData(data, res as TO)
-          } else {
-            data.value = res as TO
-          }
-          success.value = true
-          onSuccess?.(data.value)
-          if (successOverlay) {
-            overlayInstance?.success?.(
-              transformSuccessOptions<TStart, TO>(
-                successOverlay,
-                param,
-                data.value
-              )
-            )
-          }
+          // only accept last response
+          responseTimes++
+          if (responseTimes !== requestTimes.value) return
+          successLogic(res as TO)
+          realCacheKey && cache?.set(realCacheKey, res)
         })
         .catch((err: Error) => {
-          responseTime++
-          if (responseTime !== requestTime.value) return
+          responseTimes++
+          if (responseTimes !== requestTimes.value) return
           error.value = err
           onError?.(err)
           if (errorOverlay) {
@@ -159,17 +180,10 @@ export function createCRUD ({
               transformErrorOptions<TStart>(errorOverlay, param, err)
             )
           }
-          errorReport?.(err)
+          errorReport?.(err) // todo report more info
         })
         .finally(() => {
-          if (responseTime !== requestTime.value) return
-          pending.value = false
-          loading.value = false
-          refreshing.value = false
-          clearTimeout(loadingTimer)
-          if (loadingOverlay) {
-            overlayInstance?.loadingClose?.()
-          }
+          if (responseTimes === requestTimes.value) finallyLogic()
         })
     }
 
@@ -185,13 +199,14 @@ export function createCRUD ({
 
     let initialParam: TStart
     const refresh = () => {
-      requestTime.value = 0
+      data.value = initialData
+      requestTimes.value = 0
       refreshing.value = true
       debounceHandle()?.(initialParam)
     }
 
     const start = (param?: TStart) => {
-      if (requestTime.value === 0 && param) {
+      if (requestTimes.value === 0 && param) {
         initialParam = param
       }
       if (confirmOverlay) {
@@ -205,6 +220,11 @@ export function createCRUD ({
       }
     }
 
+    const deleteCache = (param?: TStart) => {
+      const realCacheKey = getCacheKey<TStart>(cacheKey, param)
+      realCacheKey && cache?.delete(realCacheKey)
+    }
+
     if (immediate) start()
 
     return {
@@ -213,10 +233,11 @@ export function createCRUD ({
       success,
       error,
       refreshing,
-      requestTime,
+      requestTimes,
       data,
       start,
-      refresh
+      refresh,
+      deleteCache
     }
   }
   return {
