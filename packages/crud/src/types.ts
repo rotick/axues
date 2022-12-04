@@ -59,7 +59,7 @@ export interface RequestOptions<T, TStart = any> {
   headers?: Headers
   timeout?: number
   responseType?: ResponseType
-  // axiosConfig?: AxiosRequestConfig // todo do we need this? axios.config maybe better
+  // axiosConfig?: AxiosRequestConfig // todo do we need this?
 }
 
 export type ConfirmOverlayOptions<T> =
@@ -106,9 +106,20 @@ export interface CRUDInput<TI, TO, TStart = any>
    * default: 500
    * */
   debounceTime?: number
-  maxRetryTimes?: number // todo
-  retryInterval?: number // todo
-  throwErrorBeforeRetry?: boolean
+  /*
+   * how many times to retry
+   * default: 0
+   * */
+  maxRetryTimes?: number
+  /*
+   * unit: second
+   * default: 2
+   * */
+  retryInterval?: number
+  /*
+   * when set cacheKey, the response will be cached
+   * default: undefined
+   * */
   cacheKey?: string | ((param?: TStart) => string)
   // https://router.vuejs.org/zh/guide/advanced/scroll-behavior.html#%E5%BB%B6%E8%BF%9F%E6%BB%9A%E5%8A%A8
   remember?: boolean // todo restore all data when recreate, e.g. pagination list go detail then back
@@ -128,6 +139,8 @@ export interface CRUDOutput<T, TStart = any> {
   error: Error | null
   refreshing: boolean
   retrying: boolean
+  retryTimes: number
+  retryCountdown: number // todo refresh when countdown
   requestTimes: number
   // noData: boolean // todo extend in create
   // permissionDenied: boolean

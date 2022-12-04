@@ -77,7 +77,7 @@ export function createCRUD ({
     debounceMode = 'firstOnly',
     debounceTime = 500,
     maxRetryTimes = 0,
-    retryInterval = 500,
+    retryInterval = 2,
     cacheKey,
     confirmOverlay,
     loadingOverlay,
@@ -93,14 +93,19 @@ export function createCRUD ({
     const error = ref<Error | null>(null)
     const refreshing = ref(false)
     const requestTimes = ref(0)
+    const retryTimes = ref(0)
+    const retrying = ref(false)
+    const retryCountdown = ref(0)
     const data = ref(initialData) as Ref<TO>
 
     let responseTimes = 0
     let loadingTimer: ReturnType<typeof setTimeout>
+    let retryTimer: ReturnType<typeof setInterval>
 
     const run = (param?: TStart) => {
       pending.value = true
       clearTimeout(loadingTimer)
+      clearInterval(retryTimer)
       loadingTimer = setTimeout(() => {
         loading.value = true
         if (loadingOverlay) {
@@ -116,7 +121,9 @@ export function createCRUD ({
         } else {
           data.value = res
         }
+        retryTimes.value = 0
         success.value = true
+        error.value = null
         onSuccess?.(data.value)
         if (successOverlay) {
           overlayInstance?.success?.(
@@ -133,6 +140,7 @@ export function createCRUD ({
         pending.value = false
         loading.value = false
         refreshing.value = false
+        retrying.value = false
         clearTimeout(loadingTimer)
         if (loadingOverlay) {
           overlayInstance?.loadingClose?.()
@@ -180,6 +188,21 @@ export function createCRUD ({
               transformErrorOptions<TStart>(errorOverlay, param, err)
             )
           }
+          if (maxRetryTimes > 0 && retryTimes.value < maxRetryTimes) {
+            // todo maybe can add a manual retry function?
+            retryTimes.value++
+            const retryTimeout = retryTimes.value * retryInterval
+            retryCountdown.value =
+              retryTimeout > 30 ? 30 : retryTimeout < 1 ? 1 : retryTimeout
+            retryTimer = setInterval(() => {
+              retryCountdown.value--
+              if (retryCountdown.value === 0) {
+                clearInterval(retryTimer)
+                retrying.value = true
+                run(param)
+              }
+            }, 1000)
+          }
           errorReport?.(err) // todo report more info
         })
         .finally(() => {
@@ -199,8 +222,10 @@ export function createCRUD ({
 
     let initialParam: TStart
     const refresh = () => {
-      data.value = initialData
+      // keep state when refresh
+      // data.value = initialData
       requestTimes.value = 0
+      retryTimes.value = 0
       refreshing.value = true
       debounceHandle()?.(initialParam)
     }
@@ -209,6 +234,7 @@ export function createCRUD ({
       if (requestTimes.value === 0 && param) {
         initialParam = param
       }
+      retryTimes.value = 0
       if (confirmOverlay) {
         overlayInstance
           ?.confirm?.(transformConfirmOptions<TStart>(confirmOverlay, param))
@@ -233,6 +259,9 @@ export function createCRUD ({
       success,
       error,
       refreshing,
+      retrying,
+      retryTimes,
+      retryCountdown,
       requestTimes,
       data,
       start,
