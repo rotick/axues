@@ -76,8 +76,8 @@ export function createCRUD ({
     initialData = null as TO,
     debounceMode = 'firstOnly',
     debounceTime = 500,
-    maxRetryTimes = 0,
-    retryInterval = 2,
+    autoRetryTimes = 0,
+    autoRetryInterval = 2,
     cacheKey,
     confirmOverlay,
     loadingOverlay,
@@ -188,10 +188,9 @@ export function createCRUD ({
               transformErrorOptions<TStart>(errorOverlay, param, err)
             )
           }
-          if (maxRetryTimes > 0 && retryTimes.value < maxRetryTimes) {
-            // todo maybe can add a manual retry function?
+          if (autoRetryTimes > 0 && retryTimes.value < autoRetryTimes) {
             retryTimes.value++
-            const retryTimeout = retryTimes.value * retryInterval
+            const retryTimeout = retryTimes.value * autoRetryInterval
             retryCountdown.value =
               retryTimeout > 30 ? 30 : retryTimeout < 1 ? 1 : retryTimeout
             retryTimer = setInterval(() => {
@@ -221,18 +220,36 @@ export function createCRUD ({
     }
 
     let initialParam: TStart
+    let lastParam: TStart
     const refresh = () => {
+      if (refreshing.value) return
       // keep state when refresh
       // data.value = initialData
       requestTimes.value = 0
+      responseTimes = 0
       retryTimes.value = 0
       refreshing.value = true
       debounceHandle()?.(initialParam)
     }
 
+    const retry = () => {
+      if (retrying.value) return
+      if (
+        (autoRetryTimes > 0 && retryTimes.value >= autoRetryTimes) ||
+        autoRetryTimes === 0
+      ) {
+        retryTimes.value++
+      }
+      retrying.value = true
+      debounceHandle()?.(lastParam)
+    }
+
     const start = (param?: TStart) => {
-      if (requestTimes.value === 0 && param) {
-        initialParam = param
+      if (param) {
+        if (requestTimes.value === 0) {
+          initialParam = param
+        }
+        lastParam = param
       }
       retryTimes.value = 0
       if (confirmOverlay) {
@@ -266,6 +283,7 @@ export function createCRUD ({
       data,
       start,
       refresh,
+      retry,
       deleteCache
     }
   }

@@ -107,15 +107,15 @@ export interface CRUDInput<TI, TO, TStart = any>
    * */
   debounceTime?: number
   /*
-   * how many times to retry
+   * how many times auto retry
    * default: 0
    * */
-  maxRetryTimes?: number
+  autoRetryTimes?: number
   /*
    * unit: second
    * default: 2
    * */
-  retryInterval?: number
+  autoRetryInterval?: number
   /*
    * when set cacheKey, the response will be cached
    * default: undefined
@@ -140,14 +140,15 @@ export interface CRUDOutput<T, TStart = any> {
   refreshing: boolean
   retrying: boolean
   retryTimes: number
-  retryCountdown: number // todo refresh when countdown
+  retryCountdown: number
   requestTimes: number
   // noData: boolean // todo extend in create
   // permissionDenied: boolean
   data: T
   start: (param?: TStart) => void
+  retry: () => void
   refresh: () => void
-  deleteCache: (param?: TStart) => void
+  deleteCache: (param?: TStart) => void // todo param is a bad idea
 }
 export type IO = (i: CRUDInput<any, any, any>) => CRUDOutput<any, any>
 
