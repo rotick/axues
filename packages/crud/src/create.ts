@@ -10,12 +10,18 @@ import {
   transformSuccessOptions
 } from './util'
 import { debounce } from './debounce'
-import type { App, Ref } from 'vue'
+import type { App, Ref, InjectionKey } from 'vue'
 import type { AxiosResponse } from 'axios'
-import type { CreateCRUDOptions, OverlayImplement } from './types'
-import { CRUDInput } from './types'
+import type {
+  CreateCRUDOptions,
+  OverlayImplement,
+  Provider,
+  CRUDInput,
+  CRUDOutput,
+  RequestType
+} from './types'
 
-export const key = Symbol('')
+export const key = Symbol('') as InjectionKey<Provider>
 
 export function createCRUD ({
   baseURL = '',
@@ -27,7 +33,7 @@ export function createCRUD ({
   loadingDelay = 300,
   overlayImplement: baseOverlayImplement
 }: CreateCRUDOptions) {
-  const request = ({
+  const request: RequestType = ({
     url = '',
     params = {},
     method = 'get',
@@ -35,13 +41,12 @@ export function createCRUD ({
     headers,
     timeout,
     responseType = 'json'
-  }: any) => {
-    // todo any type
+  }) => {
     return new Promise((resolve, reject) => {
       axios({
         baseURL,
         url,
-        data: transformParams(params, contentType),
+        data: transformParams(params as Record<any, any>, contentType),
         method,
         headers: mergeHeaders(baseHeaders, headers, contentType),
         responseType,
@@ -86,7 +91,7 @@ export function createCRUD ({
     onData,
     onSuccess,
     onError
-  }: CRUDInput<TI, TO, TStart>) => {
+  }: CRUDInput<TI, TO, TStart>): CRUDOutput<TO, TStart> => {
     const pending = ref(false)
     const loading = ref(false)
     const success = ref(false)

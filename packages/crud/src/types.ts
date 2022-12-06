@@ -133,23 +133,30 @@ export interface CRUDInput<TI, TO, TStart = any>
   onError?: (e: Error) => void
 }
 export interface CRUDOutput<T, TStart = any> {
-  pending: boolean
-  loading: boolean
-  success: boolean
-  error: Error | null
-  refreshing: boolean
-  retrying: boolean
-  retryTimes: number
-  retryCountdown: number
-  requestTimes: number
+  pending: Ref<boolean>
+  loading: Ref<boolean>
+  success: Ref<boolean>
+  error: Ref<Error | null>
+  refreshing: Ref<boolean>
+  retrying: Ref<boolean>
+  retryTimes: Ref<number>
+  retryCountdown: Ref<number>
+  requestTimes: Ref<number>
+  data: Ref<T>
   // noData: boolean // todo extend in create
   // permissionDenied: boolean
-  data: T
   start: (param?: TStart) => void
   retry: () => void
   refresh: () => void
-  deleteCache: (param?: TStart) => void // todo param is a bad idea
+  deleteCache: (param?: TStart) => void
 }
-export type IO = (i: CRUDInput<any, any, any>) => CRUDOutput<any, any>
 
-export type ImplementOverlay = (options: OverlayImplement) => void
+export type RequestType = <TI, TO>(options: RequestOptions<TI>) => Promise<TO>
+export type CRUDType = <TI, TO, TStart>(
+  options: CRUDInput<TI, TO, TStart>
+) => CRUDOutput<TO, TStart>
+export interface Provider {
+  request: RequestType
+  overlayImplement: (options: OverlayImplement) => void
+  CRUD: CRUDType
+}
