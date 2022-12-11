@@ -1,5 +1,10 @@
-import type { Method, ResponseType } from 'axios'
-import type { Ref, VNodeChild } from 'vue'
+import type {
+  AxiosInstance,
+  AxiosRequestConfig,
+  Method,
+  ResponseType
+} from 'axios'
+import type { Ref, VNodeChild, ComputedRef } from 'vue'
 
 interface CacheInstance {
   get: (key: string) => unknown
@@ -39,13 +44,13 @@ export interface CreateCRUDOptions {
   baseURL?: string
   headers?: Headers
   timeout?: number
+  axiosInstance?: AxiosInstance
+  requestConfig?: () => AxiosRequestConfig
   responseHandle?: (response: unknown) => unknown
   cache?: CacheInstance
-  howToRemember?: 'memory' | 'sessionStorage' | 'localStorage'
   errorReport?: (err: Error) => void
   loadingDelay?: number
   overlayImplement?: OverlayImplement
-  optionsValidation?: any // todo validation useCRUD options
 }
 export type MethodType = (Method & ('cache' | 'CACHE')) | string
 export type ContentType = 'urlEncode' | 'json' | 'formData' | string
@@ -121,9 +126,18 @@ export interface CRUDInput<TI, TO, TStart = any>
    * default: undefined
    * */
   cacheKey?: string | ((param?: TStart) => string)
-  // https://router.vuejs.org/zh/guide/advanced/scroll-behavior.html#%E5%BB%B6%E8%BF%9F%E6%BB%9A%E5%8A%A8
-  remember?: boolean // todo restore all data when recreate, e.g. pagination list go detail then back
-  rememberPayload?: any // todo is this a good idea?
+  /*
+   * store the data and payload when vue component is destroyed
+   * and restore it when recreate
+   * this feature can replace keep-alive
+   * default: false
+   * */
+  // storeDataOnDestroy?: boolean | {
+  //   storeData: boolean | (() => boolean)
+  //   storage?: 'memory' | 'sessionStorage' | 'localStorage'
+  //   payload?: () => JSON
+  //   onPayloadRestore?: (payload: JSON) => void
+  // } // todo is this a good idea?
   confirmOverlay?: ConfirmOverlayOptions<TStart>
   loadingOverlay?: LoadingOverlayOptions<TStart>
   successOverlay?: SuccessOverlayOptions<TStart, TO>
@@ -142,12 +156,13 @@ export interface CRUDOutput<T, TStart = any> {
   retryTimes: Ref<number>
   retryCountdown: Ref<number>
   requestTimes: Ref<number>
+  canAbort: ComputedRef<boolean>
+  aborted: Ref<boolean>
   data: Ref<T>
-  // noData: boolean // todo extend in create
-  // permissionDenied: boolean
   start: (param?: TStart) => void
   retry: () => void
   refresh: () => void
+  abort: () => void
   deleteCache: (param?: TStart) => void
 }
 

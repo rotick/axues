@@ -1,4 +1,4 @@
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import axios from 'axios'
 import {
   getCacheKey,
@@ -41,6 +41,7 @@ export function createCRUD ({
     headers,
     timeout,
     responseType = 'json'
+    // signal = undefined
   }) => {
     return new Promise((resolve, reject) => {
       axios({
@@ -101,14 +102,24 @@ export function createCRUD ({
     const retryTimes = ref(0)
     const retrying = ref(false)
     const retryCountdown = ref(0)
+    const supportAbort = typeof AbortController === 'function'
+    const aborted = ref(false)
     const data = ref(initialData) as Ref<TO>
+    const canAbort = computed(() => supportAbort && pending.value)
 
     let responseTimes = 0
     let loadingTimer: ReturnType<typeof setTimeout>
     let retryTimer: ReturnType<typeof setInterval>
+    let ac: AbortController | undefined
+
+    if (supportAbort) {
+      ac = new AbortController()
+      ac.signal.onabort = () => (aborted.value = true)
+    }
 
     const run = (param?: TStart) => {
       pending.value = true
+      aborted.value = false
       clearTimeout(loadingTimer)
       clearInterval(retryTimer)
       loadingTimer = setTimeout(() => {
@@ -163,7 +174,8 @@ export function createCRUD ({
       if (api) {
         requestApi = Array.isArray(api) ? Promise.all(api) : api
       } else {
-        requestApi = request({
+        let requestOptions: any = {
+          // todo any type
           url,
           params: typeof params === 'function' ? params(param) : params,
           method,
@@ -171,7 +183,14 @@ export function createCRUD ({
           headers,
           timeout,
           responseType
-        })
+        }
+        if (ac) {
+          requestOptions = {
+            ...requestOptions,
+            signal: ac.signal
+          }
+        }
+        requestApi = request(requestOptions)
       }
 
       requestTimes.value++
@@ -268,6 +287,10 @@ export function createCRUD ({
       }
     }
 
+    const abort = () => {
+      ac?.abort()
+    }
+
     const deleteCache = (param?: TStart) => {
       const realCacheKey = getCacheKey<TStart>(cacheKey, param)
       realCacheKey && cache?.delete(realCacheKey)
@@ -285,10 +308,13 @@ export function createCRUD ({
       retryTimes,
       retryCountdown,
       requestTimes,
+      canAbort,
+      aborted,
       data,
       start,
       refresh,
       retry,
+      abort,
       deleteCache
     }
   }
