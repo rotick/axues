@@ -1,58 +1,24 @@
 import { ref, computed } from 'vue'
-import axios from 'axios'
-import {
-  getCacheKey,
-  mergeHeaders,
-  transformConfirmOptions,
-  transformErrorOptions,
-  transformLoadingOptions,
-  transformParams,
-  transformSuccessOptions
-} from './util'
+import { getCacheKey, mergeHeaders, transformConfirmOptions, transformErrorOptions, transformLoadingOptions, transformParams, transformSuccessOptions } from './util'
 import { debounce } from './debounce'
 import type { App, Ref, InjectionKey } from 'vue'
-import type { AxiosResponse } from 'axios'
-import type {
-  CreateCRUDOptions,
-  OverlayImplement,
-  Provider,
-  CRUDInput,
-  CRUDOutput,
-  RequestType
-} from './types'
+import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import type { CreateCRUDOptions, OverlayImplement, Provider, CRUDInput, CRUDOutput, RequestType } from './types'
 
 export const key = Symbol('') as InjectionKey<Provider>
 
-export function createCRUD ({
-  baseURL = '',
-  headers: baseHeaders,
-  timeout: baseTimeout = 0,
-  responseHandle,
-  cache,
-  errorReport,
-  loadingDelay = 300,
-  overlayImplement: baseOverlayImplement
-}: CreateCRUDOptions) {
-  const request: RequestType = ({
-    url = '',
-    params = {},
-    method = 'get',
-    contentType = '',
-    headers,
-    timeout,
-    responseType = 'json'
-    // signal = undefined
-  }) => {
+export function createCRUD (axiosInstance: AxiosInstance, { requestConfig, responseHandle, cacheInstance, errorReport, loadingDelay = 300, overlayImplement: baseOverlayImplement }: CreateCRUDOptions) {
+  const request: RequestType = options => {
+    const baseConfig = requestConfig?.()
+    const axiosConfig: AxiosRequestConfig = {
+      ...baseConfig,
+      ...options,
+      // todo contentType不传时，
+      data: transformParams(options.data as Record<any, any>, options.contentType || 'json'),
+      headers: mergeHeaders(baseConfig?.headers, options.headers, options.contentType)
+    }
     return new Promise((resolve, reject) => {
-      axios({
-        baseURL,
-        url,
-        data: transformParams(params as Record<any, any>, contentType),
-        method,
-        headers: mergeHeaders(baseHeaders, headers, contentType),
-        responseType,
-        timeout: timeout || baseTimeout
-      })
+      axiosInstance(axiosConfig)
         .then((response: AxiosResponse) => {
           const res = responseHandle?.(response.data) || response.data
           if (res instanceof Error) {
@@ -71,7 +37,7 @@ export function createCRUD ({
 
   const CRUD = <TI, TO, TStart>({
     url = '',
-    params,
+    data: params,
     method = 'get',
     contentType = '',
     headers,
@@ -125,9 +91,7 @@ export function createCRUD ({
       loadingTimer = setTimeout(() => {
         loading.value = true
         if (loadingOverlay) {
-          overlayInstance?.loadingOpen?.(
-            transformLoadingOptions<TStart>(loadingOverlay, param)
-          )
+          overlayInstance?.loadingOpen?.(transformLoadingOptions<TStart>(loadingOverlay, param))
         }
       }, loadingDelay)
 
@@ -142,13 +106,7 @@ export function createCRUD ({
         error.value = null
         onSuccess?.(data.value)
         if (successOverlay) {
-          overlayInstance?.success?.(
-            transformSuccessOptions<TStart, TO>(
-              successOverlay,
-              param,
-              data.value
-            )
-          )
+          overlayInstance?.success?.(transformSuccessOptions<TStart, TO>(successOverlay, param, data.value))
         }
       }
 
@@ -164,18 +122,19 @@ export function createCRUD ({
       }
 
       const realCacheKey = getCacheKey<TStart>(cacheKey, param)
-      if (realCacheKey && cache?.get(realCacheKey)) {
-        successLogic(cache.get(realCacheKey) as TO)
+      if (realCacheKey && cacheInstance?.get(realCacheKey)) {
+        successLogic(cacheInstance.get(realCacheKey) as TO)
         finallyLogic()
         return
       }
 
       let requestApi
       if (api) {
+        // todo cancel
         requestApi = Array.isArray(api) ? Promise.all(api) : api
       } else {
         let requestOptions: any = {
-          // todo any type
+          // todo any type, full axios config, both params and headers must be run getter
           url,
           params: typeof params === 'function' ? params(param) : params,
           method,
@@ -200,7 +159,7 @@ export function createCRUD ({
           responseTimes++
           if (responseTimes !== requestTimes.value) return
           successLogic(res as TO)
-          realCacheKey && cache?.set(realCacheKey, res)
+          realCacheKey && cacheInstance?.set(realCacheKey, res)
         })
         .catch((err: Error) => {
           responseTimes++
@@ -208,15 +167,12 @@ export function createCRUD ({
           error.value = err
           onError?.(err)
           if (errorOverlay) {
-            overlayInstance?.error?.(
-              transformErrorOptions<TStart>(errorOverlay, param, err)
-            )
+            overlayInstance?.error?.(transformErrorOptions<TStart>(errorOverlay, param, err))
           }
           if (autoRetryTimes > 0 && retryTimes.value < autoRetryTimes) {
             retryTimes.value++
             const retryTimeout = retryTimes.value * autoRetryInterval
-            retryCountdown.value =
-              retryTimeout > 30 ? 30 : retryTimeout < 1 ? 1 : retryTimeout
+            retryCountdown.value = retryTimeout > 30 ? 30 : retryTimeout < 1 ? 1 : retryTimeout
             retryTimer = setInterval(() => {
               retryCountdown.value--
               if (retryCountdown.value === 0) {
@@ -258,10 +214,7 @@ export function createCRUD ({
 
     const retry = () => {
       if (retrying.value) return
-      if (
-        (autoRetryTimes > 0 && retryTimes.value >= autoRetryTimes) ||
-        autoRetryTimes === 0
-      ) {
+      if ((autoRetryTimes > 0 && retryTimes.value >= autoRetryTimes) || autoRetryTimes === 0) {
         retryTimes.value++
       }
       retrying.value = true
@@ -277,11 +230,9 @@ export function createCRUD ({
       }
       retryTimes.value = 0
       if (confirmOverlay) {
-        overlayInstance
-          ?.confirm?.(transformConfirmOptions<TStart>(confirmOverlay, param))
-          .then(() => {
-            debounceHandle()?.(param)
-          })
+        overlayInstance?.confirm?.(transformConfirmOptions<TStart>(confirmOverlay, param)).then(() => {
+          debounceHandle()?.(param)
+        })
       } else {
         debounceHandle()?.(param)
       }
@@ -293,7 +244,7 @@ export function createCRUD ({
 
     const deleteCache = (param?: TStart) => {
       const realCacheKey = getCacheKey<TStart>(cacheKey, param)
-      realCacheKey && cache?.delete(realCacheKey)
+      realCacheKey && cacheInstance?.delete(realCacheKey)
     }
 
     if (immediate) start()

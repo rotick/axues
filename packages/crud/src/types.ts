@@ -1,9 +1,4 @@
-import type {
-  AxiosInstance,
-  AxiosRequestConfig,
-  Method,
-  ResponseType
-} from 'axios'
+import type { AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios'
 import type { Ref, VNodeChild, ComputedRef } from 'vue'
 
 interface CacheInstance {
@@ -36,57 +31,31 @@ export interface OverlayImplement {
   confirm?: (options: ConfirmOverlayType) => Promise<unknown>
 }
 
-export type Headers =
-  | Record<string, string | number | boolean>
-  | (() => Record<string, string | number | boolean>)
-
 export interface CreateCRUDOptions {
-  baseURL?: string
-  headers?: Headers
-  timeout?: number
-  axiosInstance?: AxiosInstance
   requestConfig?: () => AxiosRequestConfig
   responseHandle?: (response: unknown) => unknown
-  cache?: CacheInstance
+  cacheInstance?: CacheInstance
   errorReport?: (err: Error) => void
   loadingDelay?: number
   overlayImplement?: OverlayImplement
 }
-export type MethodType = (Method & ('cache' | 'CACHE')) | string
 export type ContentType = 'urlEncode' | 'json' | 'formData' | string
+export type Headers<TStart = any> = RawAxiosRequestHeaders | ((param?: TStart) => RawAxiosRequestHeaders)
 
-export interface RequestOptions<T, TStart = any> {
-  url?: string
+export interface RequestOptions<T, TStart = any> extends Omit<AxiosRequestConfig, 'headers'> {
+  // todo url and params getter function
   // WTF https://github.com/microsoft/TypeScript/issues/37663
-  params?: T extends any ? T | ((param?: TStart) => T) : never
-  method: MethodType
-  contentType: ContentType
-  headers?: Headers
-  timeout?: number
-  responseType?: ResponseType
-  // axiosConfig?: AxiosRequestConfig // todo do we need this?
+  data?: T extends any ? T | ((param?: TStart) => T) : never
+  contentType?: ContentType
+  headers?: Headers<TStart>
 }
 
-export type ConfirmOverlayOptions<T> =
-  | string
-  | ((param?: T) => VNodeChild)
-  | ConfirmOverlayType
-export type LoadingOverlayOptions<T> =
-  | boolean
-  | string
-  | ((param?: T) => VNodeChild)
-  | LoadingOverlayType
-export type SuccessOverlayOptions<TStart, TO> =
-  | string
-  | ((param?: TStart, data?: TO) => VNodeChild)
-  | SuccessOrErrorOverlayType
-export type ErrorOverlayOptions<T> =
-  | string
-  | ((param?: T, err?: Error) => VNodeChild)
-  | SuccessOrErrorOverlayType
+export type ConfirmOverlayOptions<T> = string | ((param?: T) => VNodeChild) | ConfirmOverlayType
+export type LoadingOverlayOptions<T> = boolean | string | ((param?: T) => VNodeChild) | LoadingOverlayType
+export type SuccessOverlayOptions<TStart, TO> = string | ((param?: TStart, data?: TO) => VNodeChild) | SuccessOrErrorOverlayType
+export type ErrorOverlayOptions<T> = string | ((param?: T, err?: Error) => VNodeChild) | SuccessOrErrorOverlayType
 
-export interface CRUDInput<TI, TO, TStart = any>
-  extends RequestOptions<TI, TStart> {
+export interface CRUDInput<TI, TO, TStart = any> extends RequestOptions<TI, TStart> {
   /*
    * request(s) promise function
    * */
@@ -167,9 +136,7 @@ export interface CRUDOutput<T, TStart = any> {
 }
 
 export type RequestType = <TI, TO>(options: RequestOptions<TI>) => Promise<TO>
-export type CRUDType = <TI, TO, TStart>(
-  options: CRUDInput<TI, TO, TStart>
-) => CRUDOutput<TO, TStart>
+export type CRUDType = <TI, TO, TStart>(options: CRUDInput<TI, TO, TStart>) => CRUDOutput<TO, TStart>
 export interface Provider {
   request: RequestType
   overlayImplement: (options: OverlayImplement) => void
