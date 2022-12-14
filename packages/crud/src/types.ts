@@ -42,8 +42,9 @@ export interface CreateCRUDOptions {
 export type ContentType = 'urlEncode' | 'json' | 'formData' | string
 export type Headers<TStart = any> = RawAxiosRequestHeaders | ((param?: TStart) => RawAxiosRequestHeaders)
 
-export interface RequestOptions<T, TStart = any> extends Omit<AxiosRequestConfig, 'headers'> {
-  // todo url and params getter function
+export interface RequestOptions<T, TStart = any> extends Omit<AxiosRequestConfig, 'url' | 'headers'> {
+  url?: string | ((param?: TStart) => string)
+  params?: any | ((param?: TStart) => any)
   // WTF https://github.com/microsoft/TypeScript/issues/37663
   data?: T extends any ? T | ((param?: TStart) => T) : never
   contentType?: ContentType
@@ -55,11 +56,11 @@ export type LoadingOverlayOptions<T> = boolean | string | ((param?: T) => VNodeC
 export type SuccessOverlayOptions<TStart, TO> = string | ((param?: TStart, data?: TO) => VNodeChild) | SuccessOrErrorOverlayType
 export type ErrorOverlayOptions<T> = string | ((param?: T, err?: Error) => VNodeChild) | SuccessOrErrorOverlayType
 
-export interface CRUDInput<TI, TO, TStart = any> extends RequestOptions<TI, TStart> {
+export interface CRUDInput<TI = any, TO = any, TStart = any> extends RequestOptions<TI, TStart> {
   /*
    * request(s) promise function
    * */
-  api?: Promise<TO> | Array<Promise<unknown>>
+  api?: (param?: TStart) => Promise<TO> | Array<Promise<unknown>>
   /*
    * if start when create
    * default: false

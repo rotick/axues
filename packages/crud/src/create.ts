@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { getCacheKey, mergeHeaders, transformConfirmOptions, transformErrorOptions, transformLoadingOptions, transformParams, transformSuccessOptions } from './util'
+import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptions, transformErrorOptions, transformLoadingOptions, transformParams, transformSuccessOptions } from './util'
 import { debounce } from './debounce'
 import type { App, Ref, InjectionKey } from 'vue'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
@@ -9,11 +9,13 @@ export const key = Symbol('') as InjectionKey<Provider>
 
 export function createCRUD (axiosInstance: AxiosInstance, { requestConfig, responseHandle, cacheInstance, errorReport, loadingDelay = 300, overlayImplement: baseOverlayImplement }: CreateCRUDOptions) {
   const request: RequestType = options => {
-    const baseConfig = requestConfig?.()
+    const baseConfig = requestConfig?.() || {}
     const axiosConfig: AxiosRequestConfig = {
       ...baseConfig,
       ...options,
-      // todo contentType不传时，
+      // todo contentType不传时
+      url: typeof options.url === 'function' ? options.url() : options.url,
+      params: typeof options.params === 'function' ? options.params() : options.params,
       data: transformParams(options.data as Record<any, any>, options.contentType || 'json'),
       headers: mergeHeaders(baseConfig?.headers, options.headers, options.contentType)
     }
@@ -35,30 +37,24 @@ export function createCRUD (axiosInstance: AxiosInstance, { requestConfig, respo
     overlayInstance = options
   }
 
-  const CRUD = <TI, TO, TStart>({
-    url = '',
-    data: params,
-    method = 'get',
-    contentType = '',
-    headers,
-    timeout,
-    responseType = 'json',
-    api,
-    immediate = false,
-    initialData = null as TO,
-    debounceMode = 'firstOnly',
-    debounceTime = 500,
-    autoRetryTimes = 0,
-    autoRetryInterval = 2,
-    cacheKey,
-    confirmOverlay,
-    loadingOverlay,
-    successOverlay,
-    errorOverlay,
-    onData,
-    onSuccess,
-    onError
-  }: CRUDInput<TI, TO, TStart>): CRUDOutput<TO, TStart> => {
+  const CRUD = <TI, TO, TStart>(options: CRUDInput<TI, TO, TStart>): CRUDOutput<TO, TStart> => {
+    const {
+      api,
+      immediate = false,
+      initialData = null as TO,
+      debounceMode = 'firstOnly',
+      debounceTime = 500,
+      autoRetryTimes = 0,
+      autoRetryInterval = 2,
+      cacheKey,
+      confirmOverlay,
+      loadingOverlay,
+      successOverlay,
+      errorOverlay,
+      onData,
+      onSuccess,
+      onError
+    } = options
     const pending = ref(false)
     const loading = ref(false)
     const success = ref(false)
@@ -78,7 +74,7 @@ export function createCRUD (axiosInstance: AxiosInstance, { requestConfig, respo
     let retryTimer: ReturnType<typeof setInterval>
     let ac: AbortController | undefined
 
-    if (supportAbort) {
+    if (supportAbort && !api) {
       ac = new AbortController()
       ac.signal.onabort = () => (aborted.value = true)
     }
@@ -130,19 +126,10 @@ export function createCRUD (axiosInstance: AxiosInstance, { requestConfig, respo
 
       let requestApi
       if (api) {
-        // todo cancel
-        requestApi = Array.isArray(api) ? Promise.all(api) : api
+        const apiReturn = api(param)
+        requestApi = Array.isArray(apiReturn) ? Promise.all(apiReturn) : apiReturn
       } else {
-        let requestOptions: any = {
-          // todo any type, full axios config, both params and headers must be run getter
-          url,
-          params: typeof params === 'function' ? params(param) : params,
-          method,
-          contentType,
-          headers,
-          timeout,
-          responseType
-        }
+        let requestOptions = resolveRequestOptions(options, param)
         if (ac) {
           requestOptions = {
             ...requestOptions,

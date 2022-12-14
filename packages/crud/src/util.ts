@@ -1,5 +1,38 @@
 import { ConfirmOverlayOptions, ConfirmOverlayType, ContentType, ErrorOverlayOptions, Headers, LoadingOverlayOptions, LoadingOverlayType, SuccessOrErrorOverlayType, SuccessOverlayOptions } from './types'
 
+export function resolveRequestOptions (options: any, param?: any) {
+  const excludeKeys = [
+    'api',
+    'immediate',
+    'initialData',
+    'debounceMode',
+    'debounceTime',
+    'autoRetryTimes',
+    'autoRetryInterval',
+    'cacheKey',
+    'confirmOverlay',
+    'loadingOverlay',
+    'successOverlay',
+    'errorOverlay',
+    'onData',
+    'onSuccess',
+    'onError'
+  ]
+  const validOptions: any = {}
+  Object.keys(options)
+    .filter(k => !excludeKeys.includes(k))
+    .forEach(key => {
+      validOptions[key] = options[key]
+    })
+  return {
+    ...validOptions,
+    url: typeof options.url === 'function' ? options.url(param) : options.url,
+    params: typeof options.params === 'function' ? options.params() : options.params,
+    data: typeof options.data === 'function' ? options.data() : options.data,
+    headers: typeof options.headers === 'function' ? options.headers() : options.headers
+  }
+}
+
 function transformContentType (ct: ContentType) {
   const map = {
     urlEncode: 'application/x-www-form-urlencoded',
@@ -10,7 +43,7 @@ function transformContentType (ct: ContentType) {
 }
 
 export function transformParams (params: Record<string, any>, contentType: ContentType) {
-  return transformContentType(contentType) === 'application/x-www-form-urlencoded' ? new URLSearchParams(params) : params
+  return transformContentType(contentType) === 'application/x-www-form-urlencoded' ? new URLSearchParams(params).toString() : params
 }
 
 export function mergeHeaders (header1?: Headers, header2?: Headers, contentType?: ContentType) {
