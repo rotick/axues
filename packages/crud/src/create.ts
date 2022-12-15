@@ -125,8 +125,8 @@ export function createCRUD (axiosInstance: AxiosInstance, { requestConfig, respo
 
       let requestApi
       if (api) {
-        const apiReturn = api(param)
-        requestApi = Array.isArray(apiReturn) ? Promise.all(apiReturn) : apiReturn
+        const promise = typeof api === 'function' ? api(param) : api
+        requestApi = Array.isArray(promise) ? Promise.all(promise) : promise
       } else {
         let requestOptions = resolveRequestOptions(options, param)
         if (ac) {
