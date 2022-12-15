@@ -1,5 +1,5 @@
 import { ref, computed } from 'vue'
-import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptions, transformErrorOptions, transformLoadingOptions, transformParams, transformSuccessOptions } from './util'
+import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptions, transformErrorOptions, transformLoadingOptions, transformData, transformSuccessOptions } from './util'
 import { debounce } from './debounce'
 import type { App, Ref, InjectionKey } from 'vue'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
@@ -13,10 +13,9 @@ export function createCRUD (axiosInstance: AxiosInstance, { requestConfig, respo
     const axiosConfig: AxiosRequestConfig = {
       ...baseConfig,
       ...options,
-      // todo contentType不传时
       url: typeof options.url === 'function' ? options.url() : options.url,
       params: typeof options.params === 'function' ? options.params() : options.params,
-      data: transformParams(options.data as Record<any, any>, options.contentType || 'json'),
+      data: transformData(options.data as Record<any, any>, options.contentType),
       headers: mergeHeaders(baseConfig?.headers, options.headers, options.contentType)
     }
     return new Promise((resolve, reject) => {

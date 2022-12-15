@@ -45,8 +45,7 @@ export type Headers<TStart = any> = RawAxiosRequestHeaders | ((param?: TStart) =
 export interface RequestOptions<T, TStart = any> extends Omit<AxiosRequestConfig, 'url' | 'headers'> {
   url?: string | ((param?: TStart) => string)
   params?: any | ((param?: TStart) => any)
-  // WTF https://github.com/microsoft/TypeScript/issues/37663
-  data?: T extends any ? T | ((param?: TStart) => T) : never
+  data?: T | ((param?: TStart) => T)
   contentType?: ContentType
   headers?: Headers<TStart>
 }
@@ -60,7 +59,7 @@ export interface CRUDInput<TI = any, TO = any, TStart = any> extends RequestOpti
   /*
    * request(s) promise function
    * */
-  api?: (param?: TStart) => Promise<TO> | Array<Promise<unknown>>
+  api?: Promise<TO> | Array<Promise<unknown>> | ((param?: TStart) => Promise<TO> | Array<Promise<TO>>)
   /*
    * if start when create
    * default: false
