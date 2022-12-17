@@ -31,6 +31,20 @@ export interface OverlayImplement {
   confirm?: (options: ConfirmOverlayType) => Promise<unknown>
 }
 
+export interface Axues {
+  <TI = any, TO = any>(config: AxuesRequestConfig<TI>): Promise<TO>
+  request?: <TI = any, TO = any>(config: AxuesRequestConfig<TI>) => Promise<TO>
+  get?: <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  delete?: <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  head?: <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  options?: <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  post?: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  put?: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  patch?: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  postForm?: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  putForm?: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  patchForm?: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
+}
 export interface CreateAxuesOptions {
   requestConfig?: () => AxiosRequestConfig
   responseHandle?: (response: unknown) => unknown
@@ -42,8 +56,9 @@ export interface CreateAxuesOptions {
 export type ContentType = 'urlEncode' | 'json' | 'formData' | string
 export type Headers<TAction = any> = RawAxiosRequestHeaders | ((param?: TAction) => RawAxiosRequestHeaders)
 
-export interface RequestOptions<T, TAction = any> extends Omit<AxiosRequestConfig, 'url' | 'headers'> {
+export interface AxuesRequestConfig<T = any, TAction = any> extends Omit<AxiosRequestConfig, 'url' | 'headers'> {
   url?: string | ((param?: TAction) => string)
+  // follow axios set to any: https://github.com/axios/axios/blob/v1.x/index.d.ts#L293
   params?: any | ((param?: TAction) => any)
   data?: T | ((param?: TAction) => T)
   contentType?: ContentType
@@ -55,11 +70,11 @@ export type LoadingOverlayOptions<T> = boolean | string | ((param?: T) => VNodeC
 export type SuccessOverlayOptions<TAction, TO> = string | ((param?: TAction, data?: TO) => VNodeChild) | SuccessOrErrorOverlayType
 export type ErrorOverlayOptions<T> = string | ((param?: T, err?: Error) => VNodeChild) | SuccessOrErrorOverlayType
 
-export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends RequestOptions<TI, TAction> {
+export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends AxuesRequestConfig<TI, TAction> {
   /*
    * request(s) promise function
    * */
-  api?: Promise<TO> | Array<Promise<unknown>> | ((param?: TAction) => Promise<TO> | Array<Promise<TO>>)
+  api?: Promise<TO> | Array<Promise<TO>> | ((param?: TAction) => Promise<TO> | Array<Promise<TO>>)
   /*
    * if start when create
    * default: false
@@ -115,7 +130,7 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Requ
   onSuccess?: (data: TO) => void
   onError?: (e: Error) => void
 }
-export interface AxuesOutput<T, TAction = any> {
+export interface UseAxuesOutput<T, TAction = any> {
   pending: Ref<boolean>
   loading: Ref<boolean>
   success: Ref<boolean>
@@ -135,9 +150,8 @@ export interface AxuesOutput<T, TAction = any> {
   deleteCache: (param?: TAction) => void
 }
 
-export type RequestType = <TI, TO>(options: RequestOptions<TI>) => Promise<TO>
 export interface Provider {
-  request: RequestType
+  axuesFn: Axues
   overlayImplement: (options: OverlayImplement) => void
-  useFn: <TI, TO, TAction>(options: UseAxuesOptions<TI, TO, TAction>) => AxuesOutput<TO, TAction>
+  useFn: <TI, TO, TAction>(options: UseAxuesOptions<TI, TO, TAction>) => UseAxuesOutput<TO, TAction>
 }

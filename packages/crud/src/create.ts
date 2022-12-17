@@ -3,20 +3,25 @@ import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptio
 import { debounce } from './debounce'
 import type { App, Ref, InjectionKey } from 'vue'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import type { CreateAxuesOptions, OverlayImplement, Provider, UseAxuesOptions, AxuesOutput, RequestType } from './types'
+import type { Axues, CreateAxuesOptions, OverlayImplement, Provider, UseAxuesOptions, UseAxuesOutput } from './types'
+import { AxuesRequestConfig } from './types'
 
 export const key = Symbol('') as InjectionKey<Provider>
 
+export let axues: Axues = () => {
+  throw new Error('please create axues instance first')
+}
+
 export function createAxues (axiosInstance: AxiosInstance, { requestConfig, responseHandle, cacheInstance, errorReport, loadingDelay = 300, overlayImplement: baseOverlayImplement }: CreateAxuesOptions) {
-  const request: RequestType = options => {
+  const request: Axues = config => {
     const baseConfig = requestConfig?.() || {}
     const axiosConfig: AxiosRequestConfig = {
       ...baseConfig,
-      ...options,
-      url: typeof options.url === 'function' ? options.url() : options.url,
-      params: typeof options.params === 'function' ? options.params() : options.params,
-      data: transformData(options.data as Record<any, any>, options.contentType),
-      headers: mergeHeaders(baseConfig?.headers, options.headers, options.contentType)
+      ...config,
+      url: typeof config.url === 'function' ? config.url() : config.url,
+      params: typeof config.params === 'function' ? config.params() : config.params,
+      data: transformData(config.data as Record<any, any>, config.contentType),
+      headers: mergeHeaders(baseConfig?.headers, config.headers, config.contentType)
     }
     return new Promise((resolve, reject) => {
       axiosInstance(axiosConfig)
@@ -31,12 +36,47 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         .catch(reject)
     })
   }
+  function addAlias (method: string) {
+    return <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => {
+      return request<TI, TO>({
+        ...config,
+        url,
+        method
+      })
+    }
+  }
+  function addAliasWithData (method: string, contentType?: string) {
+    return <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => {
+      return request<TI, TO>({
+        ...config,
+        url,
+        method,
+        data,
+        contentType
+      })
+    }
+  }
+
+  axues = request
+  axues.request = request
+  axues.get = addAlias('get')
+  axues.delete = addAlias('delete')
+  axues.head = addAlias('head')
+  axues.options = addAlias('options')
+  axues.post = addAliasWithData('post')
+  axues.put = addAliasWithData('put')
+  axues.patch = addAliasWithData('patch')
+  axues.postForm = addAliasWithData('post', 'form')
+  axues.putForm = addAliasWithData('put', 'form')
+  axues.patchForm = addAliasWithData('patch', 'form')
+  // todo postJSON
+
   let overlayInstance: OverlayImplement | undefined = baseOverlayImplement
   const overlayImplement = (options: OverlayImplement) => {
     overlayInstance = options
   }
 
-  const useFn = <TI, TO, TAction>(options: UseAxuesOptions<TI, TO, TAction>): AxuesOutput<TO, TAction> => {
+  const useFn = <TI, TO, TAction>(options: UseAxuesOptions<TI, TO, TAction>): UseAxuesOutput<TO, TAction> => {
     const {
       api,
       immediate = false,
@@ -135,7 +175,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
             signal: ac.signal
           }
         }
-        requestApi = request(requestOptions)
+        requestApi = axues(requestOptions)
       }
 
       requestTimes.value++
@@ -255,14 +295,13 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       deleteCache
     }
   }
-  return {
-    request,
-    install (app: App) {
-      app.provide(key, {
-        request,
-        overlayImplement,
-        useFn
-      })
-    }
+  const createReturn: Axues & { install?: (app: App) => void } = axues
+  createReturn.install = app => {
+    app.provide(key, {
+      axuesFn: axues,
+      overlayImplement,
+      useFn
+    })
   }
+  return createReturn
 }
