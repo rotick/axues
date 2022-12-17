@@ -94,7 +94,7 @@ export function transformLoadingOptions<T> (options: LoadingOverlayOptions<T>, p
   return opt
 }
 
-export function transformSuccessOptions<TStart, TO> (options: SuccessOverlayOptions<TStart, TO>, param?: TStart, data?: TO): SuccessOrErrorOverlayType {
+export function transformSuccessOptions<TAction, TO> (options: SuccessOverlayOptions<TAction, TO>, param?: TAction, data?: TO): SuccessOrErrorOverlayType {
   let opt: SuccessOrErrorOverlayType = {
     style: 1,
     title: '',
@@ -112,7 +112,7 @@ export function transformSuccessOptions<TStart, TO> (options: SuccessOverlayOpti
   return opt
 }
 
-export function transformErrorOptions<TStart> (options: ErrorOverlayOptions<TStart>, param?: TStart, err?: Error): SuccessOrErrorOverlayType {
+export function transformErrorOptions<TAction> (options: ErrorOverlayOptions<TAction>, param?: TAction, err?: Error): SuccessOrErrorOverlayType {
   let opt: SuccessOrErrorOverlayType = {
     style: 1,
     title: '',

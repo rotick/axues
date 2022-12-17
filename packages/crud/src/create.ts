@@ -36,7 +36,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
     overlayInstance = options
   }
 
-  const useFn = <TI, TO, TStart>(options: UseAxuesOptions<TI, TO, TStart>): AxuesOutput<TO, TStart> => {
+  const useFn = <TI, TO, TAction>(options: UseAxuesOptions<TI, TO, TAction>): AxuesOutput<TO, TAction> => {
     const {
       api,
       immediate = false,
@@ -78,7 +78,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       ac.signal.onabort = () => (aborted.value = true)
     }
 
-    const run = (param?: TStart) => {
+    const run = (param?: TAction) => {
       pending.value = true
       aborted.value = false
       clearTimeout(loadingTimer)
@@ -86,7 +86,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       loadingTimer = setTimeout(() => {
         loading.value = true
         if (loadingOverlay) {
-          overlayInstance?.loadingOpen?.(transformLoadingOptions<TStart>(loadingOverlay, param))
+          overlayInstance?.loadingOpen?.(transformLoadingOptions<TAction>(loadingOverlay, param))
         }
       }, loadingDelay)
 
@@ -101,7 +101,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         error.value = null
         onSuccess?.(data.value)
         if (successOverlay) {
-          overlayInstance?.success?.(transformSuccessOptions<TStart, TO>(successOverlay, param, data.value))
+          overlayInstance?.success?.(transformSuccessOptions<TAction, TO>(successOverlay, param, data.value))
         }
       }
 
@@ -116,7 +116,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         }
       }
 
-      const realCacheKey = getCacheKey<TStart>(cacheKey, param)
+      const realCacheKey = getCacheKey<TAction>(cacheKey, param)
       if (realCacheKey && cacheInstance?.get(realCacheKey)) {
         successLogic(cacheInstance.get(realCacheKey) as TO)
         finallyLogic()
@@ -153,7 +153,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
           error.value = err
           onError?.(err)
           if (errorOverlay) {
-            overlayInstance?.error?.(transformErrorOptions<TStart>(errorOverlay, param, err))
+            overlayInstance?.error?.(transformErrorOptions<TAction>(errorOverlay, param, err))
           }
           if (autoRetryTimes > 0 && retryTimes.value < autoRetryTimes) {
             retryTimes.value++
@@ -185,8 +185,8 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       if (debounceMode === 'none') return run
     }
 
-    let initialParam: TStart
-    let lastParam: TStart
+    let initialParam: TAction
+    let lastParam: TAction
     const refresh = () => {
       if (refreshing.value) return
       // keep state when refresh
@@ -207,7 +207,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       debounceHandle()?.(lastParam)
     }
 
-    const start = (param?: TStart) => {
+    const action = (param?: TAction) => {
       if (param) {
         if (requestTimes.value === 0) {
           initialParam = param
@@ -216,7 +216,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       }
       retryTimes.value = 0
       if (confirmOverlay) {
-        overlayInstance?.confirm?.(transformConfirmOptions<TStart>(confirmOverlay, param)).then(() => {
+        overlayInstance?.confirm?.(transformConfirmOptions<TAction>(confirmOverlay, param)).then(() => {
           debounceHandle()?.(param)
         })
       } else {
@@ -228,12 +228,12 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       ac?.abort()
     }
 
-    const deleteCache = (param?: TStart) => {
-      const realCacheKey = getCacheKey<TStart>(cacheKey, param)
+    const deleteCache = (param?: TAction) => {
+      const realCacheKey = getCacheKey<TAction>(cacheKey, param)
       realCacheKey && cacheInstance?.delete(realCacheKey)
     }
 
-    if (immediate) start()
+    if (immediate) action()
 
     return {
       pending,
@@ -248,7 +248,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       canAbort,
       aborted,
       data,
-      start,
+      action,
       refresh,
       retry,
       abort,

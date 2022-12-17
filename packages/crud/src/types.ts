@@ -40,26 +40,26 @@ export interface CreateAxuesOptions {
   overlayImplement?: OverlayImplement
 }
 export type ContentType = 'urlEncode' | 'json' | 'formData' | string
-export type Headers<TStart = any> = RawAxiosRequestHeaders | ((param?: TStart) => RawAxiosRequestHeaders)
+export type Headers<TAction = any> = RawAxiosRequestHeaders | ((param?: TAction) => RawAxiosRequestHeaders)
 
-export interface RequestOptions<T, TStart = any> extends Omit<AxiosRequestConfig, 'url' | 'headers'> {
-  url?: string | ((param?: TStart) => string)
-  params?: any | ((param?: TStart) => any)
-  data?: T | ((param?: TStart) => T)
+export interface RequestOptions<T, TAction = any> extends Omit<AxiosRequestConfig, 'url' | 'headers'> {
+  url?: string | ((param?: TAction) => string)
+  params?: any | ((param?: TAction) => any)
+  data?: T | ((param?: TAction) => T)
   contentType?: ContentType
-  headers?: Headers<TStart>
+  headers?: Headers<TAction>
 }
 
 export type ConfirmOverlayOptions<T> = string | ((param?: T) => VNodeChild) | ConfirmOverlayType
 export type LoadingOverlayOptions<T> = boolean | string | ((param?: T) => VNodeChild) | LoadingOverlayType
-export type SuccessOverlayOptions<TStart, TO> = string | ((param?: TStart, data?: TO) => VNodeChild) | SuccessOrErrorOverlayType
+export type SuccessOverlayOptions<TAction, TO> = string | ((param?: TAction, data?: TO) => VNodeChild) | SuccessOrErrorOverlayType
 export type ErrorOverlayOptions<T> = string | ((param?: T, err?: Error) => VNodeChild) | SuccessOrErrorOverlayType
 
-export interface UseAxuesOptions<TI = any, TO = any, TStart = any> extends RequestOptions<TI, TStart> {
+export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends RequestOptions<TI, TAction> {
   /*
    * request(s) promise function
    * */
-  api?: Promise<TO> | Array<Promise<unknown>> | ((param?: TStart) => Promise<TO> | Array<Promise<TO>>)
+  api?: Promise<TO> | Array<Promise<unknown>> | ((param?: TAction) => Promise<TO> | Array<Promise<TO>>)
   /*
    * if start when create
    * default: false
@@ -94,7 +94,7 @@ export interface UseAxuesOptions<TI = any, TO = any, TStart = any> extends Reque
    * when set cacheKey, the response will be cached
    * default: undefined
    * */
-  cacheKey?: string | ((param?: TStart) => string)
+  cacheKey?: string | ((param?: TAction) => string)
   /*
    * store the data and payload when vue component is destroyed
    * and restore it when recreate
@@ -107,15 +107,15 @@ export interface UseAxuesOptions<TI = any, TO = any, TStart = any> extends Reque
   //   payload?: () => JSON
   //   onPayloadRestore?: (payload: JSON) => void
   // } // todo is this a good idea?
-  confirmOverlay?: ConfirmOverlayOptions<TStart>
-  loadingOverlay?: LoadingOverlayOptions<TStart>
-  successOverlay?: SuccessOverlayOptions<TStart, TO>
-  errorOverlay?: ErrorOverlayOptions<TStart>
+  confirmOverlay?: ConfirmOverlayOptions<TAction>
+  loadingOverlay?: LoadingOverlayOptions<TAction>
+  successOverlay?: SuccessOverlayOptions<TAction, TO>
+  errorOverlay?: ErrorOverlayOptions<TAction>
   onData?: (data: Ref<TO>, newData: unknown | unknown[]) => void
   onSuccess?: (data: TO) => void
   onError?: (e: Error) => void
 }
-export interface AxuesOutput<T, TStart = any> {
+export interface AxuesOutput<T, TAction = any> {
   pending: Ref<boolean>
   loading: Ref<boolean>
   success: Ref<boolean>
@@ -128,16 +128,16 @@ export interface AxuesOutput<T, TStart = any> {
   canAbort: ComputedRef<boolean>
   aborted: Ref<boolean>
   data: Ref<T>
-  start: (param?: TStart) => void
+  action: (param?: TAction) => void
   retry: () => void
   refresh: () => void
   abort: () => void
-  deleteCache: (param?: TStart) => void
+  deleteCache: (param?: TAction) => void
 }
 
 export type RequestType = <TI, TO>(options: RequestOptions<TI>) => Promise<TO>
 export interface Provider {
   request: RequestType
   overlayImplement: (options: OverlayImplement) => void
-  useFn: <TI, TO, TStart>(options: UseAxuesOptions<TI, TO, TStart>) => AxuesOutput<TO, TStart>
+  useFn: <TI, TO, TAction>(options: UseAxuesOptions<TI, TO, TAction>) => AxuesOutput<TO, TAction>
 }

@@ -4,9 +4,9 @@ import { UseAxuesOptions, OverlayImplement, Provider, RequestOptions } from './t
 
 export { createAxues } from './create'
 
-export function useAxues<TI extends object, TO extends object, TStart = any> (options: UseAxuesOptions<TI, TO, TStart>) {
+export function useAxues<TI extends object, TO extends object, TAction = any> (options: UseAxuesOptions<TI, TO, TAction>) {
   const { useFn } = inject(key) as Provider
-  return useFn<TI, TO, TStart>(options)
+  return useFn<TI, TO, TAction>(options)
 }
 
 export function useRequest<TI extends object, TO extends object> (options: RequestOptions<TI>) {
