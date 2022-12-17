@@ -1,2 +1,3 @@
-# vue-crud still working in progress
-make CRUD easier
+# axues still working in progress
+
+axios + vue = axues

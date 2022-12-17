@@ -31,7 +31,7 @@ export interface OverlayImplement {
   confirm?: (options: ConfirmOverlayType) => Promise<unknown>
 }
 
-export interface CreateCRUDOptions {
+export interface CreateAxuesOptions {
   requestConfig?: () => AxiosRequestConfig
   responseHandle?: (response: unknown) => unknown
   cacheInstance?: CacheInstance
@@ -55,7 +55,7 @@ export type LoadingOverlayOptions<T> = boolean | string | ((param?: T) => VNodeC
 export type SuccessOverlayOptions<TStart, TO> = string | ((param?: TStart, data?: TO) => VNodeChild) | SuccessOrErrorOverlayType
 export type ErrorOverlayOptions<T> = string | ((param?: T, err?: Error) => VNodeChild) | SuccessOrErrorOverlayType
 
-export interface CRUDInput<TI = any, TO = any, TStart = any> extends RequestOptions<TI, TStart> {
+export interface UseAxuesOptions<TI = any, TO = any, TStart = any> extends RequestOptions<TI, TStart> {
   /*
    * request(s) promise function
    * */
@@ -115,7 +115,7 @@ export interface CRUDInput<TI = any, TO = any, TStart = any> extends RequestOpti
   onSuccess?: (data: TO) => void
   onError?: (e: Error) => void
 }
-export interface CRUDOutput<T, TStart = any> {
+export interface AxuesOutput<T, TStart = any> {
   pending: Ref<boolean>
   loading: Ref<boolean>
   success: Ref<boolean>
@@ -136,9 +136,8 @@ export interface CRUDOutput<T, TStart = any> {
 }
 
 export type RequestType = <TI, TO>(options: RequestOptions<TI>) => Promise<TO>
-export type CRUDType = <TI, TO, TStart>(options: CRUDInput<TI, TO, TStart>) => CRUDOutput<TO, TStart>
 export interface Provider {
   request: RequestType
   overlayImplement: (options: OverlayImplement) => void
-  CRUD: CRUDType
+  useFn: <TI, TO, TStart>(options: UseAxuesOptions<TI, TO, TStart>) => AxuesOutput<TO, TStart>
 }

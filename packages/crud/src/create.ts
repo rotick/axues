@@ -3,11 +3,11 @@ import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptio
 import { debounce } from './debounce'
 import type { App, Ref, InjectionKey } from 'vue'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import type { CreateCRUDOptions, OverlayImplement, Provider, CRUDInput, CRUDOutput, RequestType } from './types'
+import type { CreateAxuesOptions, OverlayImplement, Provider, UseAxuesOptions, AxuesOutput, RequestType } from './types'
 
 export const key = Symbol('') as InjectionKey<Provider>
 
-export function createCRUD (axiosInstance: AxiosInstance, { requestConfig, responseHandle, cacheInstance, errorReport, loadingDelay = 300, overlayImplement: baseOverlayImplement }: CreateCRUDOptions) {
+export function createAxues (axiosInstance: AxiosInstance, { requestConfig, responseHandle, cacheInstance, errorReport, loadingDelay = 300, overlayImplement: baseOverlayImplement }: CreateAxuesOptions) {
   const request: RequestType = options => {
     const baseConfig = requestConfig?.() || {}
     const axiosConfig: AxiosRequestConfig = {
@@ -36,7 +36,7 @@ export function createCRUD (axiosInstance: AxiosInstance, { requestConfig, respo
     overlayInstance = options
   }
 
-  const CRUD = <TI, TO, TStart>(options: CRUDInput<TI, TO, TStart>): CRUDOutput<TO, TStart> => {
+  const useFn = <TI, TO, TStart>(options: UseAxuesOptions<TI, TO, TStart>): AxuesOutput<TO, TStart> => {
     const {
       api,
       immediate = false,
@@ -257,12 +257,11 @@ export function createCRUD (axiosInstance: AxiosInstance, { requestConfig, respo
   }
   return {
     request,
-    CRUD,
     install (app: App) {
       app.provide(key, {
         request,
         overlayImplement,
-        CRUD
+        useFn
       })
     }
   }

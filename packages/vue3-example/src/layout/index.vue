@@ -1,9 +1,7 @@
 <template>
   <naive-provider>
-    <header
-      class="sticky top-0 h-14 border-b border-divider backdrop-blur-md flex items-center justify-between px-6 z-50 shadow-sm bg-white/10 dark:bg-white/5"
-    >
-      <h1 class="logo font-bold text-xl color-title">@rotick/vue-crud</h1>
+    <header class="sticky top-0 h-14 border-b border-divider backdrop-blur-md flex items-center justify-between px-6 z-50 shadow-sm bg-white/10 dark:bg-white/5">
+      <h1 class="logo font-bold text-xl color-title">@rotick/axues</h1>
       <div class="flex items-center">
         <n-dropdown :options="themeOptions" :on-select="setColorScheme">
           <a href="javascript:;">

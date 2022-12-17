@@ -2,7 +2,7 @@ import './styles/main.css'
 import { createApp } from 'vue'
 import { createRouter } from './router'
 import App from './App.vue'
-import { createCRUD } from '@rotick/vue-crud'
+import { createAxues } from 'axues'
 import { useTokenAndUUID } from './hooks'
 import { create, NButton, NDropdown, NInput, NSelect, NSwitch } from 'naive-ui'
 
@@ -15,7 +15,7 @@ const url = new URL(window.location.href)
 const { token, UUID, removeToken } = useTokenAndUUID(url.host)
 
 const router = createRouter()
-const CRUD = createCRUD({
+const axues = createAxues({
   headers: () => ({
     Authorization: token.value,
     UUID: UUID.value
@@ -35,7 +35,7 @@ const CRUD = createCRUD({
   }
 })
 
-app.use(router).use(CRUD).use(naive)
+app.use(router).use(axues).use(naive)
 
 // naive-ui style conflict
 const meta = document.createElement('meta')

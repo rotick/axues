@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useCRUD } from '@rotick/vue-crud'
+import { useAxues } from 'axues'
 import { NButton } from 'naive-ui'
 
 const abc = ref('123')
-const request = useCRUD()
-
+useAxues()
 </script>
 
 <template>
