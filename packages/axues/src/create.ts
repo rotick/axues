@@ -69,7 +69,6 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
   axues.postForm = addAliasWithData('post', 'form')
   axues.putForm = addAliasWithData('put', 'form')
   axues.patchForm = addAliasWithData('patch', 'form')
-  // todo postJSON
 
   let overlayInstance: OverlayImplement | undefined = baseOverlayImplement
   const overlayImplement = (options: OverlayImplement) => {
@@ -77,6 +76,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
   }
 
   const useFn = <TI, TO, TAction>(options: UseAxuesOptions<TI, TO, TAction>): UseAxuesOutput<TO, TAction> => {
+    if (!options) throw new Error('options is required')
     const {
       api,
       immediate = false,

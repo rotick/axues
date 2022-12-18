@@ -42,8 +42,8 @@ function transformContentType (ct?: ContentType) {
   return map[ct as keyof typeof map] || ct
 }
 
-export function transformData (params: Record<string, any>, contentType?: ContentType) {
-  return transformContentType(contentType) === 'application/x-www-form-urlencoded' ? new URLSearchParams(params).toString() : params
+export function transformData (data: Record<string, any>, contentType?: ContentType) {
+  return transformContentType(contentType) === 'application/x-www-form-urlencoded' ? new URLSearchParams(data) : data
 }
 
 export function mergeHeaders (header1?: Headers, header2?: Headers, contentType?: ContentType) {
