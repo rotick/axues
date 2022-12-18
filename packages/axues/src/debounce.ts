@@ -5,13 +5,8 @@ interface Options<Result> {
   callback?: (data: Result) => void
 }
 
-interface DebouncedFunction<
-  Args extends any[],
-  F extends (...args: Args) => any
-> {
-  (this: ThisParameterType<F>, ...args: Args & Parameters<F>): Promise<
-  ReturnType<F>
-  >
+interface DebouncedFunction<Args extends any[], F extends (...args: Args) => any> {
+  (this: ThisParameterType<F>, ...args: Args & Parameters<F>): Promise<ReturnType<F>>
   cancel: (reason?: any) => void
 }
 
@@ -20,11 +15,7 @@ interface DebouncedPromise<FunctionReturn> {
   reject: (reason?: any) => void
 }
 
-export function debounce<Args extends any[], F extends (...args: Args) => any> (
-  func: F,
-  waitMilliseconds = 50,
-  options: Options<ReturnType<F>> = {}
-): DebouncedFunction<Args, F> {
+export function debounce<Args extends any[], F extends (...args: Args) => any> (func: F, waitMilliseconds = 50, options: Options<ReturnType<F>> = {}): DebouncedFunction<Args, F> {
   let timeoutId: ReturnType<typeof setTimeout> | undefined
   const isImmediate = options.isImmediate ?? false
   const callback = options.callback ?? false
@@ -45,10 +36,7 @@ export function debounce<Args extends any[], F extends (...args: Args) => any> (
     return waitMilliseconds
   }
 
-  const debouncedFunction = function (
-    this: ThisParameterType<F>,
-    ...args: Parameters<F>
-  ) {
+  const debouncedFunction = function (this: ThisParameterType<F>, ...args: Parameters<F>) {
     // eslint-disable-next-line
     const context = this
     return new Promise<ReturnType<F>>((resolve, reject) => {
