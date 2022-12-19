@@ -71,6 +71,7 @@ export type SuccessOverlayOptions<TAction, TO> = string | ((param?: TAction, dat
 export type ErrorOverlayOptions<T> = string | ((param?: T, err?: Error) => VNodeChild) | SuccessOrErrorOverlayType
 
 export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends AxuesRequestConfig<TI, TAction> {
+  // todo maybeRef
   /*
    * request(s) promise function
    * */

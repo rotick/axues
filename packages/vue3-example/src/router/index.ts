@@ -15,7 +15,14 @@ export function createRouter () {
           {
             path: '',
             component: () => import('../pages/index.vue'),
-            meta: { title: '首页' }
+            meta: { title: 'home' },
+            children: [
+              {
+                path: '',
+                component: () => import('../pages/simple.vue'),
+                meta: { title: 'simple request' }
+              }
+            ]
           }
         ]
       },

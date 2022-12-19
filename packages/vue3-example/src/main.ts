@@ -29,8 +29,8 @@ const axues = createAxues(axiosInstance, {
     }
   }),
   responseHandle (res: any) {
-    if (res.code === 200) {
-      return res.data
+    if (res.url) {
+      return res
     }
     if (res.code === 401) {
       removeToken()
