@@ -295,7 +295,10 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       deleteCache
     }
   }
-  const createReturn: Axues & { install?: (app: App) => void } = axues
+  interface CreateReturn extends Axues {
+    install: (app: App) => void
+  }
+  const createReturn: CreateReturn = axues as CreateReturn
   createReturn.install = app => {
     app.provide(key, {
       axuesFn: axues,

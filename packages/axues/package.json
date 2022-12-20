@@ -2,8 +2,9 @@
   "name": "axues",
   "version": "1.0.0",
   "main": "src/index.ts",
+  "types": "src/types.ts",
   "devDependencies": {
-    "axios": "^1.1.3",
+    "axios": "^1.2.1",
     "vue": "^3.2.45"
   },
   "peerDependencies": {

@@ -65,6 +65,7 @@ export interface AxuesRequestConfig<T = any, TAction = any> extends Omit<AxiosRe
   headers?: Headers<TAction>
 }
 
+export type DebounceMode = 'firstOnly' | 'lastOnly' | 'none'
 export type ConfirmOverlayOptions<T> = string | ((param?: T) => VNodeChild) | ConfirmOverlayType
 export type LoadingOverlayOptions<T> = boolean | string | ((param?: T) => VNodeChild) | LoadingOverlayType
 export type SuccessOverlayOptions<TAction, TO> = string | ((param?: TAction, data?: TO) => VNodeChild) | SuccessOrErrorOverlayType
@@ -90,7 +91,7 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
    * only accept first or last time
    * default: firstOnly
    * */
-  debounceMode?: 'firstOnly' | 'lastOnly' | 'none'
+  debounceMode?: DebounceMode
   /*
    * only effect when debounceMode is lastOnly
    * default: 500

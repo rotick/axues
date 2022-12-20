@@ -16,7 +16,7 @@ const test3 = reactive(
       response: {}
     },
     onData (data, newData) {
-      data.value.response = newData
+      data.value.response = newData as object
     },
     onSuccess (data) {
       console.log(data)
@@ -28,7 +28,7 @@ const debounceMode = ref('lastOnly') // todo lastOnly not as expected
 const test4 = reactive(
   useAxues({
     url: '/delay/10',
-    debounceMode: debounceMode.value, // todo maybeRef watch
+    debounceMode: 'lastOnly', // todo maybeRef watch
     onSuccess (data) {
       console.log(Date.now(), data)
     }
