@@ -94,11 +94,11 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
   debounceMode?: DebounceMode
   /*
    * only effect when debounceMode is lastOnly
-   * default: 500
+   * default: 500 (ms)
    * */
   debounceTime?: number
   /*
-   * how many times auto retry
+   * auto retry several times
    * default: 0
    * */
   autoRetryTimes?: number

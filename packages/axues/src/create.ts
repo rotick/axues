@@ -197,7 +197,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
           }
           if (autoRetryTimes > 0 && retryTimes.value < autoRetryTimes) {
             retryTimes.value++
-            const retryTimeout = retryTimes.value * autoRetryInterval
+            const retryTimeout = autoRetryInterval * retryTimes.value + retryTimes.value
             retryCountdown.value = retryTimeout > 30 ? 30 : retryTimeout < 1 ? 1 : retryTimeout
             retryTimer = setInterval(() => {
               retryCountdown.value--
@@ -215,16 +215,11 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         })
     }
 
-    const debounceHandle = () => {
-      if (!pending.value && debounceMode === 'firstOnly') {
-        return run
-      }
-      if (debounceMode === 'lastOnly') {
-        return debounce(run, debounceTime)
-      }
-      if (debounceMode === 'none') return run
+    let debounceHandle = run
+    if (debounceMode === 'lastOnly') {
+      // eslint-disable-next-line
+      debounceHandle = debounce(run, debounceTime)
     }
-
     let initialParam: TAction
     let lastParam: TAction
     const refresh = () => {
@@ -235,7 +230,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       responseTimes = 0
       retryTimes.value = 0
       refreshing.value = true
-      debounceHandle()?.(initialParam)
+      debounceHandle(initialParam)
     }
 
     const retry = () => {
@@ -243,24 +238,28 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       if ((autoRetryTimes > 0 && retryTimes.value >= autoRetryTimes) || autoRetryTimes === 0) {
         retryTimes.value++
       }
+      clearInterval(retryTimer)
+      retryCountdown.value = 0
       retrying.value = true
-      debounceHandle()?.(lastParam)
+      debounceHandle(lastParam)
     }
 
     const action = (param?: TAction) => {
+      if ((pending.value && debounceMode === 'firstOnly') || retrying.value || refreshing.value || retryCountdown.value > 0) return
       if (param) {
         if (requestTimes.value === 0) {
           initialParam = param
         }
         lastParam = param
       }
+      error.value = null
       retryTimes.value = 0
       if (confirmOverlay) {
         overlayInstance?.confirm?.(transformConfirmOptions<TAction>(confirmOverlay, param)).then(() => {
-          debounceHandle()?.(param)
+          debounceHandle(param)
         })
       } else {
-        debounceHandle()?.(param)
+        debounceHandle(param)
       }
     }
 

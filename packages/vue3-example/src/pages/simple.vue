@@ -24,14 +24,22 @@ const test3 = reactive(
   })
 )
 
-const debounceMode = ref('lastOnly') // todo lastOnly not as expected
+const debounceMode = ref('lastOnly')
 const test4 = reactive(
   useAxues({
     url: '/delay/10',
-    debounceMode: 'lastOnly', // todo maybeRef watch
+    debounceMode: 'firstOnly', // todo maybeRef watch
     onSuccess (data) {
       console.log(Date.now(), data)
     }
+  })
+)
+
+const test5 = reactive(
+  useAxues({
+    url: '/status/500',
+    autoRetryTimes: 3,
+    autoRetryInterval: 3
   })
 )
 </script>
@@ -66,5 +74,18 @@ const test4 = reactive(
     </select>
     <button class="h-10 px-6 font-semibold rounded-md bg-primary text-white" @click="test4.action()">click me quickly</button>
     <div v-if="test4.data">{{ test4.data }}</div>
+  </div>
+  <div class="bg-card p-6 mt-6">
+    <h3 class="font-semibold text-xl mb-4">Auto retry and manual retry</h3>
+    <button class="h-10 px-6 font-semibold rounded-md bg-primary text-white" @click="test5.action()">action</button>
+    <div v-if="test5.error">Something went error: {{ test5.error }}</div>
+    <p v-if="test5.error">
+      retryTimes: {{ test5.retryTimes }}
+      <button class="rounded-md bg-primary text-white px-3" @click="test5.retry">retry now</button>
+    </p>
+    <p v-if="test5.retryCountdown > 0">
+      {{ `will auto retry after ${test5.retryCountdown}s` }}
+    </p>
+    <p v-if="test5.retrying">retrying...</p>
   </div>
 </template>
