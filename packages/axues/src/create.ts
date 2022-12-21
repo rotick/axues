@@ -9,7 +9,7 @@ import { AxuesRequestConfig } from './types'
 export const key = Symbol('') as InjectionKey<Provider>
 
 export let axues: Axues = () => {
-  throw new Error('please create axues instance first')
+  throw new Error('Please create axues instance first')
 }
 
 export function createAxues (axiosInstance: AxiosInstance, { requestConfig, responseHandle, cacheInstance, errorReport, loadingDelay = 300, overlayImplement: baseOverlayImplement }: CreateAxuesOptions) {
@@ -131,6 +131,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       }, loadingDelay)
 
       const successLogic = (res: TO) => {
+        console.log(111)
         if (onData) {
           onData(data, res)
         } else {
@@ -139,13 +140,14 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         retryTimes.value = 0
         success.value = true
         error.value = null
-        onSuccess?.(data.value)
+        onSuccess?.(res)
         if (successOverlay) {
           overlayInstance?.success?.(transformSuccessOptions<TAction, TO>(successOverlay, param, data.value))
         }
       }
 
       const finallyLogic = () => {
+        console.log(222)
         pending.value = false
         loading.value = false
         refreshing.value = false
@@ -157,10 +159,13 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       }
 
       const realCacheKey = getCacheKey<TAction>(cacheKey, param)
-      if (realCacheKey && cacheInstance?.get(realCacheKey)) {
-        successLogic(cacheInstance.get(realCacheKey) as TO)
-        finallyLogic()
-        return
+      if (realCacheKey) {
+        const cachedData = cacheInstance?.get(realCacheKey) as string
+        if (cachedData) {
+          successLogic(JSON.parse(cachedData) as TO)
+          finallyLogic()
+          return
+        }
       }
 
       let requestApi
@@ -184,8 +189,18 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
           // only accept last response
           responseTimes++
           if (responseTimes !== requestTimes.value) return
-          successLogic(res as TO)
-          realCacheKey && cacheInstance?.set(realCacheKey, res)
+          try {
+            successLogic(res as TO)
+            if (realCacheKey) {
+              if (cacheInstance) {
+                cacheInstance.set(realCacheKey, JSON.stringify(res))
+              } else {
+                console.error('The cacheInstance must be configured in createAxues to use the cache')
+              }
+            }
+          } catch (err) {
+            console.error(err)
+          }
         })
         .catch((err: Error) => {
           responseTimes++

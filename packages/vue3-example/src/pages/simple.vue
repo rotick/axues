@@ -42,6 +42,13 @@ const test5 = reactive(
     autoRetryInterval: 3
   })
 )
+
+const test6 = reactive(
+  useAxues({
+    url: '/get',
+    cacheKey: 'abc'
+  })
+)
 </script>
 
 <template>
@@ -52,18 +59,21 @@ const test5 = reactive(
     <p v-if="error">Something went error: {{ error.message }}</p>
     <button class="h-10 px-6 font-semibold rounded-md bg-primary text-white" @click="action()">execute</button>
   </div>
+
   <div class="bg-card p-6 mt-6">
     <h3 class="font-semibold text-xl mb-4">Immediate</h3>
     <p v-if="test2.pending">pending...</p>
     <div v-if="test2.success">{{ test2.data }}</div>
     <p v-if="test2.error">Something went error: {{ test2.error.message }}</p>
   </div>
+
   <div class="bg-card p-6 mt-6">
     <h3 class="font-semibold text-xl mb-4">InitialData</h3>
     <p v-if="test3.pending">pending...</p>
     <div v-if="test3.data">{{ test3.data }}</div>
     <p v-if="test3.error">Something went error: {{ test3.error.message }}</p>
   </div>
+
   <div class="bg-card p-6 mt-6">
     <h3 class="font-semibold text-xl mb-4">Debounce</h3>
     debounceMode:
@@ -75,6 +85,7 @@ const test5 = reactive(
     <button class="h-10 px-6 font-semibold rounded-md bg-primary text-white" @click="test4.action()">click me quickly</button>
     <div v-if="test4.data">{{ test4.data }}</div>
   </div>
+
   <div class="bg-card p-6 mt-6">
     <h3 class="font-semibold text-xl mb-4">Auto retry and manual retry</h3>
     <button class="h-10 px-6 font-semibold rounded-md bg-primary text-white" @click="test5.action()">action</button>
@@ -87,5 +98,13 @@ const test5 = reactive(
       {{ `will auto retry after ${test5.retryCountdown}s` }}
     </p>
     <p v-if="test5.retrying">retrying...</p>
+  </div>
+
+  <div class="bg-card p-6 mt-6">
+    <h3 class="font-semibold text-xl mb-4">Cache</h3>
+    <button class="h-10 px-6 font-semibold rounded-md bg-primary text-white" @click="test6.action()">action</button>
+    <button class="rounded-md bg-primary text-white px-3 ml-6" @click="test6.deleteCache()">delete cache</button>
+    <p v-if="test6.pending">pending...</p>
+    <div v-if="test6.success">{{ test6.data }}</div>
   </div>
 </template>

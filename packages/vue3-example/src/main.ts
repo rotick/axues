@@ -7,6 +7,7 @@ import { createAxues } from 'axues'
 import { useTokenAndUUID } from './hooks'
 import { create, NButton, NDropdown, NInput, NSelect, NSwitch } from 'naive-ui'
 import { AuthError, NotFoundError, PermissionDeniedError } from './utils/errors'
+import LRU from 'lru-cache'
 
 const naive = create({
   components: [NButton, NDropdown, NInput, NSelect, NSwitch]
@@ -20,6 +21,14 @@ const router = createRouter()
 const axiosInstance = axios.create({
   baseURL: 'https://httpbin.org/',
   timeout: 30000
+})
+const cacheInstance = new LRU({
+  maxSize: 100000,
+  // https://github.com/isaacs/node-lru-cache/issues/231
+  sizeCalculation: (value: string, key: string) => {
+    return value.length + key.length
+  },
+  ttl: 1000 * 60 * 5
 })
 const axues = createAxues(axiosInstance, {
   requestConfig: () => ({
@@ -45,6 +54,7 @@ const axues = createAxues(axiosInstance, {
     }
     return new Error('unknown error')
   },
+  cacheInstance,
   loadingDelay: 200
 })
 
