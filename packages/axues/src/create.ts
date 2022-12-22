@@ -131,7 +131,6 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       }, loadingDelay)
 
       const successLogic = (res: TO) => {
-        console.log(111)
         if (onData) {
           onData(data, res)
         } else {
@@ -147,7 +146,6 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       }
 
       const finallyLogic = () => {
-        console.log(222)
         pending.value = false
         loading.value = false
         refreshing.value = false

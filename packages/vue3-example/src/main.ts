@@ -5,13 +5,8 @@ import App from './App.vue'
 import axios from 'axios'
 import { createAxues } from 'axues'
 import { useTokenAndUUID } from './hooks'
-import { create, NButton, NDropdown, NInput, NSelect, NSwitch } from 'naive-ui'
 import { AuthError, NotFoundError, PermissionDeniedError } from './utils/errors'
 import LRU from 'lru-cache'
-
-const naive = create({
-  components: [NButton, NDropdown, NInput, NSelect, NSwitch]
-})
 
 const app = createApp(App)
 const url = new URL(window.location.href)
@@ -58,7 +53,7 @@ const axues = createAxues(axiosInstance, {
   loadingDelay: 200
 })
 
-app.use(router).use(axues).use(naive)
+app.use(router).use(axues)
 
 // naive-ui style conflict
 const meta = document.createElement('meta')

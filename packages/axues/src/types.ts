@@ -48,6 +48,8 @@ export interface Axues {
 export interface CreateAxuesOptions {
   requestConfig?: () => AxiosRequestConfig
   responseHandle?: (response: unknown) => unknown
+  // todo
+  errorHandle?: (err: Error) => Error
   cacheInstance?: CacheInstance
   errorReport?: (err: Error) => void
   loadingDelay?: number
@@ -72,7 +74,7 @@ export type SuccessOverlayOptions<TAction, TO> = string | ((param?: TAction, dat
 export type ErrorOverlayOptions<T> = string | ((param?: T, err?: Error) => VNodeChild) | SuccessOrErrorOverlayType
 
 export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends AxuesRequestConfig<TI, TAction> {
-  // todo maybeRef
+  // todo maybeComputedRef
   /*
    * request(s) promise function
    * */
@@ -150,6 +152,7 @@ export interface UseAxuesOutput<T, TAction = any> {
   refresh: () => void
   abort: () => void
   deleteCache: (param?: TAction) => void
+  // todo alias method such as get/post
 }
 
 export interface Provider {
