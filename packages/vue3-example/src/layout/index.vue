@@ -20,6 +20,7 @@
 <script lang="tsx">
 import { defineComponent, h } from 'vue'
 import { useColorScheme } from '../hooks'
+import { NDropdown } from 'naive-ui'
 import NaiveProvider from './components/naive-provider.vue'
 import IcOutlineDarkMode from '~icons/ic/outline-dark-mode'
 import IcTwotoneLightMode from '~icons/ic/twotone-light-mode'
@@ -27,6 +28,7 @@ import FluentDesktop24Regular from '~icons/fluent/desktop-24-regular'
 export default defineComponent({
   name: 'Index',
   components: {
+    NDropdown,
     NaiveProvider,
     IcOutlineDarkMode,
     IcTwotoneLightMode

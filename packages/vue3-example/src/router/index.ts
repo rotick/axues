@@ -21,6 +21,11 @@ export function createRouter () {
                 path: '',
                 component: () => import('../pages/simple.vue'),
                 meta: { title: 'simple request' }
+              },
+              {
+                path: 'overlay',
+                component: () => import('../pages/overlay.vue'),
+                meta: { title: 'overlay components' }
               }
             ]
           }

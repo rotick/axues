@@ -3,7 +3,7 @@ import { createApp } from 'vue'
 import { createRouter } from './router'
 import App from './App.vue'
 import axios from 'axios'
-import { createAxues } from 'axues'
+import { ConfirmOverlayType, LoadingOverlayType, createAxues, SuccessOrErrorOverlayType } from 'axues'
 import { useTokenAndUUID } from './hooks'
 import { AuthError, NotFoundError, PermissionDeniedError } from './utils/errors'
 import LRU from 'lru-cache'
@@ -50,7 +50,25 @@ const axues = createAxues(axiosInstance, {
     return new Error('unknown error')
   },
   cacheInstance,
-  loadingDelay: 200
+  loadingDelay: 200,
+  overlayImplement: {
+    loadingOpen (options: LoadingOverlayType) {
+      console.log(options)
+    },
+    loadingClose () {
+      console.log('loadingClose')
+    },
+    confirm (options: ConfirmOverlayType) {
+      console.log(options)
+      return Promise.resolve()
+    },
+    success (options: SuccessOrErrorOverlayType) {
+      console.log(options)
+    },
+    error (options: SuccessOrErrorOverlayType) {
+      console.log(options)
+    }
+  }
 })
 
 app.use(router).use(axues)

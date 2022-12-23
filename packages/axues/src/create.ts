@@ -3,8 +3,7 @@ import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptio
 import { debounce } from './debounce'
 import type { App, Ref, InjectionKey } from 'vue'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import type { Axues, CreateAxuesOptions, OverlayImplement, Provider, UseAxuesOptions, UseAxuesOutput } from './types'
-import { AxuesRequestConfig } from './types'
+import type { Axues, AxuesRequestConfig, CreateAxuesOptions, OverlayImplement, Provider, UseAxuesOptions, UseAxuesOutput } from './types'
 
 export const key = Symbol('') as InjectionKey<Provider>
 
@@ -126,7 +125,11 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       loadingTimer = setTimeout(() => {
         loading.value = true
         if (loadingOverlay) {
-          overlayInstance?.loadingOpen?.(transformLoadingOptions<TAction>(loadingOverlay, param))
+          if (overlayInstance?.loadingOpen) {
+            overlayInstance.loadingOpen(transformLoadingOptions<TAction>(loadingOverlay, param))
+          } else {
+            console.error('Please implement the loading overlay component before')
+          }
         }
       }, loadingDelay)
 
@@ -141,7 +144,11 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         error.value = null
         onSuccess?.(res)
         if (successOverlay) {
-          overlayInstance?.success?.(transformSuccessOptions<TAction, TO>(successOverlay, param, data.value))
+          if (overlayInstance?.success) {
+            overlayInstance.success(transformSuccessOptions<TAction, TO>(successOverlay, param, data.value))
+          } else {
+            console.error('Please implement the success overlay component before')
+          }
         }
       }
 
@@ -206,7 +213,11 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
           error.value = err
           onError?.(err)
           if (errorOverlay) {
-            overlayInstance?.error?.(transformErrorOptions<TAction>(errorOverlay, param, err))
+            if (overlayInstance?.error) {
+              overlayInstance.error(transformErrorOptions<TAction>(errorOverlay, param, err))
+            } else {
+              console.error('Please implement the error overlay component before')
+            }
           }
           if (autoRetryTimes > 0 && retryTimes.value < autoRetryTimes) {
             retryTimes.value++
@@ -239,15 +250,19 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       if (refreshing.value) return
       // keep state when refresh
       // data.value = initialData
+      retryTimes.value = 0
       requestTimes.value = 0
       responseTimes = 0
-      retryTimes.value = 0
       refreshing.value = true
       debounceHandle(initialParam)
     }
 
     const retry = () => {
       if (retrying.value) return
+      if (!error.value) {
+        console.error('Retry can only be called on error state')
+        return
+      }
       if ((autoRetryTimes > 0 && retryTimes.value >= autoRetryTimes) || autoRetryTimes === 0) {
         retryTimes.value++
       }
@@ -265,12 +280,18 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         }
         lastParam = param
       }
+      success.value = false
       error.value = null
       retryTimes.value = 0
       if (confirmOverlay) {
-        overlayInstance?.confirm?.(transformConfirmOptions<TAction>(confirmOverlay, param)).then(() => {
-          debounceHandle(param)
-        })
+        if (overlayInstance?.confirm) {
+          overlayInstance.confirm(transformConfirmOptions<TAction>(confirmOverlay, param)).then(() => {
+            debounceHandle(param)
+          })
+        } else {
+          // todo throw error function
+          console.error('Please implement the confirm overlay component before')
+        }
       } else {
         debounceHandle(param)
       }

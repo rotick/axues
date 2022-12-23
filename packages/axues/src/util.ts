@@ -68,7 +68,7 @@ export function transformConfirmOptions<T> (options: ConfirmOverlayOptions<T>, p
   if (typeof options === 'string') {
     opt.title = options
   } else if (typeof options === 'function') {
-    opt.title = () => options(param)
+    opt = options(param)
   } else {
     opt = options
   }
@@ -86,7 +86,7 @@ export function transformLoadingOptions<T> (options: LoadingOverlayOptions<T>, p
   } else if (typeof options === 'string') {
     opt.text = options
   } else if (typeof options === 'function') {
-    opt.text = () => options(param)
+    opt = options(param)
   } else {
     opt = options
   }
@@ -104,7 +104,7 @@ export function transformSuccessOptions<TAction, TO> (options: SuccessOverlayOpt
   if (typeof options === 'string') {
     opt.title = options
   } else if (typeof options === 'function') {
-    opt.title = () => options(param, data)
+    opt = options(param, data)
   } else {
     opt = options
   }
@@ -122,7 +122,7 @@ export function transformErrorOptions<TAction> (options: ErrorOverlayOptions<TAc
   if (typeof options === 'string') {
     opt.title = options
   } else if (typeof options === 'function') {
-    opt.title = () => options(param, err)
+    opt = options(param, err)
   } else {
     opt = options
   }

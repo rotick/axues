@@ -21,7 +21,7 @@ export interface SuccessOrErrorOverlayType {
   style?: number
   title: string | (() => VNodeChild)
   content?: string | (() => VNodeChild)
-  callback?: (act?: any) => void
+  callback?: (payload?: any) => void
 }
 export interface OverlayImplement {
   loadingOpen?: (options: LoadingOverlayType) => void
@@ -30,6 +30,11 @@ export interface OverlayImplement {
   error?: (options: SuccessOrErrorOverlayType) => void
   confirm?: (options: ConfirmOverlayType) => Promise<unknown>
 }
+// todo maybeComputedRef
+export type ConfirmOverlayOptions<T> = string | ConfirmOverlayType | ((param?: T) => ConfirmOverlayType)
+export type LoadingOverlayOptions<T> = boolean | string | LoadingOverlayType | ((param?: T) => LoadingOverlayType)
+export type SuccessOverlayOptions<TAction, TO> = string | SuccessOrErrorOverlayType | ((param?: TAction, data?: TO) => SuccessOrErrorOverlayType)
+export type ErrorOverlayOptions<T> = string | SuccessOrErrorOverlayType | ((param?: T, err?: Error) => SuccessOrErrorOverlayType)
 
 export interface Axues {
   <TI = any, TO = any>(config: AxuesRequestConfig<TI>): Promise<TO>
@@ -68,10 +73,6 @@ export interface AxuesRequestConfig<T = any, TAction = any> extends Omit<AxiosRe
 }
 
 export type DebounceMode = 'firstOnly' | 'lastOnly' | 'none'
-export type ConfirmOverlayOptions<T> = string | ((param?: T) => VNodeChild) | ConfirmOverlayType
-export type LoadingOverlayOptions<T> = boolean | string | ((param?: T) => VNodeChild) | LoadingOverlayType
-export type SuccessOverlayOptions<TAction, TO> = string | ((param?: TAction, data?: TO) => VNodeChild) | SuccessOrErrorOverlayType
-export type ErrorOverlayOptions<T> = string | ((param?: T, err?: Error) => VNodeChild) | SuccessOrErrorOverlayType
 
 export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends AxuesRequestConfig<TI, TAction> {
   // todo maybeComputedRef
@@ -115,21 +116,18 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
    * */
   cacheKey?: string | ((param?: TAction) => string)
   /*
-   * store the data and payload when vue component is destroyed
-   * and restore it when recreate
-   * this feature can replace keep-alive
-   * default: false
+   * fullscreen overlay components, such as loading, toast, modal
+   * must be implement the component in createAxues or useOverlayImplement
    * */
-  // storeDataOnDestroy?: boolean | {
-  //   storeData: boolean | (() => boolean)
-  //   storage?: 'memory' | 'sessionStorage' | 'localStorage'
-  //   payload?: () => JSON
-  //   onPayloadRestore?: (payload: JSON) => void
-  // } // todo is this a good idea?
   confirmOverlay?: ConfirmOverlayOptions<TAction>
   loadingOverlay?: LoadingOverlayOptions<TAction>
   successOverlay?: SuccessOverlayOptions<TAction, TO>
   errorOverlay?: ErrorOverlayOptions<TAction>
+  /*
+   * merge data when axios response
+   * e.g. data.value.currentPage = newData.current
+   * default: data.value = newData
+   * */
   onData?: (data: Ref<TO>, newData: unknown | unknown[]) => void
   onSuccess?: (data: TO) => void
   onError?: (e: Error) => void
