@@ -68,9 +68,9 @@ export function transformConfirmOptions<T> (options: ConfirmOverlayOptions<T>, p
   if (typeof options === 'string') {
     opt.title = options
   } else if (typeof options === 'function') {
-    opt = options(param)
+    opt = Object.assign(opt, options(param))
   } else {
-    opt = options
+    opt = Object.assign(opt, options)
   }
 
   return opt
@@ -86,9 +86,9 @@ export function transformLoadingOptions<T> (options: LoadingOverlayOptions<T>, p
   } else if (typeof options === 'string') {
     opt.text = options
   } else if (typeof options === 'function') {
-    opt = options(param)
+    opt = Object.assign(opt, options(param))
   } else {
-    opt = options
+    opt = Object.assign(opt, options)
   }
 
   return opt
@@ -104,9 +104,9 @@ export function transformSuccessOptions<TAction, TO> (options: SuccessOverlayOpt
   if (typeof options === 'string') {
     opt.title = options
   } else if (typeof options === 'function') {
-    opt = options(param, data)
+    opt = Object.assign(opt, options(param, data))
   } else {
-    opt = options
+    opt = Object.assign(opt, options)
   }
 
   return opt
@@ -122,9 +122,9 @@ export function transformErrorOptions<TAction> (options: ErrorOverlayOptions<TAc
   if (typeof options === 'string') {
     opt.title = options
   } else if (typeof options === 'function') {
-    opt = options(param, err)
+    opt = Object.assign(opt, options(param, err))
   } else {
-    opt = options
+    opt = Object.assign(opt, options)
   }
 
   return opt
