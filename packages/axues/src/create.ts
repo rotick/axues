@@ -1,5 +1,5 @@
-import { ref, computed } from 'vue'
-import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptions, transformErrorOptions, transformLoadingOptions, transformData, transformSuccessOptions } from './util'
+import { ref, computed, toRaw, shallowRef } from 'vue'
+import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptions, transformErrorOptions, transformLoadingOptions, transformData, transformSuccessOptions, resolveComputedOrActionRef } from './util'
 import { debounce } from './debounce'
 import type { App, Ref, InjectionKey } from 'vue'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
@@ -17,9 +17,9 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
     const axiosConfig: AxiosRequestConfig = {
       ...baseConfig,
       ...config,
-      url: typeof config.url === 'function' ? config.url() : config.url,
-      params: typeof config.params === 'function' ? config.params() : config.params,
-      data: transformData(config.data as Record<any, any>, config.contentType),
+      url: resolveComputedOrActionRef(config.url).value,
+      params: resolveComputedOrActionRef(config.params).value,
+      data: transformData(config.data, config.contentType),
       headers: mergeHeaders(baseConfig?.headers, config.headers, config.contentType)
     }
     return new Promise((resolve, reject) => {
@@ -80,6 +80,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       api,
       immediate = false,
       initialData = null as TO,
+      shallow = false,
       debounceMode = 'firstOnly',
       debounceTime = 500,
       autoRetryTimes = 0,
@@ -104,7 +105,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
     const retryCountdown = ref(0)
     const supportAbort = typeof AbortController === 'function'
     const aborted = ref(false)
-    const data = ref(initialData) as Ref<TO>
+    const data = (shallow ? shallowRef(initialData) : ref(initialData)) as Ref<TO>
     const canAbort = computed(() => supportAbort && pending.value)
 
     let responseTimes = 0
@@ -142,10 +143,10 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         retryTimes.value = 0
         success.value = true
         error.value = null
-        onSuccess?.(res)
+        onSuccess?.(toRaw(data.value))
         if (successOverlay) {
           if (overlayInstance?.success) {
-            overlayInstance.success(transformSuccessOptions<TAction, TO>(successOverlay, param, data.value))
+            overlayInstance.success(transformSuccessOptions<TAction, TO>(successOverlay, param, toRaw(data.value)))
           } else {
             console.error('Please implement the success overlay component before')
           }

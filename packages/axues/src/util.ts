@@ -1,10 +1,17 @@
-import { ConfirmOverlayOptions, ConfirmOverlayType, ContentType, ErrorOverlayOptions, Headers, LoadingOverlayOptions, LoadingOverlayType, SuccessOrErrorOverlayType, SuccessOverlayOptions } from './types'
+import { ConfirmOverlayOptions, ConfirmOverlayType, ContentType, ErrorOverlayOptions, Headers, LoadingOverlayOptions, LoadingOverlayType, MaybeComputedOrActionRef, SuccessOrErrorOverlayType, SuccessOverlayOptions } from './types'
+import { ref } from 'vue'
+import type { Ref } from 'vue'
 
-export function resolveRequestOptions (options: any, param?: any) {
+export function resolveComputedOrActionRef<T, TAction = any> (input: MaybeComputedOrActionRef<T>, actionPayload?: TAction): Ref<T> {
+  const resolved = input instanceof Function ? input(actionPayload) : input
+  return ref(resolved) as Ref<T>
+}
+export function resolveRequestOptions (options: any, actionPayload?: any) {
   const excludeKeys = [
     'api',
     'immediate',
     'initialData',
+    'shallow',
     'debounceMode',
     'debounceTime',
     'autoRetryTimes',
@@ -26,10 +33,11 @@ export function resolveRequestOptions (options: any, param?: any) {
     })
   return {
     ...validOptions,
-    url: typeof options.url === 'function' ? options.url(param) : options.url,
-    params: typeof options.params === 'function' ? options.params() : options.params,
-    data: typeof options.data === 'function' ? options.data() : options.data,
-    headers: typeof options.headers === 'function' ? options.headers() : options.headers
+    url: resolveComputedOrActionRef(options.url, actionPayload),
+    params: resolveComputedOrActionRef(options.params, actionPayload),
+    data: resolveComputedOrActionRef(options.data, actionPayload),
+    contentType: resolveComputedOrActionRef(options.contentType, actionPayload),
+    headers: resolveComputedOrActionRef(options.headers, actionPayload)
   }
 }
 
@@ -42,18 +50,21 @@ function transformContentType (ct?: ContentType) {
   return map[ct as keyof typeof map] || ct
 }
 
-export function transformData (data: Record<string, any>, contentType?: ContentType) {
-  return transformContentType(contentType) === 'application/x-www-form-urlencoded' ? new URLSearchParams(data) : data
+export function transformData (data: MaybeComputedOrActionRef<any>, contentType?: MaybeComputedOrActionRef<ContentType>) {
+  const dt = resolveComputedOrActionRef(data)
+  const ct = resolveComputedOrActionRef(contentType)
+  return transformContentType(ct.value) === 'application/x-www-form-urlencoded' ? new URLSearchParams(dt.value) : data.value
 }
 
-export function mergeHeaders (header1?: Headers, header2?: Headers, contentType?: ContentType) {
+export function mergeHeaders (header1?: Headers, header2?: MaybeComputedOrActionRef<any>, contentType?: MaybeComputedOrActionRef<ContentType>) {
   const ctObj: any = {}
-  if (transformContentType(contentType)) {
-    ctObj['Content-Type'] = transformContentType(contentType)
+  const ct = resolveComputedOrActionRef(contentType)
+  if (transformContentType(ct.value)) {
+    ctObj['Content-Type'] = transformContentType(ct.value)
   }
   return {
     ...(typeof header1 === 'function' ? header1() : header1 || {}),
-    ...(typeof header2 === 'function' ? header2() : header2 || {}),
+    ...(header2 ? resolveComputedOrActionRef(header2).value : {}),
     ...ctObj
   }
 }

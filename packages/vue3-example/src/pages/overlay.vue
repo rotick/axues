@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, h } from 'vue'
+import { reactive, h, ref } from 'vue'
 import { useAxues } from 'axues'
 
 const testConfirm = reactive(
@@ -30,12 +30,14 @@ const testSuccess = reactive(
     })
   })
 )
+const url = ref('/status/500')
 const testError = reactive(
   useAxues({
-    url: '/status/500',
+    url,
     loadingOverlay: true,
     onError (err: Error) {
       console.log(err)
+      url.value = '/status/400'
     },
     errorOverlay: (payload: any, err: any) => ({
       title: payload.a,

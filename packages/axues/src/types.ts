@@ -1,6 +1,9 @@
 import type { AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios'
 import type { Ref, VNodeChild, ComputedRef } from 'vue'
 
+export type MaybeRef<T> = T | Ref<T>
+export type MaybeComputedRef<T> = ComputedRef<T> | MaybeRef<T>
+export type MaybeComputedOrActionRef<T, TAction = any> = MaybeComputedRef<T> | ((actionPayload?: TAction) => T)
 interface CacheInstance {
   get: (key: string) => unknown
   set: (key: string, value: unknown) => void
@@ -64,12 +67,12 @@ export type ContentType = 'urlEncode' | 'json' | 'formData' | string
 export type Headers<TAction = any> = RawAxiosRequestHeaders | ((param?: TAction) => RawAxiosRequestHeaders)
 
 export interface AxuesRequestConfig<T = any, TAction = any> extends Omit<AxiosRequestConfig, 'url' | 'headers'> {
-  url?: string | ((param?: TAction) => string)
+  url?: MaybeComputedOrActionRef<string, TAction>
   // follow axios set to any: https://github.com/axios/axios/blob/v1.x/index.d.ts#L293
-  params?: any | ((param?: TAction) => any)
-  data?: T | ((param?: TAction) => T)
-  contentType?: ContentType
-  headers?: Headers<TAction>
+  params?: MaybeComputedOrActionRef<any, TAction>
+  data?: MaybeComputedOrActionRef<T, TAction>
+  contentType?: MaybeComputedOrActionRef<ContentType>
+  headers?: MaybeComputedOrActionRef<RawAxiosRequestHeaders, TAction>
 }
 
 export type DebounceMode = 'firstOnly' | 'lastOnly' | 'none'
@@ -86,15 +89,21 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
    * */
   immediate?: boolean
   /*
-   * will set to data before request response
+   * will set to data before axios response
    * default: null
    * */
   initialData?: TO
   /*
+   * use shallowRef wrap the data?
+   * default: false
+   * */
+  shallow?: boolean
+  /*
    * only accept first or last time
    * default: firstOnly
    * */
-  debounceMode?: DebounceMode
+  // todo resolve
+  debounceMode?: MaybeComputedOrActionRef<DebounceMode, TAction>
   /*
    * only effect when debounceMode is lastOnly
    * default: 500 (ms)
