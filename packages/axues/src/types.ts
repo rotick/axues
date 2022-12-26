@@ -71,14 +71,13 @@ export interface AxuesRequestConfig<T = any, TAction = any> extends Omit<AxiosRe
   // follow axios set to any: https://github.com/axios/axios/blob/v1.x/index.d.ts#L293
   params?: MaybeComputedOrActionRef<any, TAction>
   data?: MaybeComputedOrActionRef<T, TAction>
-  contentType?: MaybeComputedOrActionRef<ContentType>
+  contentType?: MaybeComputedOrActionRef<ContentType, TAction>
   headers?: MaybeComputedOrActionRef<RawAxiosRequestHeaders, TAction>
 }
 
 export type DebounceMode = 'firstOnly' | 'lastOnly' | 'none'
 
 export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends AxuesRequestConfig<TI, TAction> {
-  // todo maybeComputedRef
   /*
    * request(s) promise function
    * */
@@ -102,8 +101,7 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
    * only accept first or last time
    * default: firstOnly
    * */
-  // todo resolve
-  debounceMode?: MaybeComputedOrActionRef<DebounceMode, TAction>
+  debounceMode?: DebounceMode
   /*
    * only effect when debounceMode is lastOnly
    * default: 500 (ms)
@@ -123,7 +121,7 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
    * when set cacheKey, the response will be cached
    * default: undefined
    * */
-  cacheKey?: string | ((param?: TAction) => string)
+  cacheKey?: MaybeComputedOrActionRef<string, TAction>
   /*
    * fullscreen overlay components, such as loading, toast, modal
    * must be implement the component in createAxues or useOverlayImplement

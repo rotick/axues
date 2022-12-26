@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, watch, ref } from 'vue'
+import { reactive, watch } from 'vue'
 import { useAxues } from 'axues'
 
 const { loading, success, error, data, action } = useAxues({ url: '/get' })
@@ -24,11 +24,10 @@ const test3 = reactive(
   })
 )
 
-const debounceMode = ref('lastOnly')
 const test4 = reactive(
   useAxues({
     url: '/delay/10',
-    debounceMode: 'firstOnly', // todo maybeRef watch
+    debounceMode: 'lastOnly',
     onSuccess (data) {
       console.log(Date.now(), data)
     }
@@ -76,12 +75,6 @@ const test6 = reactive(
 
   <div class="bg-card p-6 mt-6">
     <h3 class="font-semibold text-xl mb-4">Debounce</h3>
-    debounceMode:
-    <select v-model="debounceMode">
-      <option value="firstOnly">firstOnly</option>
-      <option value="lastOnly">lastOnly</option>
-      <option value="none">none</option>
-    </select>
     <button class="h-10 px-6 font-semibold rounded-md bg-primary text-white" @click="test4.action()">click me quickly</button>
     <div v-if="test4.data">{{ test4.data }}</div>
   </div>
