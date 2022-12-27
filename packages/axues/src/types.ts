@@ -64,7 +64,7 @@ export interface CreateAxuesOptions {
   overlayImplement?: OverlayImplement
 }
 export type ContentType = 'urlEncode' | 'json' | 'formData' | string
-export type Headers<TAction = any> = RawAxiosRequestHeaders | ((param?: TAction) => RawAxiosRequestHeaders)
+export type Headers<TAction = any> = RawAxiosRequestHeaders | ((actionPayload?: TAction) => RawAxiosRequestHeaders)
 
 export interface AxuesRequestConfig<T = any, TAction = any> extends Omit<AxiosRequestConfig, 'url' | 'headers'> {
   url?: MaybeComputedOrActionRef<string, TAction>
@@ -81,7 +81,7 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
   /*
    * request(s) promise function
    * */
-  api?: Promise<TO> | Array<Promise<TO>> | ((param?: TAction) => Promise<TO> | Array<Promise<TO>>)
+  api?: Promise<TO> | Array<Promise<TO>> | ((actionPayload?: TAction) => Promise<TO> | Array<Promise<TO>>)
   /*
    * if start when create
    * default: false
@@ -153,11 +153,11 @@ export interface UseAxuesOutput<TI, TO, TAction = any> {
   aborted: Ref<boolean>
   data: Ref<TO>
   // todo return Promise
-  action: (param?: TAction) => void
+  action: (actionPayload?: TAction) => void
   retry: () => void
   refresh: () => void
   abort: () => void
-  deleteCache: (param?: TAction) => void
+  deleteCache: (actionPayload?: TAction) => void
   get: (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => void
   head: (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => void
   options: (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => void

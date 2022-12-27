@@ -118,7 +118,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       ac.signal.onabort = () => (aborted.value = true)
     }
 
-    const run = (param?: TAction) => {
+    const run = (actionPayload?: TAction) => {
       pending.value = true
       aborted.value = false
       clearTimeout(loadingTimer)
@@ -127,7 +127,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         loading.value = true
         if (loadingOverlay) {
           if (overlayInstance?.loadingOpen) {
-            overlayInstance.loadingOpen(transformLoadingOptions<TAction>(loadingOverlay, param))
+            overlayInstance.loadingOpen(transformLoadingOptions<TAction>(loadingOverlay, actionPayload))
           } else {
             console.error('Please implement the loading overlay component before')
           }
@@ -146,7 +146,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         onSuccess?.(toRaw(data.value))
         if (successOverlay) {
           if (overlayInstance?.success) {
-            overlayInstance.success(transformSuccessOptions<TAction, TO>(successOverlay, param, toRaw(data.value)))
+            overlayInstance.success(transformSuccessOptions<TAction, TO>(successOverlay, actionPayload, toRaw(data.value)))
           } else {
             console.error('Please implement the success overlay component before')
           }
@@ -164,7 +164,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         }
       }
 
-      const realCacheKey = getCacheKey<TAction>(cacheKey, param)
+      const realCacheKey = getCacheKey<TAction>(cacheKey, actionPayload)
       if (realCacheKey) {
         const cachedData = cacheInstance?.get(realCacheKey) as string
         if (cachedData) {
@@ -176,10 +176,10 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
 
       let requestApi
       if (api) {
-        const promise = typeof api === 'function' ? api(param) : api
+        const promise = typeof api === 'function' ? api(actionPayload) : api
         requestApi = Array.isArray(promise) ? Promise.all(promise) : promise
       } else {
-        let requestOptions = resolveRequestOptions(options, param)
+        let requestOptions = resolveRequestOptions(options, actionPayload)
         if (ac) {
           requestOptions = {
             ...requestOptions,
@@ -215,7 +215,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
           onError?.(err)
           if (errorOverlay) {
             if (overlayInstance?.error) {
-              overlayInstance.error(transformErrorOptions<TAction>(errorOverlay, param, err))
+              overlayInstance.error(transformErrorOptions<TAction>(errorOverlay, actionPayload, err))
             } else {
               console.error('Please implement the error overlay component before')
             }
@@ -229,7 +229,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
               if (retryCountdown.value === 0) {
                 clearInterval(retryTimer)
                 retrying.value = true
-                run(param)
+                run(actionPayload)
               }
             }, 1000)
           }
@@ -245,8 +245,8 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       // eslint-disable-next-line
       debounceHandle = debounce(run, debounceTime)
     }
-    let initialParam: TAction
-    let lastParam: TAction
+    let initialPayload: TAction
+    let lastPayload: TAction
     const refresh = () => {
       if (refreshing.value) return
       // keep state when refresh
@@ -255,7 +255,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       requestTimes.value = 0
       responseTimes = 0
       refreshing.value = true
-      debounceHandle(initialParam)
+      debounceHandle(initialPayload)
     }
 
     const retry = () => {
@@ -270,31 +270,31 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       clearInterval(retryTimer)
       retryCountdown.value = 0
       retrying.value = true
-      debounceHandle(lastParam)
+      debounceHandle(lastPayload)
     }
 
-    const action = (param?: TAction) => {
+    const action = (actionPayload?: TAction) => {
       if ((pending.value && debounceMode === 'firstOnly') || retrying.value || refreshing.value || retryCountdown.value > 0) return
-      if (param) {
+      if (actionPayload) {
         if (requestTimes.value === 0) {
-          initialParam = param
+          initialPayload = actionPayload
         }
-        lastParam = param
+        lastPayload = actionPayload
       }
       success.value = false
       error.value = null
       retryTimes.value = 0
       if (confirmOverlay) {
         if (overlayInstance?.confirm) {
-          overlayInstance.confirm(transformConfirmOptions<TAction>(confirmOverlay, param)).then(() => {
-            debounceHandle(param)
+          overlayInstance.confirm(transformConfirmOptions<TAction>(confirmOverlay, actionPayload)).then(() => {
+            debounceHandle(actionPayload)
           })
         } else {
           // todo throw error function
           console.error('Please implement the confirm overlay component before')
         }
       } else {
-        debounceHandle(param)
+        debounceHandle(actionPayload)
       }
     }
 
@@ -307,7 +307,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         }
       } else {
         return (data?: MaybeComputedOrActionRef<TI, TAction>, actionPayload?: TAction) => {
-          options.params = data
+          options.data = data
           options.method = method
           action(actionPayload)
         }
@@ -318,8 +318,8 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       ac?.abort()
     }
 
-    const deleteCache = (param?: TAction) => {
-      const realCacheKey = getCacheKey<TAction>(cacheKey, param)
+    const deleteCache = (actionPayload?: TAction) => {
+      const realCacheKey = getCacheKey<TAction>(cacheKey, actionPayload)
       realCacheKey && cacheInstance?.delete(realCacheKey)
     }
 

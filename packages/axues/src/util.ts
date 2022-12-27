@@ -137,6 +137,6 @@ export function transformErrorOptions<TAction> (options: ErrorOverlayOptions<TAc
   return opt
 }
 
-export function getCacheKey<T> (cacheKey?: MaybeComputedOrActionRef<string>, param?: T) {
-  return resolveComputedOrActionRef(cacheKey, param).value
+export function getCacheKey<T> (cacheKey?: MaybeComputedOrActionRef<string>, actionPayload?: T) {
+  return resolveComputedOrActionRef(cacheKey, actionPayload).value
 }
