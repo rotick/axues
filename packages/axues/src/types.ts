@@ -139,7 +139,7 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
   onSuccess?: (data: TO) => void
   onError?: (e: Error) => void
 }
-export interface UseAxuesOutput<T, TAction = any> {
+export interface UseAxuesOutput<TI, TO, TAction = any> {
   pending: Ref<boolean>
   loading: Ref<boolean>
   success: Ref<boolean>
@@ -151,17 +151,23 @@ export interface UseAxuesOutput<T, TAction = any> {
   requestTimes: Ref<number>
   canAbort: ComputedRef<boolean>
   aborted: Ref<boolean>
-  data: Ref<T>
+  data: Ref<TO>
   action: (param?: TAction) => void
   retry: () => void
   refresh: () => void
   abort: () => void
   deleteCache: (param?: TAction) => void
-  // todo alias method such as get/post
+  get: (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => void
+  head: (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => void
+  options: (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => void
+  delete: (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => void
+  post: (data?: MaybeComputedOrActionRef<TI, TAction>, actionPayload?: TAction) => void
+  put: (data?: MaybeComputedOrActionRef<TI, TAction>, actionPayload?: TAction) => void
+  patch: (data?: MaybeComputedOrActionRef<TI, TAction>, actionPayload?: TAction) => void
 }
 
 export interface Provider {
   axuesFn: Axues
   overlayImplement: (options: OverlayImplement) => void
-  useFn: <TI, TO, TAction>(options: UseAxuesOptions<TI, TO, TAction>) => UseAxuesOutput<TO, TAction>
+  useFn: <TI, TO, TAction>(options: UseAxuesOptions<TI, TO, TAction>) => UseAxuesOutput<TI, TO, TAction>
 }

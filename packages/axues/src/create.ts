@@ -3,7 +3,7 @@ import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptio
 import { debounce } from './debounce'
 import type { App, Ref, InjectionKey } from 'vue'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import type { Axues, AxuesRequestConfig, CreateAxuesOptions, OverlayImplement, Provider, UseAxuesOptions, UseAxuesOutput } from './types'
+import type { Axues, AxuesRequestConfig, CreateAxuesOptions, OverlayImplement, MaybeComputedOrActionRef, Provider, UseAxuesOptions, UseAxuesOutput } from './types'
 
 export const key = Symbol('') as InjectionKey<Provider>
 
@@ -74,7 +74,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
     overlayInstance = options
   }
 
-  const useFn = <TI, TO, TAction>(options: UseAxuesOptions<TI, TO, TAction>): UseAxuesOutput<TO, TAction> => {
+  const useFn = <TI, TO, TAction>(options: UseAxuesOptions<TI, TO, TAction>): UseAxuesOutput<TI, TO, TAction> => {
     if (!options) throw new Error('options is required')
     const {
       api,
@@ -298,6 +298,22 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       }
     }
 
+    const actionAlias = (method: string) => {
+      if (['get', 'head', 'options', 'delete'].includes(method)) {
+        return (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => {
+          options.params = params
+          options.method = method
+          action(actionPayload)
+        }
+      } else {
+        return (data?: MaybeComputedOrActionRef<TI, TAction>, actionPayload?: TAction) => {
+          options.params = data
+          options.method = method
+          action(actionPayload)
+        }
+      }
+    }
+
     const abort = () => {
       ac?.abort()
     }
@@ -326,7 +342,14 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       refresh,
       retry,
       abort,
-      deleteCache
+      deleteCache,
+      get: actionAlias('get'),
+      head: actionAlias('head'),
+      options: actionAlias('options'),
+      delete: actionAlias('delete'),
+      post: actionAlias('post'),
+      put: actionAlias('put'),
+      patch: actionAlias('patch')
     }
   }
   interface CreateReturn extends Axues {

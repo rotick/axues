@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, watch } from 'vue'
+import { reactive, watch, ref } from 'vue'
 import { useAxues } from 'axues'
 
 const { loading, success, error, data, action } = useAxues({ url: '/get' })
@@ -41,11 +41,11 @@ const test5 = reactive(
     autoRetryInterval: 3
   })
 )
-
+const cacheKey = ref('abc')
 const test6 = reactive(
   useAxues({
     url: '/get',
-    cacheKey: 'abc'
+    cacheKey
   })
 )
 </script>
@@ -95,6 +95,10 @@ const test6 = reactive(
 
   <div class="bg-card p-6 mt-6">
     <h3 class="font-semibold text-xl mb-4">Cache</h3>
+    <select v-model="cacheKey">
+      <option value="abc">abc</option>
+      <option value="abc1">abc</option>
+    </select>
     <button class="h-10 px-6 font-semibold rounded-md bg-primary text-white" @click="test6.action()">action</button>
     <button class="rounded-md bg-primary text-white px-3 ml-6" @click="test6.deleteCache()">delete cache</button>
     <p v-if="test6.pending">pending...</p>
