@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, h, ref } from 'vue'
+import { reactive, h, ref, computed } from 'vue'
 import { useAxues } from 'axues'
 
 const testConfirm = reactive(
@@ -15,10 +15,9 @@ const testConfirm = reactive(
 const testLoading = reactive(
   useAxues({
     url: '/get',
-    loadingOverlay: (payload: any) => ({
-      style: 2,
-      text: payload.a
-    })
+    loadingOverlay: computed(() => ({
+      text: 'payload.a'
+    }))
   })
 )
 const testSuccess = reactive(
@@ -53,7 +52,7 @@ const testError = reactive(
 </script>
 <template>
   <div class="bg-card p-6 mt-6">
-    <h3 class="font-semibold text-xl mb-4">Overlay components</h3>
+    <h3 class="font-semibold text-xl mb-4">Confirm components</h3>
     <button class="h-10 px-6 font-semibold rounded-md bg-primary text-white" @click="testConfirm.action({ b: 2 })">action</button>
     <p v-if="testConfirm.pending">pending...</p>
     <div v-if="testConfirm.success">success</div>

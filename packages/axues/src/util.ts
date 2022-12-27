@@ -69,7 +69,7 @@ export function mergeHeaders (header1?: Headers, header2?: MaybeComputedOrAction
   }
 }
 
-export function transformConfirmOptions<T> (options: ConfirmOverlayOptions<T>, param?: T): ConfirmOverlayType {
+export function transformConfirmOptions<T> (options: ConfirmOverlayOptions<T>, actionPayload?: T): ConfirmOverlayType {
   let opt: ConfirmOverlayType = {
     style: 1,
     title: '',
@@ -78,16 +78,14 @@ export function transformConfirmOptions<T> (options: ConfirmOverlayOptions<T>, p
   }
   if (typeof options === 'string') {
     opt.title = options
-  } else if (typeof options === 'function') {
-    opt = Object.assign(opt, options(param))
   } else {
-    opt = Object.assign(opt, options)
+    opt = Object.assign(opt, resolveComputedOrActionRef(options, actionPayload).value)
   }
 
   return opt
 }
 
-export function transformLoadingOptions<T> (options: LoadingOverlayOptions<T>, param?: T): LoadingOverlayType {
+export function transformLoadingOptions<T> (options: LoadingOverlayOptions<T>, actionPayload?: T): LoadingOverlayType {
   let opt: LoadingOverlayType = {
     style: 1,
     text: ''
@@ -96,16 +94,14 @@ export function transformLoadingOptions<T> (options: LoadingOverlayOptions<T>, p
     opt.text = ''
   } else if (typeof options === 'string') {
     opt.text = options
-  } else if (typeof options === 'function') {
-    opt = Object.assign(opt, options(param))
   } else {
-    opt = Object.assign(opt, options)
+    opt = Object.assign(opt, resolveComputedOrActionRef(options, actionPayload).value)
   }
 
   return opt
 }
 
-export function transformSuccessOptions<TAction, TO> (options: SuccessOverlayOptions<TAction, TO>, param?: TAction, data?: TO): SuccessOrErrorOverlayType {
+export function transformSuccessOptions<TAction, TO> (options: SuccessOverlayOptions<TAction, TO>, actionPayload?: TAction, data?: TO): SuccessOrErrorOverlayType {
   let opt: SuccessOrErrorOverlayType = {
     style: 1,
     title: '',
@@ -115,15 +111,15 @@ export function transformSuccessOptions<TAction, TO> (options: SuccessOverlayOpt
   if (typeof options === 'string') {
     opt.title = options
   } else if (typeof options === 'function') {
-    opt = Object.assign(opt, options(param, data))
+    opt = Object.assign(opt, options(actionPayload, data))
   } else {
-    opt = Object.assign(opt, options)
+    opt = Object.assign(opt, resolveComputedOrActionRef(options).value)
   }
 
   return opt
 }
 
-export function transformErrorOptions<TAction> (options: ErrorOverlayOptions<TAction>, param?: TAction, err?: Error): SuccessOrErrorOverlayType {
+export function transformErrorOptions<TAction> (options: ErrorOverlayOptions<TAction>, actionPayload?: TAction, err?: Error): SuccessOrErrorOverlayType {
   let opt: SuccessOrErrorOverlayType = {
     style: 1,
     title: '',
@@ -133,9 +129,9 @@ export function transformErrorOptions<TAction> (options: ErrorOverlayOptions<TAc
   if (typeof options === 'string') {
     opt.title = options
   } else if (typeof options === 'function') {
-    opt = Object.assign(opt, options(param, err))
+    opt = Object.assign(opt, options(actionPayload, err))
   } else {
-    opt = Object.assign(opt, options)
+    opt = Object.assign(opt, resolveComputedOrActionRef(options).value)
   }
 
   return opt

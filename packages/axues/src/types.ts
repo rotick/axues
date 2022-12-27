@@ -33,11 +33,11 @@ export interface OverlayImplement {
   error?: (options: SuccessOrErrorOverlayType) => void
   confirm?: (options: ConfirmOverlayType) => Promise<unknown>
 }
-// todo maybeComputedRef
-export type ConfirmOverlayOptions<T> = string | ConfirmOverlayType | ((param?: T) => ConfirmOverlayType)
-export type LoadingOverlayOptions<T> = boolean | string | LoadingOverlayType | ((param?: T) => LoadingOverlayType)
-export type SuccessOverlayOptions<TAction, TO> = string | SuccessOrErrorOverlayType | ((param?: TAction, data?: TO) => SuccessOrErrorOverlayType)
-export type ErrorOverlayOptions<T> = string | SuccessOrErrorOverlayType | ((param?: T, err?: Error) => SuccessOrErrorOverlayType)
+
+export type ConfirmOverlayOptions<T> = string | MaybeComputedOrActionRef<ConfirmOverlayType, T>
+export type LoadingOverlayOptions<T> = boolean | string | MaybeComputedOrActionRef<LoadingOverlayType, T>
+export type SuccessOverlayOptions<TAction, TO> = string | MaybeComputedRef<SuccessOrErrorOverlayType> | ((actionPayload?: TAction, data?: TO) => SuccessOrErrorOverlayType)
+export type ErrorOverlayOptions<T> = string | MaybeComputedRef<SuccessOrErrorOverlayType> | ((actionPayload?: T, err?: Error) => SuccessOrErrorOverlayType)
 
 export interface Axues {
   <TI = any, TO = any>(config: AxuesRequestConfig<TI>): Promise<TO>
@@ -152,6 +152,7 @@ export interface UseAxuesOutput<TI, TO, TAction = any> {
   canAbort: ComputedRef<boolean>
   aborted: Ref<boolean>
   data: Ref<TO>
+  // todo return Promise
   action: (param?: TAction) => void
   retry: () => void
   refresh: () => void
