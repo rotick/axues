@@ -56,7 +56,6 @@ export interface Axues {
 export interface CreateAxuesOptions {
   requestConfig?: () => AxiosRequestConfig
   responseHandle?: (response: unknown) => unknown
-  // todo
   errorHandle?: (err: Error) => Error
   cacheInstance?: CacheInstance
   errorReport?: (err: Error) => void

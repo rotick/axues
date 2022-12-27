@@ -11,7 +11,7 @@ export let axues: Axues = () => {
   throw new Error('Please create axues instance first')
 }
 
-export function createAxues (axiosInstance: AxiosInstance, { requestConfig, responseHandle, cacheInstance, errorReport, loadingDelay = 300, overlayImplement: baseOverlayImplement }: CreateAxuesOptions) {
+export function createAxues (axiosInstance: AxiosInstance, { requestConfig, responseHandle, errorHandle, cacheInstance, errorReport, loadingDelay = 300, overlayImplement: baseOverlayImplement }: CreateAxuesOptions) {
   const request: Axues = config => {
     const baseConfig = requestConfig?.() || {}
     const axiosConfig: AxiosRequestConfig = {
@@ -32,7 +32,10 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
             resolve(res)
           }
         })
-        .catch(reject)
+        .catch((err: Error) => {
+          const handledErr = errorHandle?.(err) || err
+          reject(handledErr)
+        })
     })
   }
   function addAlias (method: string) {
