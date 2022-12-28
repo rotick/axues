@@ -167,80 +167,86 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         }
       }
 
-      const realCacheKey = getCacheKey<TAction>(cacheKey, actionPayload)
-      if (realCacheKey) {
-        const cachedData = cacheInstance?.get(realCacheKey) as string
-        if (cachedData) {
-          successLogic(JSON.parse(cachedData) as TO)
-          finallyLogic()
-          return
-        }
-      }
-
-      let requestApi
-      if (api) {
-        const promise = typeof api === 'function' ? api(actionPayload) : api
-        requestApi = Array.isArray(promise) ? Promise.all(promise) : promise
-      } else {
-        let requestOptions = resolveRequestOptions(options, actionPayload)
-        if (ac) {
-          requestOptions = {
-            ...requestOptions,
-            signal: ac.signal
+      return new Promise((resolve, reject) => {
+        const realCacheKey = getCacheKey<TAction>(cacheKey, actionPayload)
+        if (realCacheKey) {
+          const cachedData = cacheInstance?.get(realCacheKey) as string
+          if (cachedData) {
+            const res = JSON.parse(cachedData) as TO
+            successLogic(res)
+            finallyLogic()
+            resolve(res)
+            return
           }
         }
-        requestApi = axues(requestOptions)
-      }
 
-      requestTimes.value++
-      requestApi
-        .then((res: unknown) => {
-          // only accept last response
-          responseTimes++
-          if (responseTimes !== requestTimes.value) return
-          try {
-            successLogic(res as TO)
-            if (realCacheKey) {
-              if (cacheInstance) {
-                cacheInstance.set(realCacheKey, JSON.stringify(res))
+        let requestApi: Promise<unknown>
+        if (api) {
+          const promise = typeof api === 'function' ? api(actionPayload) : api
+          requestApi = Array.isArray(promise) ? Promise.all(promise) : promise
+        } else {
+          let requestOptions = resolveRequestOptions(options, actionPayload)
+          if (ac) {
+            requestOptions = {
+              ...requestOptions,
+              signal: ac.signal
+            }
+          }
+          requestApi = axues(requestOptions)
+        }
+
+        requestTimes.value++
+        requestApi
+          .then((res: unknown) => {
+            // only accept last response
+            responseTimes++
+            if (responseTimes !== requestTimes.value) return
+            try {
+              successLogic(res as TO)
+              if (realCacheKey) {
+                if (cacheInstance) {
+                  cacheInstance.set(realCacheKey, JSON.stringify(res))
+                } else {
+                  console.error('The cacheInstance must be configured in createAxues to use the cache')
+                }
+              }
+            } catch (err) {
+              console.error(err)
+            }
+            resolve(res)
+          })
+          .catch((err: Error) => {
+            responseTimes++
+            if (responseTimes !== requestTimes.value) return
+            error.value = err
+            onError?.(err)
+            if (errorOverlay) {
+              if (overlayInstance?.error) {
+                overlayInstance.error(transformErrorOptions<TAction>(errorOverlay, actionPayload, err))
               } else {
-                console.error('The cacheInstance must be configured in createAxues to use the cache')
+                console.error('Please implement the error overlay component before')
               }
             }
-          } catch (err) {
-            console.error(err)
-          }
-        })
-        .catch((err: Error) => {
-          responseTimes++
-          if (responseTimes !== requestTimes.value) return
-          error.value = err
-          onError?.(err)
-          if (errorOverlay) {
-            if (overlayInstance?.error) {
-              overlayInstance.error(transformErrorOptions<TAction>(errorOverlay, actionPayload, err))
-            } else {
-              console.error('Please implement the error overlay component before')
+            if (autoRetryTimes > 0 && retryTimes.value < autoRetryTimes) {
+              retryTimes.value++
+              const retryTimeout = autoRetryInterval * retryTimes.value + retryTimes.value
+              retryCountdown.value = retryTimeout > 30 ? 30 : retryTimeout < 1 ? 1 : retryTimeout
+              retryTimer = setInterval(() => {
+                retryCountdown.value--
+                if (retryCountdown.value === 0) {
+                  clearInterval(retryTimer)
+                  retrying.value = true
+                  run(actionPayload)
+                }
+              }, 1000)
             }
-          }
-          if (autoRetryTimes > 0 && retryTimes.value < autoRetryTimes) {
-            retryTimes.value++
-            const retryTimeout = autoRetryInterval * retryTimes.value + retryTimes.value
-            retryCountdown.value = retryTimeout > 30 ? 30 : retryTimeout < 1 ? 1 : retryTimeout
-            retryTimer = setInterval(() => {
-              retryCountdown.value--
-              if (retryCountdown.value === 0) {
-                clearInterval(retryTimer)
-                retrying.value = true
-                run(actionPayload)
-              }
-            }, 1000)
-          }
-          errorReport?.(err) // todo report more info
-        })
-        .finally(() => {
-          if (responseTimes === requestTimes.value) finallyLogic()
-        })
+            errorReport?.(err) // todo report more info
+            reject(err)
+          })
+          .finally(() => {
+            if (responseTimes === requestTimes.value) finallyLogic()
+          })
+      })
     }
 
     let debounceHandle = run
@@ -258,7 +264,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       requestTimes.value = 0
       responseTimes = 0
       refreshing.value = true
-      debounceHandle(initialPayload)
+      return debounceHandle(initialPayload) as Promise<TO>
     }
 
     const retry = () => {
@@ -273,10 +279,11 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       clearInterval(retryTimer)
       retryCountdown.value = 0
       retrying.value = true
-      debounceHandle(lastPayload)
+      return debounceHandle(lastPayload) as Promise<TO>
     }
 
     const action = (actionPayload?: TAction) => {
+      // todo return the first promise instance, no undefined
       if ((pending.value && debounceMode === 'firstOnly') || retrying.value || refreshing.value || retryCountdown.value > 0) return
       if (actionPayload) {
         if (requestTimes.value === 0) {
@@ -288,16 +295,18 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       error.value = null
       retryTimes.value = 0
       if (confirmOverlay) {
-        if (overlayInstance?.confirm) {
-          overlayInstance.confirm(transformConfirmOptions<TAction>(confirmOverlay, actionPayload)).then(() => {
-            debounceHandle(actionPayload)
-          })
-        } else {
-          // todo throw error function
-          console.error('Please implement the confirm overlay component before')
-        }
+        return new Promise<TO>((resolve, reject) => {
+          if (overlayInstance?.confirm) {
+            overlayInstance.confirm(transformConfirmOptions<TAction>(confirmOverlay, actionPayload)).then(() => {
+              debounceHandle(actionPayload).then(resolve as () => TO, reject)
+            }, reject)
+          } else {
+            // todo throw error function
+            console.error('Please implement the confirm overlay component before')
+          }
+        })
       } else {
-        debounceHandle(actionPayload)
+        return debounceHandle(actionPayload) as Promise<TO>
       }
     }
 
@@ -306,13 +315,13 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         return (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => {
           options.params = params
           options.method = method
-          action(actionPayload)
+          return action(actionPayload)
         }
       } else {
         return (data?: MaybeComputedOrActionRef<TI, TAction>, actionPayload?: TAction) => {
           options.data = data
           options.method = method
-          action(actionPayload)
+          return action(actionPayload)
         }
       }
     }

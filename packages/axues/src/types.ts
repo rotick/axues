@@ -151,19 +151,19 @@ export interface UseAxuesOutput<TI, TO, TAction = any> {
   canAbort: ComputedRef<boolean>
   aborted: Ref<boolean>
   data: Ref<TO>
-  // todo return Promise
-  action: (actionPayload?: TAction) => void
-  retry: () => void
-  refresh: () => void
+  // todo no undefined
+  action: (actionPayload?: TAction) => Promise<TO> | undefined
+  retry: () => Promise<TO> | undefined
+  refresh: () => Promise<TO> | undefined
   abort: () => void
   deleteCache: (actionPayload?: TAction) => void
-  get: (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => void
-  head: (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => void
-  options: (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => void
-  delete: (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => void
-  post: (data?: MaybeComputedOrActionRef<TI, TAction>, actionPayload?: TAction) => void
-  put: (data?: MaybeComputedOrActionRef<TI, TAction>, actionPayload?: TAction) => void
-  patch: (data?: MaybeComputedOrActionRef<TI, TAction>, actionPayload?: TAction) => void
+  get: (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => Promise<TO> | undefined
+  head: (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => Promise<TO> | undefined
+  options: (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => Promise<TO> | undefined
+  delete: (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => Promise<TO> | undefined
+  post: (data?: MaybeComputedOrActionRef<TI, TAction>, actionPayload?: TAction) => Promise<TO> | undefined
+  put: (data?: MaybeComputedOrActionRef<TI, TAction>, actionPayload?: TAction) => Promise<TO> | undefined
+  patch: (data?: MaybeComputedOrActionRef<TI, TAction>, actionPayload?: TAction) => Promise<TO> | undefined
 }
 
 export interface Provider {
