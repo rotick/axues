@@ -1,12 +1,22 @@
-import { inject } from 'vue'
+import { inject, isRef } from 'vue'
 import { key } from './create'
-import { UseAxuesOptions, OverlayImplement, Provider } from './types'
+import { UseAxuesOptions, OverlayImplement, Provider, MaybeComputedOrActionRef } from './types'
 
 export { axues, createAxues } from './create'
 
-export function useAxues<TI extends object, TO extends object, TAction = any> (options: UseAxuesOptions<TI, TO, TAction>) {
+export function useAxues<TI extends object, TO extends object, TAction = any> (urlOrOptions: MaybeComputedOrActionRef<string> | UseAxuesOptions<TI, TO, TAction>, options?: UseAxuesOptions<TI, TO, TAction>) {
   const { useFn } = inject(key) as Provider
-  return useFn<TI, TO, TAction>(options)
+  const optionsIsUrl = typeof urlOrOptions === 'string' || typeof urlOrOptions === 'function' || isRef(urlOrOptions)
+  let useOptions: UseAxuesOptions<TI, TO, TAction>
+  if (optionsIsUrl) {
+    useOptions = {
+      ...(options || {}),
+      url: urlOrOptions
+    }
+  } else {
+    useOptions = urlOrOptions
+  }
+  return useFn<TI, TO, TAction>(useOptions)
 }
 
 export function useOverlayImplement (options: OverlayImplement) {
