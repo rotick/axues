@@ -11,6 +11,10 @@ export let axues: Axues = () => {
   throw new Error('Please create axues instance first')
 }
 
+function throwErr (err: string | Error) {
+  throw typeof err === 'string' ? new Error(err) : err
+}
+
 export function createAxues (axiosInstance: AxiosInstance, { requestConfig, responseHandle, errorHandle, cacheInstance, errorReport, loadingDelay = 300, overlayImplement: baseOverlayImplement }: CreateAxuesOptions) {
   const request: Axues = config => {
     const baseConfig = requestConfig?.() || {}
@@ -132,7 +136,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
           if (overlayInstance?.loadingOpen) {
             overlayInstance.loadingOpen(transformLoadingOptions<TAction>(loadingOverlay, actionPayload))
           } else {
-            console.error('Please implement the loading overlay component before')
+            throwErr('Please implement the loading overlay component before')
           }
         }
       }, loadingDelay)
@@ -151,7 +155,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
           if (overlayInstance?.success) {
             overlayInstance.success(transformSuccessOptions<TAction, TO>(successOverlay, actionPayload, toRaw(data.value)))
           } else {
-            console.error('Please implement the success overlay component before')
+            throwErr('Please implement the success overlay component before')
           }
         }
       }
@@ -207,11 +211,11 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
                 if (cacheInstance) {
                   cacheInstance.set(realCacheKey, JSON.stringify(res))
                 } else {
-                  console.error('The cacheInstance must be configured in createAxues to use the cache')
+                  throwErr('The cacheInstance must be configured in createAxues to use the cache')
                 }
               }
             } catch (err) {
-              console.error(err)
+              throwErr(err as Error)
             }
             resolve(res)
           })
@@ -224,7 +228,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
               if (overlayInstance?.error) {
                 overlayInstance.error(transformErrorOptions<TAction>(errorOverlay, actionPayload, err))
               } else {
-                console.error('Please implement the error overlay component before')
+                throwErr('Please implement the error overlay component before')
               }
             }
             if (autoRetryTimes > 0 && retryTimes.value < autoRetryTimes) {
@@ -270,7 +274,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
     const retry = () => {
       if (retrying.value) return
       if (!error.value) {
-        console.error('Retry can only be called on error state')
+        throwErr('Retry can only be called on error state')
         return
       }
       if ((autoRetryTimes > 0 && retryTimes.value >= autoRetryTimes) || autoRetryTimes === 0) {
@@ -301,8 +305,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
               debounceHandle(actionPayload).then(resolve as () => TO, reject)
             }, reject)
           } else {
-            // todo throw error function
-            console.error('Please implement the confirm overlay component before')
+            throwErr('Please implement the confirm overlay component before')
           }
         })
       } else {
