@@ -141,10 +141,9 @@ export function getCacheKey<T> (cacheKey?: MaybeComputedOrActionRef<string>, act
   return resolveComputedOrActionRef(cacheKey, actionPayload).value
 }
 
-// todo test it
 export class CancelablePromise<T> extends Promise<T> {
   canceled = false
-  constructor (executor: (resolve: any, reject: any, cancel: any) => CancelablePromise<T>) {
+  constructor (executor: (resolve: any, reject?: any, cancel?: any) => void) {
     super((resolve, reject) => {
       executor(resolve, reject, () => {
         setTimeout(() => {
@@ -158,25 +157,15 @@ export class CancelablePromise<T> extends Promise<T> {
     onfulfilled?: ((value: T) => PromiseLike<TResult1> | TResult1) | undefined | null,
     onrejected?: ((reason: any) => PromiseLike<TResult2> | TResult2) | undefined | null
   ): Promise<TResult1 | TResult2> {
-    if (this.canceled) {
-      // @ts-expect-error t
-      return this
-    }
-    return super.then(onfulfilled, onrejected)
+    return (this.canceled ? this : super.then(onfulfilled, onrejected)) as Promise<TResult1 | TResult2>
   }
 
   catch<TResult = never>(onrejected?: ((reason: any) => PromiseLike<TResult> | TResult) | undefined | null): Promise<T | TResult> {
-    if (this.canceled) {
-      return this
-    }
-    return super.then(onrejected)
+    // todo call action in @click, when promise reject, got an error: [Vue warn]: Unhandled error during execution of native event handler
+    return this.canceled ? this : super.catch(onrejected)
   }
 
   finally (onfinally?: (() => void) | undefined | null): Promise<T> {
-    if (this.canceled) {
-      this.canceled = false
-      return this
-    }
-    return super.finally(onfinally)
+    return this.canceled ? this : super.finally(onfinally)
   }
 }

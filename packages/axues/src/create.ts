@@ -1,5 +1,5 @@
 import { ref, computed, toRaw, shallowRef } from 'vue'
-import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptions, transformErrorOptions, transformLoadingOptions, transformData, transformSuccessOptions, resolveComputedOrActionRef } from './util'
+import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptions, transformErrorOptions, transformLoadingOptions, transformData, transformSuccessOptions, resolveComputedOrActionRef, CancelablePromise } from './util'
 import { debounce } from './debounce'
 import type { App, Ref, InjectionKey } from 'vue'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
@@ -261,56 +261,60 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
     let initialPayload: TAction
     let lastPayload: TAction
     const refresh = () => {
-      if (refreshing.value) return
-      // keep state when refresh
-      // data.value = initialData
-      retryTimes.value = 0
-      requestTimes.value = 0
-      responseTimes = 0
-      refreshing.value = true
-      return debounceHandle(initialPayload) as Promise<TO>
+      return new CancelablePromise<TO>((resolve, reject, cancel) => {
+        if (refreshing.value) return cancel()
+        // keep state when refresh
+        // data.value = initialData
+        retryTimes.value = 0
+        requestTimes.value = 0
+        responseTimes = 0
+        refreshing.value = true
+        debounceHandle(initialPayload).then(resolve, reject)
+      })
     }
 
     const retry = () => {
-      if (retrying.value) return
-      if (!error.value) {
-        throwErr('Retry can only be called on error state')
-        return
-      }
-      if ((autoRetryTimes > 0 && retryTimes.value >= autoRetryTimes) || autoRetryTimes === 0) {
-        retryTimes.value++
-      }
-      clearInterval(retryTimer)
-      retryCountdown.value = 0
-      retrying.value = true
-      return debounceHandle(lastPayload) as Promise<TO>
+      return new CancelablePromise<TO>((resolve, reject, cancel) => {
+        if (retrying.value) return cancel()
+        if (!error.value) {
+          throwErr('Retry can only be called on error state')
+          return cancel()
+        }
+        if ((autoRetryTimes > 0 && retryTimes.value >= autoRetryTimes) || autoRetryTimes === 0) {
+          retryTimes.value++
+        }
+        clearInterval(retryTimer)
+        retryCountdown.value = 0
+        retrying.value = true
+        debounceHandle(lastPayload).then(resolve, reject)
+      })
     }
 
     const action = (actionPayload?: TAction) => {
-      // todo return the first promise instance, no undefined
-      if ((pending.value && debounceMode === 'firstOnly') || retrying.value || refreshing.value || retryCountdown.value > 0) return
-      if (actionPayload) {
-        if (requestTimes.value === 0) {
-          initialPayload = actionPayload
+      return new CancelablePromise<TO>((resolve, reject, cancel) => {
+        if ((pending.value && debounceMode === 'firstOnly') || retrying.value || refreshing.value || retryCountdown.value > 0) return cancel()
+        if (actionPayload) {
+          if (requestTimes.value === 0) {
+            initialPayload = actionPayload
+          }
+          lastPayload = actionPayload
         }
-        lastPayload = actionPayload
-      }
-      success.value = false
-      error.value = null
-      retryTimes.value = 0
-      if (confirmOverlay) {
-        return new Promise<TO>((resolve, reject) => {
+        success.value = false
+        error.value = null
+        retryTimes.value = 0
+        if (confirmOverlay) {
           if (overlayInstance?.confirm) {
             overlayInstance.confirm(transformConfirmOptions<TAction>(confirmOverlay, actionPayload)).then(() => {
-              debounceHandle(actionPayload).then(resolve as () => TO, reject)
-            }, reject)
+              debounceHandle(actionPayload).then(resolve, reject)
+            }, cancel)
           } else {
             throwErr('Please implement the confirm overlay component before')
           }
-        })
-      } else {
-        return debounceHandle(actionPayload) as Promise<TO>
-      }
+        } else {
+          console.log(111)
+          debounceHandle(actionPayload).then(resolve, reject)
+        }
+      })
     }
 
     const actionAlias = (method: string) => {
