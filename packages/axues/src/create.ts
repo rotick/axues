@@ -93,6 +93,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       autoRetryTimes = 0,
       autoRetryInterval = 2,
       cacheKey,
+      throwOnActionFailed = false,
       confirmOverlay,
       loadingOverlay,
       successOverlay,
@@ -186,6 +187,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
 
         let requestApi: Promise<unknown>
         if (api) {
+          // todo signal and rename
           const promise = typeof api === 'function' ? api(actionPayload) : api
           requestApi = Array.isArray(promise) ? Promise.all(promise) : promise
         } else {
@@ -217,7 +219,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
             } catch (err) {
               throwErr(err as Error)
             }
-            resolve(res)
+            resolve(toRaw(data.value))
           })
           .catch((err: Error) => {
             responseTimes++
@@ -269,7 +271,10 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         requestTimes.value = 0
         responseTimes = 0
         refreshing.value = true
-        debounceHandle(initialPayload).then(resolve, reject)
+        debounceHandle(initialPayload).then(resolve, err => {
+          if (throwOnActionFailed) return reject(err)
+          resolve(null)
+        })
       })
     }
 
@@ -286,7 +291,10 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         clearInterval(retryTimer)
         retryCountdown.value = 0
         retrying.value = true
-        debounceHandle(lastPayload).then(resolve, reject)
+        debounceHandle(lastPayload).then(resolve, err => {
+          if (throwOnActionFailed) return reject(err)
+          resolve(null)
+        })
       })
     }
 
@@ -305,14 +313,19 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         if (confirmOverlay) {
           if (overlayInstance?.confirm) {
             overlayInstance.confirm(transformConfirmOptions<TAction>(confirmOverlay, actionPayload)).then(() => {
-              debounceHandle(actionPayload).then(resolve, reject)
+              debounceHandle(actionPayload).then(resolve, err => {
+                if (throwOnActionFailed) return reject(err)
+                resolve(null)
+              })
             }, cancel)
           } else {
             throwErr('Please implement the confirm overlay component before')
           }
         } else {
-          console.log(111)
-          debounceHandle(actionPayload).then(resolve, reject)
+          debounceHandle(actionPayload).then(resolve, err => {
+            if (throwOnActionFailed) return reject(err)
+            resolve(null)
+          })
         }
       })
     }

@@ -161,7 +161,7 @@ export class CancelablePromise<T> extends Promise<T> {
   }
 
   catch<TResult = never>(onrejected?: ((reason: any) => PromiseLike<TResult> | TResult) | undefined | null): Promise<T | TResult> {
-    // todo call action in @click, when promise reject, got an error: [Vue warn]: Unhandled error during execution of native event handler
+    // help: call action in @click, when promise reject, got an warn: [Vue warn]: Unhandled error during execution of native event handler
     return this.canceled ? this : super.catch(onrejected)
   }
 

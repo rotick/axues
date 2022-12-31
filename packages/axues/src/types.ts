@@ -122,6 +122,13 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
    * */
   cacheKey?: MaybeComputedOrActionRef<string, TAction>
   /*
+   * inspired by https://github.com/vueuse/vueuse/issues/611
+   * whether the action method should throw error when an error occurs
+   * also effect on refresh, retry, get, post, put...
+   * default: false
+   * */
+  throwOnActionFailed?: boolean
+  /*
    * fullscreen overlay components, such as loading, toast, modal
    * must be implement the component in createAxues or useOverlayImplement
    * */
@@ -134,6 +141,7 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
    * e.g. data.value.currentPage = newData.current
    * default: data.value = newData
    * */
+  // todo: request ctx
   onData?: (data: Ref<TO>, newData: unknown | unknown[]) => void
   onSuccess?: (data: TO) => void
   onError?: (e: Error) => void
