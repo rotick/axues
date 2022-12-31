@@ -8,7 +8,7 @@ export function resolveComputedOrActionRef<T, TAction = any> (input: MaybeComput
 }
 export function resolveRequestOptions (options: any, actionPayload?: any) {
   const excludeKeys = [
-    'api',
+    'promise',
     'immediate',
     'initialData',
     'shallow',
@@ -17,6 +17,7 @@ export function resolveRequestOptions (options: any, actionPayload?: any) {
     'autoRetryTimes',
     'autoRetryInterval',
     'cacheKey',
+    'throwOnActionFailed',
     'confirmOverlay',
     'loadingOverlay',
     'successOverlay',

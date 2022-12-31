@@ -84,7 +84,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
   const useFn = <TI, TO, TAction>(options: UseAxuesOptions<TI, TO, TAction>): UseAxuesOutput<TI, TO, TAction> => {
     if (!options) throw new Error('options is required')
     const {
-      api,
+      promise,
       immediate = false,
       initialData = null as TO,
       shallow = false,
@@ -121,7 +121,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
     let retryTimer: ReturnType<typeof setInterval>
     let ac: AbortController | undefined
 
-    if (supportAbort && !api) {
+    if (supportAbort) {
       ac = new AbortController()
       ac.signal.onabort = () => (aborted.value = true)
     }
@@ -186,10 +186,8 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         }
 
         let requestApi: Promise<unknown>
-        if (api) {
-          // todo signal and rename
-          const promise = typeof api === 'function' ? api(actionPayload) : api
-          requestApi = Array.isArray(promise) ? Promise.all(promise) : promise
+        if (promise) {
+          requestApi = typeof promise === 'function' ? promise(actionPayload, ac?.signal) : promise
         } else {
           let requestOptions = resolveRequestOptions(options, actionPayload)
           if (ac) {
@@ -256,7 +254,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
     }
 
     let debounceHandle = run
-    if (debounceMode === 'lastOnly') {
+    if (debounceMode === 'lastPass') {
       // eslint-disable-next-line
       debounceHandle = debounce(run, debounceTime)
     }
@@ -300,7 +298,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
 
     const action = (actionPayload?: TAction) => {
       return new CancelablePromise<TO>((resolve, reject, cancel) => {
-        if ((pending.value && debounceMode === 'firstOnly') || retrying.value || refreshing.value || retryCountdown.value > 0) return cancel()
+        if ((pending.value && debounceMode === 'firstPass') || retrying.value || refreshing.value || retryCountdown.value > 0) return cancel()
         if (actionPayload) {
           if (requestTimes.value === 0) {
             initialPayload = actionPayload

@@ -74,13 +74,13 @@ export interface AxuesRequestConfig<T = any, TAction = any> extends Omit<AxiosRe
   headers?: MaybeComputedOrActionRef<RawAxiosRequestHeaders, TAction>
 }
 
-export type DebounceMode = 'firstOnly' | 'lastOnly' | 'none'
+export type DebounceMode = 'firstPass' | 'lastPass' | 'none'
 
 export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends AxuesRequestConfig<TI, TAction> {
   /*
-   * request(s) promise function
+   * any promise function
    * */
-  api?: Promise<TO> | Array<Promise<TO>> | ((actionPayload?: TAction) => Promise<TO> | Array<Promise<TO>>)
+  promise?: Promise<TO> | ((actionPayload?: TAction, signal?: AbortSignal) => Promise<TO>)
   /*
    * if start when create
    * default: false
@@ -97,8 +97,8 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
    * */
   shallow?: boolean
   /*
-   * only accept first or last time
-   * default: firstOnly
+   * only accept first or last call to action
+   * default: firstPass
    * */
   debounceMode?: DebounceMode
   /*
