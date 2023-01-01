@@ -247,7 +247,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
                 }
               }, 1000)
             }
-            errorReport?.(err) // todo report more info
+            errorReport?.(err)
             reject(err)
           })
           .finally(() => {

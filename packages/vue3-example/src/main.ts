@@ -40,6 +40,7 @@ const axues = createAxues(axiosInstance, {
     if (res.code === 401) {
       removeToken()
       router.push('/login')
+      // todo create axues error, or use universal error lib, to report more error info
       return new AuthError('need login')
     }
     if (res.code === 403) {
