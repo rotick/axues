@@ -29,7 +29,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
     return new Promise((resolve, reject) => {
       axiosInstance(axiosConfig)
         .then((response: AxiosResponse) => {
-          const res = responseHandle?.(response.data) || response.data
+          const res = responseHandle?.(response) || response.data
           if (res instanceof Error) {
             reject(res)
           } else {

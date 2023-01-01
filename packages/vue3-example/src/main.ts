@@ -32,7 +32,8 @@ const axues = createAxues(axiosInstance, {
       UUID: UUID.value
     }
   }),
-  responseHandle (res: any) {
+  responseHandle (response: any) {
+    const res = response.data
     if (res.url) {
       return res
     }
