@@ -54,7 +54,7 @@ function transformContentType (ct?: ContentType) {
 export function transformData (data: MaybeComputedOrActionRef<any>, contentType?: MaybeComputedOrActionRef<ContentType>) {
   const dt = resolveComputedOrActionRef(data)
   const ct = resolveComputedOrActionRef(contentType)
-  return transformContentType(ct.value) === 'application/x-www-form-urlencoded' ? new URLSearchParams(dt.value) : data.value
+  return transformContentType(ct.value) === 'application/x-www-form-urlencoded' ? new URLSearchParams(dt.value) : dt.value
 }
 
 export function mergeHeaders (header1?: Headers, header2?: MaybeComputedOrActionRef<any>, contentType?: MaybeComputedOrActionRef<ContentType>) {
@@ -70,69 +70,79 @@ export function mergeHeaders (header1?: Headers, header2?: MaybeComputedOrAction
   }
 }
 
-export function transformConfirmOptions<T> (options: ConfirmOverlayOptions<T>, actionPayload?: T): ConfirmOverlayType {
-  let opt: ConfirmOverlayType = {
+export function transformConfirmOptions<T> (options?: ConfirmOverlayOptions<T>, actionPayload?: T) {
+  let opt: ConfirmOverlayType | undefined = {
     style: 1,
     title: '',
     content: '',
     requireInputContent: false
   }
-  if (typeof options === 'string') {
-    opt.title = options
+  const transformOpt = resolveComputedOrActionRef(options, actionPayload)
+  if (typeof transformOpt.value === 'string') {
+    opt.title = transformOpt.value
   } else {
-    opt = Object.assign(opt, resolveComputedOrActionRef(options, actionPayload).value)
+    opt = transformOpt.value ? Object.assign(opt, transformOpt.value) : undefined
   }
 
   return opt
 }
 
-export function transformLoadingOptions<T> (options: LoadingOverlayOptions<T>, actionPayload?: T): LoadingOverlayType {
-  let opt: LoadingOverlayType = {
+export function transformLoadingOptions<T> (options?: LoadingOverlayOptions<T>, actionPayload?: T) {
+  let opt: LoadingOverlayType | undefined = {
     style: 1,
     text: ''
   }
-  if (typeof options === 'boolean') {
+  const transformOpt = resolveComputedOrActionRef(options, actionPayload)
+  if (typeof transformOpt.value === 'boolean') {
     opt.text = ''
-  } else if (typeof options === 'string') {
-    opt.text = options
+  } else if (typeof transformOpt.value === 'string') {
+    opt.text = transformOpt.value
   } else {
-    opt = Object.assign(opt, resolveComputedOrActionRef(options, actionPayload).value)
+    opt = transformOpt.value ? Object.assign(opt, transformOpt.value) : undefined
   }
 
   return opt
 }
 
-export function transformSuccessOptions<TAction, TO> (options: SuccessOverlayOptions<TAction, TO>, actionPayload?: TAction, data?: TO): SuccessOrErrorOverlayType {
-  let opt: SuccessOrErrorOverlayType = {
+export function transformSuccessOptions<TAction, TO> (options?: SuccessOverlayOptions<TAction, TO>, actionPayload?: TAction, data?: TO) {
+  let opt: SuccessOrErrorOverlayType | undefined = {
     style: 1,
     title: '',
     content: '',
     callback: undefined
   }
-  if (typeof options === 'string') {
-    opt.title = options
-  } else if (typeof options === 'function') {
-    opt = Object.assign(opt, options(actionPayload, data))
+  let transformed
+  if (typeof options === 'function') {
+    transformed = options(actionPayload, data)
   } else {
-    opt = Object.assign(opt, resolveComputedOrActionRef(options).value)
+    transformed = resolveComputedOrActionRef(options).value
+  }
+  if (typeof transformed === 'string') {
+    opt.title = transformed
+  } else {
+    opt = transformed ? Object.assign(opt, transformed) : undefined
   }
 
   return opt
 }
 
-export function transformErrorOptions<TAction> (options: ErrorOverlayOptions<TAction>, actionPayload?: TAction, err?: Error): SuccessOrErrorOverlayType {
-  let opt: SuccessOrErrorOverlayType = {
+export function transformErrorOptions<TAction> (options?: ErrorOverlayOptions<TAction>, actionPayload?: TAction, err?: Error) {
+  let opt: SuccessOrErrorOverlayType | undefined = {
     style: 1,
     title: '',
     content: '',
     callback: undefined
   }
-  if (typeof options === 'string') {
-    opt.title = options
-  } else if (typeof options === 'function') {
-    opt = Object.assign(opt, options(actionPayload, err))
+  let transformed
+  if (typeof options === 'function') {
+    transformed = options(actionPayload, err)
   } else {
-    opt = Object.assign(opt, resolveComputedOrActionRef(options).value)
+    transformed = resolveComputedOrActionRef(options).value
+  }
+  if (typeof transformed === 'string') {
+    opt.title = transformed
+  } else {
+    opt = transformed ? Object.assign(opt, transformed) : undefined
   }
 
   return opt

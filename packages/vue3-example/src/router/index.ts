@@ -26,6 +26,11 @@ export function createRouter () {
                 path: 'overlay',
                 component: () => import('../pages/overlay.vue'),
                 meta: { title: 'overlay components' }
+              },
+              {
+                path: 'restful',
+                component: () => import('../pages/rest.vue'),
+                meta: { title: 'restful' }
               }
             ]
           }

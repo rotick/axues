@@ -34,10 +34,10 @@ export interface OverlayImplement {
   confirm?: (options: ConfirmOverlayType) => Promise<unknown>
 }
 
-export type ConfirmOverlayOptions<T> = string | MaybeComputedOrActionRef<ConfirmOverlayType, T>
-export type LoadingOverlayOptions<T> = boolean | string | MaybeComputedOrActionRef<LoadingOverlayType, T>
-export type SuccessOverlayOptions<TAction, TO> = string | MaybeComputedRef<SuccessOrErrorOverlayType> | ((actionPayload?: TAction, data?: TO) => SuccessOrErrorOverlayType)
-export type ErrorOverlayOptions<T> = string | MaybeComputedRef<SuccessOrErrorOverlayType> | ((actionPayload?: T, err?: Error) => SuccessOrErrorOverlayType)
+export type ConfirmOverlayOptions<T> = MaybeComputedOrActionRef<string | ConfirmOverlayType, T>
+export type LoadingOverlayOptions<T> = MaybeComputedOrActionRef<boolean | string | LoadingOverlayType, T>
+export type SuccessOverlayOptions<TAction, TO> = MaybeComputedRef<string | SuccessOrErrorOverlayType> | ((actionPayload?: TAction, data?: TO) => string | SuccessOrErrorOverlayType)
+export type ErrorOverlayOptions<T> = MaybeComputedRef<string | SuccessOrErrorOverlayType> | ((actionPayload?: T, err?: Error) => string | SuccessOrErrorOverlayType)
 
 export interface Axues {
   <TI = any, TO = any>(config: AxuesRequestConfig<TI>): Promise<TO>
@@ -141,10 +141,9 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
    * e.g. data.value.currentPage = newData.current
    * default: data.value = newData
    * */
-  // todo: request ctx
-  onData?: (data: Ref<TO>, newData: unknown | unknown[]) => void
-  onSuccess?: (data: TO) => void
-  onError?: (e: Error) => void
+  onData?: (data: Ref<TO>, newData: unknown | unknown[], actionPayload?: TAction) => void
+  onSuccess?: (data: TO, actionPayload?: TAction) => void
+  onError?: (err: Error, actionPayload?: TAction) => void
 }
 export interface UseAxuesOutput<TI, TO, TAction = any> {
   pending: Ref<boolean>
