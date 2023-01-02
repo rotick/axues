@@ -123,7 +123,6 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
 
     const run = (actionPayload?: TAction) => {
       pending.value = true
-      console.log('pending:', pending.value)
       aborted.value = false
       clearTimeout(loadingTimer)
       clearInterval(retryTimer)
@@ -305,8 +304,6 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
     const action = (actionPayload?: TAction) => {
       return new CancelablePromise<TO>((resolve, reject, cancel) => {
         if ((pending.value && debounceMode === 'firstPass') || retrying.value || refreshing.value || retryCountdown.value > 0) return cancel()
-        console.log(pending.value && debounceMode === 'firstPass')
-        console.log(retrying.value, refreshing.value, retryCountdown.value)
         if (actionPayload) {
           if (requestTimes.value === 0) {
             initialPayload = actionPayload
