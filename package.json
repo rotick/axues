@@ -11,7 +11,9 @@
     "dev:vue3": "pnpm -C packages/vue3-example run dev",
     "build:vue3": "pnpm -C packages/vue3-example run build",
     "typecheck:vue3": "pnpm -C packages/vue3-example run typecheck",
-    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.vue"
+    "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.vue",
+    "test": "vitest",
+    "coverage": "vitest run --coverage"
   },
   "engines": {
     "node": ">=16"
@@ -33,19 +35,21 @@
     "@typescript-eslint/parser": "^5.43.0",
     "eslint": "^8.28.0",
     "eslint-config-prettier": "^8.5.0",
+    "eslint-config-standard": "^17.0.0",
     "eslint-config-standard-with-typescript": "^23.0.0",
     "eslint-plugin-import": "^2.26.0",
     "eslint-plugin-n": "^15.5.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
-    "eslint-config-standard": "^17.0.0",
     "eslint-plugin-vue": "^9.7.0",
-    "vue-eslint-parser": "^9.1.0",
     "execa": "^6.1.0",
     "fs-extra": "^10.1.0",
     "husky": "^8.0.2",
     "prettier": "^2.7.1",
     "typescript": "^4.9.3",
+    "vite": "^3.2.4",
+    "vitest": "^0.26.3",
+    "vue-eslint-parser": "^9.1.0",
     "zx": "^7.1.1"
   }
 }
