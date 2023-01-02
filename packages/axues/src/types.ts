@@ -102,7 +102,7 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
    * */
   debounceMode?: DebounceMode
   /*
-   * only effect when debounceMode is lastOnly
+   * only effect when debounceMode is lastPass
    * default: 500 (ms)
    * */
   debounceTime?: number

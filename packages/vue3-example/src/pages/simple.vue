@@ -15,10 +15,10 @@ const test3 = reactive(
       test: 1,
       response: {}
     },
-    onData (data, newData) {
+    onData (data: any, newData: any) {
       data.value.response = newData as object
     },
-    onSuccess (data) {
+    onSuccess (data: any) {
       console.log(data)
     }
   })
@@ -27,8 +27,8 @@ const test3 = reactive(
 const test4 = reactive(
   useAxues({
     url: '/delay/10',
-    debounceMode: 'lastOnly',
-    onSuccess (data) {
+    debounceMode: 'lastPass',
+    onSuccess (data: any) {
       console.log(Date.now(), data)
     }
   })
@@ -48,6 +48,7 @@ const test6 = reactive(
     cacheKey
   })
 )
+const test7 = reactive(useAxues('/delay/10'))
 </script>
 
 <template>
@@ -103,5 +104,18 @@ const test6 = reactive(
     <button class="rounded-md bg-primary text-white px-3 ml-6" @click="test6.deleteCache()">delete cache</button>
     <p v-if="test6.pending">pending...</p>
     <div v-if="test6.success">{{ test6.data }}</div>
+  </div>
+
+  <div class="bg-card p-6 mt-6">
+    <h3 class="font-semibold text-xl mb-4">Abort and refresh</h3>
+    <button class="h-10 px-6 font-semibold rounded-md bg-primary text-white" @click="test7.action()">action</button>
+    <button v-if="test7.canAbort" class="rounded-md bg-primary text-white px-3 ml-6" @click="test7.abort()">abort</button>
+    <button class="rounded-md bg-primary text-white px-3 ml-6" @click="test7.refresh()">refresh</button>
+    <p>{{ test7.requestTimes }}</p>
+    <p v-if="test7.pending">pending...</p>
+    <p v-if="test7.refreshing">refreshing...</p>
+    <p v-if="test7.aborted">aborted</p>
+    <div v-if="test7.success">{{ test7.data }}</div>
+    <div v-if="test7.error">{{ test7.error }}</div>
   </div>
 </template>

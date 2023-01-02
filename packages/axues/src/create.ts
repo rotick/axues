@@ -88,7 +88,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       immediate = false,
       initialData = null as TO,
       shallow = false,
-      debounceMode = 'firstOnly',
+      debounceMode = 'firstPass',
       debounceTime = 500,
       autoRetryTimes = 0,
       autoRetryInterval = 2,
@@ -121,13 +121,9 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
     let retryTimer: ReturnType<typeof setInterval>
     let ac: AbortController | undefined
 
-    if (supportAbort) {
-      ac = new AbortController()
-      ac.signal.onabort = () => (aborted.value = true)
-    }
-
     const run = (actionPayload?: TAction) => {
       pending.value = true
+      console.log('pending:', pending.value)
       aborted.value = false
       clearTimeout(loadingTimer)
       clearInterval(retryTimer)
@@ -174,6 +170,13 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
         }
       }
 
+      if (supportAbort) {
+        ac = new AbortController()
+        ac.signal.onabort = () => {
+          aborted.value = true
+          finallyLogic()
+        }
+      }
       return new Promise((resolve, reject) => {
         const realCacheKey = getCacheKey<TAction>(cacheKey, actionPayload)
         if (realCacheKey) {
@@ -302,6 +305,8 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
     const action = (actionPayload?: TAction) => {
       return new CancelablePromise<TO>((resolve, reject, cancel) => {
         if ((pending.value && debounceMode === 'firstPass') || retrying.value || refreshing.value || retryCountdown.value > 0) return cancel()
+        console.log(pending.value && debounceMode === 'firstPass')
+        console.log(retrying.value, refreshing.value, retryCountdown.value)
         if (actionPayload) {
           if (requestTimes.value === 0) {
             initialPayload = actionPayload
