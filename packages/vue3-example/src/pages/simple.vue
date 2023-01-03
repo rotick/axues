@@ -9,7 +9,10 @@ watch(data, () => {
 const test2 = reactive(useAxues({ url: '/get', immediate: true }))
 const test3 = reactive(
   useAxues({
-    url: '/get',
+    url: '/post',
+    method: 'post',
+    data: { a: 1 },
+    contentType: 'urlEncode',
     immediate: true,
     initialData: {
       test: 1,

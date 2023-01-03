@@ -51,12 +51,6 @@ function transformContentType (ct?: ContentType) {
   return map[ct as keyof typeof map] || ct
 }
 
-export function transformData (data: MaybeComputedOrActionRef<any>, contentType?: MaybeComputedOrActionRef<ContentType>) {
-  const dt = resolveComputedOrActionRef(data)
-  const ct = resolveComputedOrActionRef(contentType)
-  return transformContentType(ct.value) === 'application/x-www-form-urlencoded' ? new URLSearchParams(dt.value) : dt.value
-}
-
 export function mergeHeaders (header1?: Headers, header2?: MaybeComputedOrActionRef<any>, contentType?: MaybeComputedOrActionRef<ContentType>) {
   const ctObj: any = {}
   const ct = resolveComputedOrActionRef(contentType)

@@ -1,5 +1,5 @@
 import { ref, computed, toRaw, shallowRef } from 'vue'
-import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptions, transformErrorOptions, transformLoadingOptions, transformData, transformSuccessOptions, resolveComputedOrActionRef, CancelablePromise } from './util'
+import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptions, transformErrorOptions, transformLoadingOptions, transformSuccessOptions, resolveComputedOrActionRef, CancelablePromise } from './util'
 import { debounce } from './debounce'
 import type { App, Ref, InjectionKey } from 'vue'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
@@ -23,7 +23,7 @@ export function createAxues (axiosInstance: AxiosInstance, { requestConfig, resp
       ...config,
       url: resolveComputedOrActionRef(config.url).value,
       params: resolveComputedOrActionRef(config.params).value,
-      data: transformData(config.data, config.contentType),
+      data: resolveComputedOrActionRef(config.data).value,
       headers: mergeHeaders(baseConfig?.headers, config.headers, config.contentType)
     }
     return new Promise((resolve, reject) => {
