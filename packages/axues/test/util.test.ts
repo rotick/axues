@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { resolveComputedOrActionRef, resolveRequestOptions, mergeHeaders, transformConfirmOptions } from '../src/util'
+import { resolveComputedOrActionRef, resolveRequestOptions, mergeHeaders, transformConfirmOptions, transformLoadingOptions, transformSuccessOptions } from '../src/util'
 import { ref, computed } from 'vue'
 
 describe('util', () => {
@@ -55,6 +55,86 @@ describe('util', () => {
       title: 'hello are you sure?',
       content: '',
       requireInputContent: false
+    })
+    expect(
+      transformConfirmOptions({
+        style: 2,
+        title: 'are you sure from object'
+      })
+    ).toStrictEqual({
+      style: 2,
+      title: 'are you sure from object',
+      content: '',
+      requireInputContent: false
+    })
+  })
+
+  test('transformLoadingOptions', () => {
+    expect(transformLoadingOptions('loading')).toStrictEqual({
+      style: 1,
+      text: 'loading'
+    })
+    expect(transformLoadingOptions(true)).toStrictEqual({
+      style: 1,
+      text: ''
+    })
+    expect(transformLoadingOptions(ref('loading'))).toStrictEqual({
+      style: 1,
+      text: 'loading'
+    })
+    expect(transformLoadingOptions(computed(() => 'loading'))).toStrictEqual({
+      style: 1,
+      text: 'loading'
+    })
+    expect(transformLoadingOptions((text: any) => `${text as string} loading`, 'hello')).toStrictEqual({
+      style: 1,
+      text: 'hello loading'
+    })
+    expect(
+      transformLoadingOptions({
+        style: 2
+      })
+    ).toStrictEqual({
+      style: 2,
+      text: ''
+    })
+  })
+
+  test('transformSuccessOptions', () => {
+    expect(transformSuccessOptions('success')).toStrictEqual({
+      style: 1,
+      title: 'success',
+      content: '',
+      callback: undefined
+    })
+    expect(transformSuccessOptions(ref('success'))).toStrictEqual({
+      style: 1,
+      title: 'success',
+      content: '',
+      callback: undefined
+    })
+    expect(transformSuccessOptions(computed(() => 'success'))).toStrictEqual({
+      style: 1,
+      title: 'success',
+      content: '',
+      callback: undefined
+    })
+    expect(transformSuccessOptions((text: any) => `${text as string} success`, 'hello')).toStrictEqual({
+      style: 1,
+      title: 'hello success',
+      content: '',
+      callback: undefined
+    })
+    expect(
+      transformSuccessOptions({
+        style: 2,
+        title: 'test'
+      })
+    ).toStrictEqual({
+      style: 2,
+      title: 'test',
+      content: '',
+      callback: undefined
     })
   })
 })

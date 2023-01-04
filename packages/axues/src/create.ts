@@ -15,7 +15,8 @@ function throwErr (err: string | Error) {
   throw typeof err === 'string' ? new Error(err) : err
 }
 
-export function createAxues (axiosInstance: AxiosInstance, { requestConfig, responseHandle, errorHandle, cacheInstance, errorReport, loadingDelay = 300, overlayImplement: baseOverlayImplement }: CreateAxuesOptions) {
+export function createAxues (axiosInstance: AxiosInstance, createOptions?: CreateAxuesOptions) {
+  const { requestConfig, responseHandle, errorHandle, cacheInstance, errorReport, loadingDelay = 300, overlayImplement: baseOverlayImplement } = createOptions || {}
   const request: Axues = config => {
     const baseConfig = requestConfig?.() || {}
     const axiosConfig: AxiosRequestConfig = {
