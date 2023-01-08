@@ -4,17 +4,18 @@ import axios from 'axios'
 import { createAxues, useAxues } from '../src'
 // @vitest-environment happy-dom
 function createVueApp (app: App) {
+  const id = `app-${Date.now()}`
   const dom = document.createElement('div')
-  dom.id = 'app'
+  dom.id = id
   document.body.appendChild(dom)
-  app.mount('#app')
+  app.mount(`#${id}`)
 }
 describe('pending and loading', () => {
+  const axiosInstance = axios.create({
+    baseURL: 'https://axues.io'
+  })
+  const axues = createAxues(axiosInstance)
   test('should true when request start', () => {
-    const axiosInstance = axios.create({
-      baseURL: 'https://axues.io'
-    })
-    const axues = createAxues(axiosInstance)
     const app = createApp({
       setup () {
         vi.useFakeTimers()
@@ -30,6 +31,23 @@ describe('pending and loading', () => {
           expect(loading.value).toBe(true)
         }, 300)
         vi.runAllTimers()
+      }
+    })
+    app.use(axues)
+    createVueApp(app)
+  })
+
+  test('should false when request finish', () => {
+    const app = createApp({
+      setup () {
+        async function test () {
+          const { pending, loading, action } = useAxues('/get')
+          expect(pending.value).toBe(false)
+          await action()
+          expect(pending.value).toBe(false)
+          expect(loading.value).toBe(false)
+        }
+        test()
       }
     })
     app.use(axues)

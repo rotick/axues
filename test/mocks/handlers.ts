@@ -6,5 +6,8 @@ export const handlers = [
       // ctx.status(200),
       ctx.json({ test: 1 })
     )
+  }),
+  rest.get('https://axues.io/get', (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json({ test: 1 }))
   })
 ]
