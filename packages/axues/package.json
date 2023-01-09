@@ -5,7 +5,8 @@
   "types": "src/types.ts",
   "devDependencies": {
     "axios": "^1.2.1",
-    "vue": "^3.2.45"
+    "vue": "^3.2.45",
+    "@vue/test-utils": "^2.2.7"
   },
   "peerDependencies": {
     "axios": ">=1.0.0"
