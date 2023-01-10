@@ -110,7 +110,13 @@ describe('basic', () => {
     })
     const wrapper = getWrap(TestComponent)
 
-    // expect(() => wrapper.vm.retry()).toThrowError(/called/)
+    await expect(() => wrapper.vm.retry()).rejects.toThrowError(/Retry can/)
+    await wrapper.get('.action').trigger('click')
+
+    await flushPromises()
+    expect(wrapper.vm.error).toBeInstanceOf(Error)
+
     await wrapper.get('.retry').trigger('click')
+    expect(wrapper.vm.retrying).toBe(true)
   })
 })
