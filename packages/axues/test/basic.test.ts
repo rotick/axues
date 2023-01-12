@@ -102,8 +102,8 @@ describe('basic', () => {
   test('retry when error', async () => {
     const TestComponent = defineComponent({
       setup () {
-        const { pending, error, action, requestTimes, retrying, retryTimes, retryCountdown, retry } = useAxues('/getError')
-        return { pending, error, action, requestTimes, retrying, retryTimes, retryCountdown, retry }
+        const { pending, error, action, requestTimes, retrying, retryTimes, retry } = useAxues('/getError')
+        return { pending, error, action, requestTimes, retrying, retryTimes, retry }
       },
       template: `<button @click="action" class="action">action</button>
       <button @click="retry" class="retry">retry</button>`
@@ -118,5 +118,73 @@ describe('basic', () => {
 
     await wrapper.get('.retry').trigger('click')
     expect(wrapper.vm.retrying).toBe(true)
+    expect(wrapper.vm.pending).toBe(true)
+    expect(wrapper.vm.retryTimes).toBe(1)
+    expect(wrapper.vm.requestTimes).toBe(2)
+
+    await flushPromises()
+    expect(wrapper.vm.error).toBeInstanceOf(Error)
+
+    await wrapper.get('.retry').trigger('click')
+    expect(wrapper.vm.retrying).toBe(true)
+    expect(wrapper.vm.pending).toBe(true)
+    expect(wrapper.vm.retryTimes).toBe(2)
+    expect(wrapper.vm.requestTimes).toBe(3)
+  })
+
+  test('retry count down', async () => {
+    const TestComponent = defineComponent({
+      setup () {
+        const { error, retryCountdown, action, retryTimes, retry } = useAxues('/getError', {
+          autoRetryTimes: 2
+        })
+        return { retryCountdown, error, action, retryTimes, retry }
+      },
+      template: `<button @click="action" class="action">action</button>
+      <button @click="retry" class="retry">retry</button>`
+    })
+    const wrapper = getWrap(TestComponent)
+
+    await wrapper.get('.action').trigger('click')
+
+    await flushPromises()
+    expect(wrapper.vm.error).toBeInstanceOf(Error)
+    expect(wrapper.vm.retryCountdown).toBe(3)
+    expect(wrapper.vm.retryTimes).toBe(1)
+
+    await wrapper.get('.retry').trigger('click')
+    expect(wrapper.vm.retryTimes).toBe(1)
+    await flushPromises()
+    expect(wrapper.vm.retryTimes).toBe(2)
+    expect(wrapper.vm.error).toBeInstanceOf(Error)
+    expect(wrapper.vm.retryCountdown).toBe(6)
+  })
+
+  test('refresh', async () => {
+    const TestComponent = defineComponent({
+      setup () {
+        const { success, data, action, refreshing, refresh } = useAxues('/get')
+        return { success, data, action, refreshing, refresh }
+      },
+      template: `<button @click="action" class="action">action</button>
+      <button @click="refresh" class="refresh">retry</button>`
+    })
+    const wrapper = getWrap(TestComponent)
+
+    await wrapper.get('.action').trigger('click')
+
+    await flushPromises()
+    expect(wrapper.vm.success).toBe(true)
+    expect(wrapper.vm.refreshing).toBe(false)
+
+    await wrapper.get('.refresh').trigger('click')
+    expect(wrapper.vm.refreshing).toBe(true)
+    expect(wrapper.vm.data).toEqual({ test: 1 })
+    expect(wrapper.vm.success).toBe(true)
+
+    await flushPromises()
+    expect(wrapper.vm.refreshing).toBe(false)
+    expect(wrapper.vm.data).toEqual({ test: 1 })
+    expect(wrapper.vm.success).toBe(true)
   })
 })
