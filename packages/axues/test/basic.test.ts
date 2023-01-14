@@ -187,4 +187,27 @@ describe('basic', () => {
     expect(wrapper.vm.data).toEqual({ test: 1 })
     expect(wrapper.vm.success).toBe(true)
   })
+
+  test('abort', async () => {
+    const TestComponent = defineComponent({
+      setup () {
+        const { canAbort, aborted, action, abort, pending, success } = useAxues('/get')
+        return { canAbort, aborted, action, abort, pending, success }
+      },
+      template: `<button @click="action" class="action">action</button>
+      <button @click="abort" class="abort">abort</button>`
+    })
+    const wrapper = getWrap(TestComponent)
+
+    await wrapper.get('.action').trigger('click')
+    expect(wrapper.vm.pending).toBe(true)
+    expect(wrapper.vm.canAbort).toBe(true)
+    expect(wrapper.vm.aborted).toBe(false)
+
+    await wrapper.get('.abort').trigger('click')
+    expect(wrapper.vm.aborted).toBe(true)
+    expect(wrapper.vm.pending).toBe(false)
+    await flushPromises()
+    expect(wrapper.vm.success).toBe(false)
+  })
 })
