@@ -65,11 +65,10 @@ export interface CreateAxuesOptions {
 export type ContentType = 'urlEncode' | 'json' | 'formData' | string
 export type Headers<TAction = any> = RawAxiosRequestHeaders | ((actionPayload?: TAction) => RawAxiosRequestHeaders)
 
-export interface AxuesRequestConfig<T = any, TAction = any> extends Omit<AxiosRequestConfig, 'url' | 'headers'> {
+export interface AxuesRequestConfig<TI = any, TAction = any> extends Omit<AxiosRequestConfig, 'url' | 'headers'> {
   url?: MaybeComputedOrActionRef<string, TAction>
-  // follow axios set to any: https://github.com/axios/axios/blob/v1.x/index.d.ts#L293
-  params?: MaybeComputedOrActionRef<any, TAction>
-  data?: MaybeComputedOrActionRef<T, TAction>
+  params?: MaybeComputedOrActionRef<TI, TAction>
+  data?: MaybeComputedOrActionRef<TI, TAction>
   contentType?: MaybeComputedOrActionRef<ContentType, TAction>
   headers?: MaybeComputedOrActionRef<RawAxiosRequestHeaders, TAction>
 }
