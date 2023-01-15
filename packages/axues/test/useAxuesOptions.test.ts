@@ -708,7 +708,32 @@ describe('axues only options', () => {
     expect(wrapper.vm.data).toEqual({ test: 1 })
   })
 
-  test('onSuccess', async () => {
+  test('throwOnActionFailed', async () => {
+    let e = null
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, action, data, error } = useAxues({
+          url: '/getError',
+          throwOnActionFailed: true
+        })
+        action().then(
+          () => {},
+          err => {
+            e = err
+          }
+        )
+        return { pending, action, data, error }
+      },
+      template: '<button @click="action">action</button>'
+    })
+    const wrapper = getWrap(TestComponent)
+
+    await flushPromises()
+    expect(e).toBeInstanceOf(Error)
+    expect(wrapper.vm.error).toEqual(e)
+  })
+
+  test('onSuccess and onFinally', async () => {
     let d = {}
     let a = 0
     let f = 0
@@ -739,7 +764,7 @@ describe('axues only options', () => {
     expect(wrapper.vm.data).toEqual({ test: 1 })
   })
 
-  test('onError', async () => {
+  test('onError and onFinally', async () => {
     let d = {}
     let a = 0
     let f = 0
