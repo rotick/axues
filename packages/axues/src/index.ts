@@ -4,8 +4,9 @@ import { UseAxuesOptions, OverlayImplement, Provider, MaybeComputedOrActionRef }
 
 export { axues, createAxues } from './create'
 
-export function useAxues<TI extends object, TO extends object, TAction = any> (urlOrOptions: MaybeComputedOrActionRef<string> | UseAxuesOptions<TI, TO, TAction>, options?: UseAxuesOptions<TI, TO, TAction>) {
+export function useAxues<TI = any, TO = any, TAction = any> (urlOrOptions: MaybeComputedOrActionRef<string> | UseAxuesOptions<TI, TO, TAction>, options?: UseAxuesOptions<TI, TO, TAction>) {
   const { useFn } = inject(key) as Provider
+  // todo how to make promise as first argument
   const optionsIsUrl = typeof urlOrOptions === 'string' || typeof urlOrOptions === 'function' || isRef(urlOrOptions)
   let useOptions: UseAxuesOptions<TI, TO, TAction>
   if (optionsIsUrl) {

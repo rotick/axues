@@ -380,11 +380,10 @@ describe('contentType', () => {
 
 describe('promise', () => {
   test('promise resolve', async () => {
-    const service = Promise.resolve({ foo: 'bar' })
     const TestComponent = defineComponent({
       setup () {
         const { pending, loading, success, error, data } = useAxues({
-          promise: service,
+          promise: () => Promise.resolve({ foo: 'bar' }),
           immediate: true
         })
         return { pending, loading, success, error, data }
@@ -399,14 +398,13 @@ describe('promise', () => {
   })
 
   test('promise reject', async () => {
-    const service = Promise.reject(new Error('some error message'))
     const TestComponent = defineComponent({
       setup () {
-        const { pending, loading, success, error, data } = useAxues({
-          promise: service,
+        const { pending, loading, success, error, data, action } = useAxues({
+          promise: () => Promise.reject(new Error('some error message')),
           immediate: true
         })
-        return { pending, loading, success, error, data }
+        return { pending, loading, success, error, data, action }
       }
     })
     const wrapper = getWrap(TestComponent)
@@ -417,29 +415,30 @@ describe('promise', () => {
     expect(wrapper.vm.error.message).toEqual('some error message')
   })
 
-  // test('promise is function', async () => {
-  //   const service = () => new Promise((resolve, reject) => {
-  //     reject(new Error('some error message'))
-  //   })
-  //   const TestComponent = defineComponent({
-  //     setup () {
-  //       const { pending, loading, success, error, data, action } = useAxues({
-  //         promise: (actionPayload) => service
-  //       })
-  //       return { pending, loading, success, error, data, action }
-  //     },
-  //     // eslint-disable-next-line
-  //     template: `<button @click="action('msg from action')" class="action">action</button>`
-  //   })
-  //   const wrapper = getWrap(TestComponent)
-  //
-  //   await wrapper.get('.action').trigger('click')
-  //   expect(wrapper.vm.pending).toBe(true)
-  //   await flushPromises()
-  //   expect(wrapper.vm.success).toBe(false)
-  //   expect(wrapper.vm.data).toEqual(null)
-  //   expect(wrapper.vm.error.message).toEqual('msg from action')
-  // })
+  test('promise with params', async () => {
+    const service = (msg: string) =>
+      new Promise((resolve, reject) => {
+        reject(new Error(msg))
+      })
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, loading, success, error, data, action } = useAxues({
+          promise: actionPayload => service(actionPayload)
+        })
+        return { pending, loading, success, error, data, action }
+      },
+      // eslint-disable-next-line
+      template: `<button @click="action('msg from action')" class="action">action</button>`
+    })
+    const wrapper = getWrap(TestComponent)
+
+    wrapper.get('.action').trigger('click')
+    expect(wrapper.vm.pending).toBe(true)
+    await flushPromises()
+    expect(wrapper.vm.success).toBe(false)
+    expect(wrapper.vm.data).toEqual(null)
+    expect(wrapper.vm.error.message).toEqual('msg from action')
+  })
 })
 
 describe('axues only options', () => {

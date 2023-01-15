@@ -80,7 +80,7 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
   /*
    * any promise function
    * */
-  promise?: Promise<TO> | ((actionPayload?: TAction, signal?: AbortSignal) => Promise<TO>)
+  promise?: (actionPayload?: TAction, signal?: AbortSignal) => Promise<TO>
   /*
    * if start when create
    * default: false

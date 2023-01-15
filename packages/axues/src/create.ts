@@ -192,7 +192,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
 
         let requestApi: Promise<unknown>
         if (promise) {
-          requestApi = typeof promise === 'function' ? promise(actionPayload, ac?.signal) : promise
+          requestApi = promise(actionPayload, ac?.signal)
         } else {
           let requestOptions = resolveRequestOptions(options, actionPayload)
           if (ac) {
