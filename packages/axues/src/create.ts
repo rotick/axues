@@ -12,7 +12,7 @@ export let axues: Axues = () => {
 }
 
 function throwErr (err: string | Error) {
-  throw typeof err === 'string' ? new Error(err) : err
+  console.error(typeof err === 'string' ? new Error(err) : err)
 }
 
 export function createAxues (axiosInstance: AxiosInstance, createOptions?: CreateAxuesOptions) {
@@ -182,6 +182,9 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       return new Promise((resolve, reject) => {
         const realCacheKey = getCacheKey<TAction>(cacheKey, actionPayload)
         if (realCacheKey) {
+          if (!cacheInstance) {
+            throwErr('The cacheInstance must be configured in createAxues to use the cache')
+          }
           const cachedData = cacheInstance?.get(realCacheKey) as string
           if (cachedData) {
             const res = JSON.parse(cachedData) as TO
@@ -208,53 +211,47 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
 
         requestTimes.value++
         requestApi
-          .then((res: unknown) => {
-            // only accept last response
-            responseTimes++
-            if (responseTimes !== requestTimes.value) return
-            try {
+          .then(
+            (res: unknown) => {
+              // only accept last response
+              responseTimes++
+              if (responseTimes !== requestTimes.value) return
               successLogic(res as TO)
-              if (realCacheKey) {
-                if (cacheInstance) {
-                  cacheInstance.set(realCacheKey, JSON.stringify(res))
+              if (realCacheKey && cacheInstance) {
+                cacheInstance.set(realCacheKey, JSON.stringify(res))
+              }
+              resolve(toRaw(data.value))
+            },
+            (err: Error) => {
+              responseTimes++
+              if (responseTimes !== requestTimes.value) return
+              error.value = err
+              onError?.(err, actionPayload)
+              const transformErrorOverlay = transformErrorOptions<TAction>(errorOverlay, actionPayload, err)
+              if (transformErrorOverlay) {
+                if (overlayInstance?.error) {
+                  overlayInstance.error(transformErrorOverlay)
                 } else {
-                  throwErr('The cacheInstance must be configured in createAxues to use the cache')
+                  throwErr('Please implement the error overlay component before')
                 }
               }
-            } catch (err) {
-              throwErr(err as Error)
-            }
-            resolve(toRaw(data.value))
-          })
-          .catch((err: Error) => {
-            responseTimes++
-            if (responseTimes !== requestTimes.value) return
-            error.value = err
-            onError?.(err, actionPayload)
-            const transformErrorOverlay = transformErrorOptions<TAction>(errorOverlay, actionPayload, err)
-            if (transformErrorOverlay) {
-              if (overlayInstance?.error) {
-                overlayInstance.error(transformErrorOverlay)
-              } else {
-                throwErr('Please implement the error overlay component before')
+              if (autoRetryTimes > 0 && retryTimes.value < autoRetryTimes) {
+                retryTimes.value++
+                const retryTimeout = autoRetryInterval * retryTimes.value + retryTimes.value
+                retryCountdown.value = retryTimeout > 30 ? 30 : retryTimeout < 1 ? 1 : retryTimeout
+                retryTimer = setInterval(() => {
+                  retryCountdown.value--
+                  if (retryCountdown.value === 0) {
+                    clearInterval(retryTimer)
+                    retrying.value = true
+                    run(actionPayload)
+                  }
+                }, 1000)
               }
+              errorReport?.(err)
+              reject(err)
             }
-            if (autoRetryTimes > 0 && retryTimes.value < autoRetryTimes) {
-              retryTimes.value++
-              const retryTimeout = autoRetryInterval * retryTimes.value + retryTimes.value
-              retryCountdown.value = retryTimeout > 30 ? 30 : retryTimeout < 1 ? 1 : retryTimeout
-              retryTimer = setInterval(() => {
-                retryCountdown.value--
-                if (retryCountdown.value === 0) {
-                  clearInterval(retryTimer)
-                  retrying.value = true
-                  run(actionPayload)
-                }
-              }, 1000)
-            }
-            errorReport?.(err)
-            reject(err)
-          })
+          )
           .finally(() => {
             if (responseTimes === requestTimes.value) finallyLogic()
           })
@@ -288,8 +285,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       return new CancelablePromise<TO>((resolve, reject, cancel) => {
         if (retrying.value) return cancel()
         if (!error.value) {
-          throwErr('Retry can only be called on error state')
-          return cancel()
+          throw new Error('Retry can only be called on error state')
         }
         if ((autoRetryTimes > 0 && retryTimes.value >= autoRetryTimes) || autoRetryTimes === 0) {
           retryTimes.value++

@@ -42,7 +42,6 @@ describe('requestConfig', () => {
 
     expect(wrapper.vm.pending).toBe(true)
     await flushPromises()
-    console.log(wrapper.vm.data.headers)
     expect(wrapper.vm.data.headers.abc).toBe('1')
     expect(wrapper.vm.data.headers.authorization).toBe('bar')
 

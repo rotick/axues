@@ -687,24 +687,26 @@ describe('axues only options', () => {
   test('cache', async () => {
     const TestComponent = defineComponent({
       setup () {
-        const { pending, action, requestTimes, data } = useAxues({
+        const { pending, action, success, requestTimes, data } = useAxues({
           url: '/get',
           cacheKey: 'test'
         })
-        return { pending, action, requestTimes, data }
+        return { pending, action, success, requestTimes, data }
       },
-      template: '<button @click="action">action</button>'
+      template: '<button @click="action" class="action">action</button>'
     })
     const wrapper = getWrap(TestComponent)
 
-    await wrapper.get('button').trigger('click')
+    await wrapper.get('.action').trigger('click')
     await flushPromises()
+    expect(wrapper.vm.success).toBe(true)
+    expect(wrapper.vm.pending).toBe(false)
     expect(wrapper.vm.data).toEqual({ test: 1 })
     expect(wrapper.vm.requestTimes).toBe(1)
 
-    await wrapper.get('button').trigger('click')
+    await wrapper.get('.action').trigger('click')
     await flushPromises()
-    expect(wrapper.vm.requestTimes).toBe(1)
+    expect(wrapper.vm.requestTimes).toBe(2)
     expect(wrapper.vm.data).toEqual({ test: 1 })
   })
 
