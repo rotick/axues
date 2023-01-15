@@ -1,4 +1,4 @@
-import type { AxiosRequestConfig, RawAxiosRequestHeaders } from 'axios'
+import type { AxiosRequestConfig, AxiosResponse, RawAxiosRequestHeaders } from 'axios'
 import type { Ref, VNodeChild, ComputedRef } from 'vue'
 
 export type MaybeRef<T> = T | Ref<T>
@@ -55,7 +55,7 @@ export interface Axues {
 }
 export interface CreateAxuesOptions {
   requestConfig?: () => AxiosRequestConfig
-  responseHandle?: (response: unknown) => unknown
+  responseHandle?: (response: AxiosResponse) => unknown
   errorHandle?: (err: Error) => Error
   cacheInstance?: CacheInstance
   errorReport?: (err: Error) => void

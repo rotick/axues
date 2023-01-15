@@ -6,18 +6,16 @@ import { mount, flushPromises } from '@vue/test-utils'
 
 // @vitest-environment happy-dom
 describe('requestConfig', () => {
+  const instance = axios.create({
+    baseURL: 'https://axues.io',
+    headers: { abc: 1 }
+  })
   let foo = 'bar'
-  const axues = createAxues(
-    axios.create({
-      baseURL: 'https://axues.io',
-      headers: { abc: 1 }
-    }),
-    {
-      requestConfig: () => ({
-        headers: { Authorization: foo }
-      })
-    }
-  )
+  const axues = createAxues(instance, {
+    requestConfig: () => ({
+      headers: { Authorization: foo }
+    })
+  })
 
   function getWrap (component: any) {
     return mount(component, {
