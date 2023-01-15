@@ -160,15 +160,16 @@ describe('data', () => {
     })
     const wrapper = getWrap(TestComponent)
     await flushPromises()
-    expect(wrapper.vm.data).toEqual({ foo: 'bar' })
+    expect(wrapper.vm.data.body).toEqual({ foo: 'bar' })
   })
 
-  test('params is URLSearchParams', async () => {
+  test('data is computed', async () => {
     const TestComponent = defineComponent({
       setup () {
         const { pending, loading, success, error, data } = useAxues({
-          url: '/getWithParams/1',
-          params: new URLSearchParams({ foo: 'bar' }),
+          url: '/postWithJsonData',
+          method: 'post',
+          data: computed(() => ({ foo: 'bar' })),
           immediate: true
         })
         return { pending, loading, success, error, data }
@@ -176,31 +177,39 @@ describe('data', () => {
     })
     const wrapper = getWrap(TestComponent)
     await flushPromises()
-    expect(wrapper.vm.data.query).toEqual({ foo: 'bar' })
+    expect(wrapper.vm.data.body).toEqual({ foo: 'bar' })
   })
 
-  test('params is ref', async () => {
+  test('data is ref', async () => {
+    const reqData = ref({ foo: 'bar' })
     const TestComponent = defineComponent({
       setup () {
-        const { pending, loading, success, error, data } = useAxues({
-          url: '/getWithParams/1',
-          params: ref({ foo: 'bar' }),
+        const { pending, loading, success, error, data, action } = useAxues({
+          url: '/postWithJsonData',
+          method: 'post',
+          data: reqData,
           immediate: true
         })
-        return { pending, loading, success, error, data }
-      }
+        return { pending, loading, success, error, data, action }
+      },
+      template: '<button @click="action" class="action">action</button>'
     })
     const wrapper = getWrap(TestComponent)
     await flushPromises()
-    expect(wrapper.vm.data.query).toEqual({ foo: 'bar' })
+    expect(wrapper.vm.data.body).toEqual({ foo: 'bar' })
+    reqData.value = { foo: 'baz' }
+    await wrapper.get('.action').trigger('click')
+    await flushPromises()
+    expect(wrapper.vm.data.body).toEqual({ foo: 'baz' })
   })
 
-  test('params is function', async () => {
+  test('data is function', async () => {
     const TestComponent = defineComponent({
       setup () {
         const { pending, action, success, error, data } = useAxues({
-          url: '/getWithParams/1',
-          params: (actonPayload: any) => ({ foo: actonPayload })
+          url: '/postWithJsonData',
+          method: 'post',
+          data: (actonPayload: any) => ({ foo: actonPayload })
         })
         return { pending, action, success, error, data }
       },
@@ -212,11 +221,228 @@ describe('data', () => {
     await wrapper.get('.action').trigger('click')
 
     await flushPromises()
-    expect(wrapper.vm.data.query).toEqual({ foo: 'test' })
+    expect(wrapper.vm.data.body).toEqual({ foo: 'test' })
   })
 })
 
-describe('other options', () => {
+describe('headers', () => {
+  test('headers is plain object', async () => {
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, loading, success, error, data } = useAxues({
+          url: '/postWithJsonData',
+          method: 'post',
+          headers: { foo: 'bar' },
+          immediate: true
+        })
+        return { pending, loading, success, error, data }
+      }
+    })
+    const wrapper = getWrap(TestComponent)
+    await flushPromises()
+    expect(wrapper.vm.data.headers.foo).toEqual('bar')
+  })
+
+  test('headers is computed', async () => {
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, loading, success, error, data } = useAxues({
+          url: '/postWithJsonData',
+          method: 'post',
+          headers: computed(() => ({ foo: 'bar' })),
+          immediate: true
+        })
+        return { pending, loading, success, error, data }
+      }
+    })
+    const wrapper = getWrap(TestComponent)
+    await flushPromises()
+    expect(wrapper.vm.data.headers.foo).toEqual('bar')
+  })
+
+  test('headers is ref', async () => {
+    const reqData = ref({ foo: 'bar' })
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, loading, success, error, data, action } = useAxues({
+          url: '/postWithJsonData',
+          method: 'post',
+          headers: reqData,
+          immediate: true
+        })
+        return { pending, loading, success, error, data, action }
+      },
+      template: '<button @click="action" class="action">action</button>'
+    })
+    const wrapper = getWrap(TestComponent)
+    await flushPromises()
+    expect(wrapper.vm.data.headers.foo).toEqual('bar')
+    reqData.value = { foo: 'baz' }
+    await wrapper.get('.action').trigger('click')
+    await flushPromises()
+    expect(wrapper.vm.data.headers.foo).toEqual('baz')
+  })
+
+  test('headers is function', async () => {
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, action, success, error, data } = useAxues({
+          url: '/postWithJsonData',
+          method: 'post',
+          headers: (actonPayload: any) => ({ foo: actonPayload })
+        })
+        return { pending, action, success, error, data }
+      },
+      // eslint-disable-next-line
+      template: `<button @click="action('test')" class="action">action</button>`
+    })
+    const wrapper = getWrap(TestComponent)
+
+    await wrapper.get('.action').trigger('click')
+
+    await flushPromises()
+    expect(wrapper.vm.data.headers.foo).toEqual('test')
+  })
+})
+
+describe('contentType', () => {
+  test('contentType is string', async () => {
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, loading, success, error, data } = useAxues({
+          url: '/postWithJsonData',
+          method: 'post',
+          data: { foo: 'bar' },
+          contentType: 'urlEncode',
+          immediate: true
+        })
+        return { pending, loading, success, error, data }
+      }
+    })
+    const wrapper = getWrap(TestComponent)
+    await flushPromises()
+    expect(wrapper.vm.data.headers['content-type']).toBe('application/x-www-form-urlencoded')
+  })
+
+  test('contentType is ref', async () => {
+    const ct = ref('urlEncode')
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, loading, success, error, data, action } = useAxues({
+          url: '/postWithJsonData',
+          method: 'post',
+          data: { foo: 'bar' },
+          contentType: ct,
+          immediate: true
+        })
+        return { pending, loading, success, error, data, action }
+      },
+      template: '<button @click="action" class="action">action</button>'
+    })
+    const wrapper = getWrap(TestComponent)
+    await flushPromises()
+    expect(wrapper.vm.data.headers['content-type']).toBe('application/x-www-form-urlencoded')
+    expect(wrapper.vm.data.body).toEqual({})
+
+    ct.value = 'json'
+    await wrapper.get('.action').trigger('click')
+    await flushPromises()
+    expect(wrapper.vm.data.headers['content-type']).toBe('application/json')
+    expect(wrapper.vm.data.body).toEqual({ foo: 'bar' })
+
+    ct.value = 'formData'
+    await wrapper.get('.action').trigger('click')
+    await flushPromises()
+    expect(wrapper.vm.data.headers['content-type']).toBe('multipart/form-data')
+    expect(wrapper.vm.data.body).toEqual({})
+  })
+
+  test('contentType is function', async () => {
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, loading, success, error, data, action } = useAxues({
+          url: '/postWithJsonData',
+          method: 'post',
+          data: { foo: 'bar' },
+          contentType: (actonPayload: any) => actonPayload
+        })
+        return { pending, loading, success, error, data, action }
+      },
+      // eslint-disable-next-line
+      template: `<button @click="action('urlEncode')" class="action">action</button>`
+    })
+    const wrapper = getWrap(TestComponent)
+    await wrapper.get('.action').trigger('click')
+    await flushPromises()
+    expect(wrapper.vm.data.headers['content-type']).toBe('application/x-www-form-urlencoded')
+  })
+})
+
+describe('promise', () => {
+  test('promise resolve', async () => {
+    const service = Promise.resolve({ foo: 'bar' })
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, loading, success, error, data } = useAxues({
+          promise: service,
+          immediate: true
+        })
+        return { pending, loading, success, error, data }
+      }
+    })
+    const wrapper = getWrap(TestComponent)
+    expect(wrapper.vm.pending).toBe(true)
+    await flushPromises()
+    expect(wrapper.vm.success).toBe(true)
+    expect(wrapper.vm.data).toEqual({ foo: 'bar' })
+    expect(wrapper.vm.error).toEqual(null)
+  })
+
+  test('promise reject', async () => {
+    const service = Promise.reject(new Error('some error message'))
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, loading, success, error, data } = useAxues({
+          promise: service,
+          immediate: true
+        })
+        return { pending, loading, success, error, data }
+      }
+    })
+    const wrapper = getWrap(TestComponent)
+    expect(wrapper.vm.pending).toBe(true)
+    await flushPromises()
+    expect(wrapper.vm.success).toBe(false)
+    expect(wrapper.vm.data).toEqual(null)
+    expect(wrapper.vm.error.message).toEqual('some error message')
+  })
+
+  // test('promise is function', async () => {
+  //   const service = () => new Promise((resolve, reject) => {
+  //     reject(new Error('some error message'))
+  //   })
+  //   const TestComponent = defineComponent({
+  //     setup () {
+  //       const { pending, loading, success, error, data, action } = useAxues({
+  //         promise: (actionPayload) => service
+  //       })
+  //       return { pending, loading, success, error, data, action }
+  //     },
+  //     // eslint-disable-next-line
+  //     template: `<button @click="action('msg from action')" class="action">action</button>`
+  //   })
+  //   const wrapper = getWrap(TestComponent)
+  //
+  //   await wrapper.get('.action').trigger('click')
+  //   expect(wrapper.vm.pending).toBe(true)
+  //   await flushPromises()
+  //   expect(wrapper.vm.success).toBe(false)
+  //   expect(wrapper.vm.data).toEqual(null)
+  //   expect(wrapper.vm.error.message).toEqual('msg from action')
+  // })
+})
+
+describe('axues only options', () => {
   test('immediate', async () => {
     vi.useFakeTimers()
     const TestComponent = defineComponent({

@@ -1,12 +1,5 @@
 import { rest } from 'msw'
 export const handlers = [
-  rest.get('https://axues.io/delay/2', (req, res, ctx) => {
-    return res(
-      ctx.delay(2000),
-      // ctx.status(200),
-      ctx.json({ test: 1 })
-    )
-  }),
   rest.get('https://axues.io/get', (req, res, ctx) => {
     return res(ctx.status(200), ctx.json({ test: 1 }))
   }),
@@ -22,8 +15,18 @@ export const handlers = [
       })
     )
   }),
-  rest.post('https://axues.io/postWithJsonData', (req, res, ctx) => {
-    // const body = await req.json()
-    return res(ctx.status(200), ctx.json(req.json()))
+  rest.post('https://axues.io/postWithJsonData', async (req, res, ctx) => {
+    let body = {}
+    try {
+      body = await req.json()
+    } catch (err) {}
+    // eslint-disable-next-line
+    return res(
+      ctx.status(200),
+      ctx.json({
+        body,
+        headers: Object.fromEntries(req.headers)
+      })
+    )
   })
 ]
