@@ -707,4 +707,66 @@ describe('axues only options', () => {
     expect(wrapper.vm.requestTimes).toBe(1)
     expect(wrapper.vm.data).toEqual({ test: 1 })
   })
+
+  test('onSuccess', async () => {
+    let d = {}
+    let a = 0
+    let f = 0
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, action, data } = useAxues({
+          url: '/get',
+          onSuccess: (data, actionPayload) => {
+            d = data
+            a = actionPayload
+          },
+          onFinally (actionPayload) {
+            f = actionPayload
+          }
+        })
+        return { pending, action, data }
+      },
+      template: '<button @click="action(1)">action</button>'
+    })
+    const wrapper = getWrap(TestComponent)
+
+    await wrapper.get('button').trigger('click')
+    await flushPromises()
+
+    expect(d).toEqual({ test: 1 })
+    expect(a).toBe(1)
+    expect(f).toBe(1)
+    expect(wrapper.vm.data).toEqual({ test: 1 })
+  })
+
+  test('onError', async () => {
+    let d = {}
+    let a = 0
+    let f = 0
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, action, data, error } = useAxues({
+          url: '/getError',
+          onError: (err, actionPayload) => {
+            d = err
+            a = actionPayload
+          },
+          onFinally (actionPayload) {
+            f = actionPayload
+          }
+        })
+        return { pending, action, data, error }
+      },
+      template: '<button @click="action(1)">action</button>'
+    })
+    const wrapper = getWrap(TestComponent)
+
+    await wrapper.get('button').trigger('click')
+    await flushPromises()
+
+    expect(d).toBeInstanceOf(Error)
+    expect(a).toBe(1)
+    expect(f).toBe(1)
+    expect(wrapper.vm.error).toBeInstanceOf(Error)
+  })
 })

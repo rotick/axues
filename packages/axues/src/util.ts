@@ -24,7 +24,8 @@ export function resolveRequestOptions (options: any, actionPayload?: any) {
     'errorOverlay',
     'onData',
     'onSuccess',
-    'onError'
+    'onError',
+    'onFinally'
   ]
   const validOptions: any = {}
   Object.keys(options)

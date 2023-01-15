@@ -143,6 +143,7 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
   onData?: (data: Ref<TO>, newData: unknown | unknown[], actionPayload?: TAction) => void
   onSuccess?: (data: TO, actionPayload?: TAction) => void
   onError?: (err: Error, actionPayload?: TAction) => void
+  onFinally?: (actionPayload?: TAction) => void
 }
 export interface UseAxuesOutput<TI, TO, TAction = any> {
   pending: Ref<boolean>

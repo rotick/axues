@@ -101,7 +101,8 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       errorOverlay,
       onData,
       onSuccess,
-      onError
+      onError,
+      onFinally
     } = options
     const pending = ref(false)
     const loading = ref(false)
@@ -148,7 +149,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
         retryTimes.value = 0
         success.value = true
         error.value = null
-        onSuccess?.(toRaw(data.value))
+        onSuccess?.(toRaw(data.value), actionPayload)
         const transformSuccessOverlay = transformSuccessOptions<TAction, TO>(successOverlay, actionPayload, toRaw(data.value))
         if (transformSuccessOverlay) {
           if (overlayInstance?.success) {
@@ -168,6 +169,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
         if (loadingOverlay) {
           overlayInstance?.loadingClose?.()
         }
+        onFinally?.(actionPayload)
       }
 
       if (supportAbort) {
@@ -228,7 +230,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
             responseTimes++
             if (responseTimes !== requestTimes.value) return
             error.value = err
-            onError?.(err)
+            onError?.(err, actionPayload)
             const transformErrorOverlay = transformErrorOptions<TAction>(errorOverlay, actionPayload, err)
             if (transformErrorOverlay) {
               if (overlayInstance?.error) {
