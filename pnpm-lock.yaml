@@ -60,10 +60,12 @@ importers:
     specifiers:
       '@vue/test-utils': ^2.2.7
       axios: ^1.2.1
+      lru-cache: ^7.14.1
       vue: ^3.2.45
     devDependencies:
       '@vue/test-utils': 2.2.7_vue@3.2.45
       axios: 1.2.1
+      lru-cache: 7.14.1
       vue: 3.2.45
 
   packages/docs:
@@ -3472,7 +3474,6 @@ packages:
   /lru-cache/7.14.1:
     resolution: {integrity: sha512-ysxwsnTKdAx96aTRdhDOCQfDgbHnt8SK0KY8SEjO0wHinhWOFTESbjVCMPbU1uGXg/ch4lifqx0wfjOawU2+WA==}
     engines: {node: '>=12'}
-    dev: false
 
   /magic-string/0.25.9:
     resolution: {integrity: sha512-RmF0AsMzgt25qzqqLc1+MbHmhdx0ojF2Fvs4XnOqz2ZOBXzzkEwc/dJQZCYHAn7v1jbVOjAZfK8msRn4BxO4VQ==}

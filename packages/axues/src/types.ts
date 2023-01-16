@@ -6,7 +6,7 @@ export type MaybeComputedRef<T> = ComputedRef<T> | MaybeRef<T>
 export type MaybeComputedOrActionRef<T, TAction = any> = MaybeComputedRef<T> | ((actionPayload?: TAction) => T)
 interface CacheInstance {
   get: (key: string) => unknown
-  set: (key: string, value: unknown) => void
+  set: (key: string, value: string) => void
   delete: (key: string) => void
 }
 // overlay UI types
