@@ -1,7 +1,7 @@
 import { describe, test, expect, vi } from 'vitest'
-import { createAxues, useAxues } from '../src'
+import { createAxues, useAxues, useOverlayImplement } from '../src'
 import axios from 'axios'
-import { defineComponent, ref } from 'vue'
+import { computed, defineComponent, ref } from 'vue'
 import { mount, flushPromises } from '@vue/test-utils'
 import LRU from 'lru-cache'
 
@@ -22,6 +22,11 @@ const cacheInstance = new LRU({
   },
   ttl: 1000 * 60 * 5
 })
+let confirmOptions: any = null
+let loadingOptions: any = null
+let loadingClosed = false
+let successOptions: any = null
+let errorOptions: any = null
 const axues = createAxues(instance, {
   responseHandle: response => {
     return response.data
@@ -36,20 +41,20 @@ const axues = createAxues(instance, {
   loadingDelay: 500,
   overlayImplement: {
     loadingOpen (options) {
-      console.log(options)
+      loadingOptions = options
     },
     loadingClose () {
-      console.log('loadingClose')
+      loadingClosed = true
     },
     confirm (options) {
-      console.log(options)
+      confirmOptions = options
       return Promise.resolve()
     },
     success (options) {
-      console.log(options)
+      successOptions = options
     },
     error (options) {
-      console.log(options)
+      errorOptions = options
     }
   }
 })
@@ -211,5 +216,111 @@ describe('createAxuesOptions', () => {
     expect(wrapper.vm.success).toBe(true)
     expect(wrapper.vm.error).toBeNull()
     expect(wrapper.vm.data).toEqual({ test: 1 })
+  })
+
+  test('confirm, loading, success overlay', async () => {
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, loading, success, error, data, action } = useAxues({
+          url: '/get',
+          confirmOverlay: 'are you sure?',
+          loadingOverlay: ref(true),
+          successOverlay: computed(() => 'success')
+        })
+        return { pending, loading, success, error, data, action }
+      },
+      template: '<button @click="action()" class="action">action</button>'
+    })
+    const wrapper = getWrap(TestComponent)
+
+    await wrapper.get('.action').trigger('click')
+    expect(confirmOptions).toEqual({
+      style: 1,
+      title: 'are you sure?',
+      content: '',
+      requireInputContent: false
+    })
+    await flushPromises()
+    // expect(loadingOptions).toEqual({
+    //   style: 1,
+    //   text: ''
+    // })
+    expect(loadingOptions).toEqual(null)
+    expect(loadingClosed).toBeTruthy()
+    expect(successOptions).toEqual({
+      style: 1,
+      title: 'success',
+      content: '',
+      callback: undefined
+    })
+    expect(errorOptions).toEqual(null)
+  })
+
+  test('error overlay', async () => {
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, loading, success, error, data, action } = useAxues({
+          url: '/getError',
+          confirmOverlay: actionPayload => `are you sure ${actionPayload as string}?`,
+          loadingOverlay: ref('loading'),
+          errorOverlay: actionPayload => ({
+            style: 2,
+            title: `get an error ${actionPayload as string}`
+          })
+        })
+        return { pending, loading, success, error, data, action }
+      },
+      template: '<button @click="action(\'1\')" class="action">action</button>'
+    })
+    const wrapper = getWrap(TestComponent)
+
+    await wrapper.get('.action').trigger('click')
+    expect(confirmOptions).toEqual({
+      style: 1,
+      title: 'are you sure 1?',
+      content: '',
+      requireInputContent: false
+    })
+    await flushPromises()
+    expect(loadingOptions).toEqual(null)
+    expect(loadingClosed).toBeTruthy()
+    expect(errorOptions).toEqual({
+      style: 2,
+      title: 'get an error 1',
+      content: '',
+      callback: undefined
+    })
+  })
+
+  test('useOverlayImplement', async () => {
+    const TestComponent = defineComponent({
+      setup () {
+        useOverlayImplement({
+          success (options) {
+            successOptions = Object.assign({ test: 1 }, options)
+          }
+        })
+        const { pending, loading, success, error, data, action } = useAxues({
+          url: '/get',
+          successOverlay: actionPayload => ({
+            style: 2,
+            title: `success ${actionPayload as string}`
+          })
+        })
+        return { pending, loading, success, error, data, action }
+      },
+      template: '<button @click="action(\'1\')" class="action">action</button>'
+    })
+    const wrapper = getWrap(TestComponent)
+
+    await wrapper.get('.action').trigger('click')
+    await flushPromises()
+    expect(successOptions).toEqual({
+      test: 1,
+      style: 2,
+      title: 'success 1',
+      content: '',
+      callback: undefined
+    })
   })
 })
