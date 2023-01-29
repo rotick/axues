@@ -7,9 +7,21 @@ import type { Axues, AxuesRequestConfig, CreateAxuesOptions, OverlayImplement, M
 
 export const key = Symbol('') as InjectionKey<Provider>
 
-export let axues: Axues = () => {
+const noop = () => {
   throw new Error('Please create axues instance first')
 }
+export let axues: Axues = noop
+axues.request = noop
+axues.get = noop
+axues.delete = noop
+axues.head = noop
+axues.options = noop
+axues.post = noop
+axues.put = noop
+axues.patch = noop
+axues.postForm = noop
+axues.putForm = noop
+axues.patchForm = noop
 
 function throwErr (err: string | Error) {
   console.error(typeof err === 'string' ? new Error(err) : err)

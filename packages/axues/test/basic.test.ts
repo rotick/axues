@@ -1,5 +1,5 @@
 import { describe, test, expect, vi } from 'vitest'
-import { createAxues, useAxues } from '../src'
+import { createAxues, useAxues, axues } from '../src'
 import axios from 'axios'
 import { defineComponent } from 'vue'
 import { mount, flushPromises } from '@vue/test-utils'
@@ -7,7 +7,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 // @vitest-environment happy-dom
 
 describe('basic', () => {
-  const axues = createAxues(
+  const axuesPlugin = createAxues(
     axios.create({
       baseURL: 'https://axues.io'
     })
@@ -15,7 +15,7 @@ describe('basic', () => {
   function getWrap (component: any) {
     return mount(component, {
       global: {
-        plugins: [axues]
+        plugins: [axuesPlugin]
       }
     })
   }
@@ -209,5 +209,17 @@ describe('basic', () => {
     expect(wrapper.vm.pending).toBe(false)
     await flushPromises()
     expect(wrapper.vm.success).toBe(false)
+  })
+
+  test('axues', async () => {
+    const data = await axues({
+      url: '/get'
+    })
+    expect(data).toEqual({ test: 1 })
+  })
+
+  test('axues.get', async () => {
+    const data = await axues.get('/get')
+    expect(data).toEqual({ test: 1 })
   })
 })
