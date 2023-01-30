@@ -1,5 +1,5 @@
 import type { AxiosRequestConfig, AxiosResponse, RawAxiosRequestHeaders } from 'axios'
-import type { Ref, VNodeChild, ComputedRef } from 'vue'
+import type { App, Ref, VNodeChild, ComputedRef } from 'vue'
 
 export type MaybeRef<T> = T | Ref<T>
 export type MaybeComputedRef<T> = ComputedRef<T> | MaybeRef<T>
@@ -61,6 +61,9 @@ export interface CreateAxuesOptions {
   errorReport?: (err: Error) => void
   loadingDelay?: number
   overlayImplement?: OverlayImplement
+}
+export interface CreateReturn extends Axues {
+  install: (app: App) => void
 }
 export type ContentType = 'urlEncode' | 'json' | 'formData' | string
 export type Headers<TAction = any> = RawAxiosRequestHeaders | ((actionPayload?: TAction) => RawAxiosRequestHeaders)

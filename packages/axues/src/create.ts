@@ -1,9 +1,9 @@
 import { ref, computed, toRaw, shallowRef } from 'vue'
 import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptions, transformErrorOptions, transformLoadingOptions, transformSuccessOptions, resolveComputedOrActionRef, CancelablePromise } from './util'
 import { debounce } from './debounce'
-import type { App, Ref, InjectionKey } from 'vue'
+import type { Ref, InjectionKey } from 'vue'
 import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
-import type { Axues, AxuesRequestConfig, CreateAxuesOptions, OverlayImplement, MaybeComputedOrActionRef, Provider, UseAxuesOptions, UseAxuesOutput } from './types'
+import type { Axues, AxuesRequestConfig, CreateAxuesOptions, CreateReturn, OverlayImplement, MaybeComputedOrActionRef, Provider, UseAxuesOptions, UseAxuesOutput } from './types'
 
 export const key = Symbol('') as InjectionKey<Provider>
 
@@ -400,9 +400,6 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       put: actionAlias('put'),
       patch: actionAlias('patch')
     }
-  }
-  interface CreateReturn extends Axues {
-    install: (app: App) => void
   }
   const createReturn: CreateReturn = axues as CreateReturn
   createReturn.install = app => {
