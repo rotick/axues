@@ -60,7 +60,9 @@ describe('url', () => {
   test('url is function', async () => {
     const TestComponent = defineComponent({
       setup () {
-        const { pending, action, success, error, data } = useAxues((actionPayload?: string) => `/getWithParams/${actionPayload || ''}`)
+        const { pending, action, success, error, data } = useAxues({
+          url: (actionPayload?: string) => `/getWithParams/${actionPayload || ''}`
+        })
         return { pending, action, success, error, data }
       },
       // eslint-disable-next-line
@@ -439,6 +441,56 @@ describe('promise', () => {
     expect(wrapper.vm.data).toEqual(null)
     expect(wrapper.vm.error.message).toEqual('msg from action')
   })
+
+  test('promise as first argument', async () => {
+    const service = (actionPayload?: string, signal?: AbortSignal) =>
+      axues({
+        url: '/get',
+        signal
+      })
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, loading, success, error, data, action, abort, aborted } = useAxues(service)
+        return { pending, loading, success, error, data, action, abort, aborted }
+      },
+      // eslint-disable-next-line
+      template: `<button @click="action" class="action">action</button>
+      <button @click="abort" class="abort">abort</button>`
+    })
+    const wrapper = getWrap(TestComponent)
+
+    wrapper.get('.action').trigger('click')
+    expect(wrapper.vm.pending).toBe(true)
+    await flushPromises()
+    expect(wrapper.vm.success).toBe(true)
+    expect(wrapper.vm.data).toEqual({ test: 1 })
+
+    await wrapper.get('.action').trigger('click')
+    expect(wrapper.vm.pending).toBe(true)
+    await wrapper.get('.abort').trigger('click')
+    expect(wrapper.vm.aborted).toBe(true)
+    expect(wrapper.vm.pending).toBe(false)
+    await flushPromises()
+    expect(wrapper.vm.success).toBe(false)
+  })
+  // todo
+  // test('axues as first argument', async () => {
+  //   const TestComponent = defineComponent({
+  //     setup () {
+  //       const { pending, loading, success, error, data, action } = useAxues(() => axios.get('/get'))
+  //       return { pending, loading, success, error, data, action }
+  //     },
+  //     // eslint-disable-next-line
+  //     template: `<button @click="action" class="action">action</button>`
+  //   })
+  //   const wrapper = getWrap(TestComponent)
+  //
+  //   wrapper.get('.action').trigger('click')
+  //   expect(wrapper.vm.pending).toBe(true)
+  //   await flushPromises()
+  //   expect(wrapper.vm.success).toBe(true)
+  //   expect(wrapper.vm.data).toEqual({ test: 1 })
+  // })
 })
 
 describe('axues only options', () => {

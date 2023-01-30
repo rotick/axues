@@ -148,6 +148,7 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
   onError?: (err: Error, actionPayload?: TAction) => void
   onFinally?: (actionPayload?: TAction) => void
 }
+export type UseAxuesFirstArg<TI, TO, TAction> = MaybeComputedRef<string> | ((actionPayload?: TAction, signal?: AbortSignal) => Promise<TO>) | UseAxuesOptions<TI, TO, TAction>
 export interface UseAxuesOutput<TI, TO, TAction = any> {
   pending: Ref<boolean>
   loading: Ref<boolean>
