@@ -7,7 +7,7 @@ import { mount, flushPromises } from '@vue/test-utils'
 // @vitest-environment happy-dom
 
 describe('basic', () => {
-  const axuesPlugin = createAxues(
+  const axues1 = createAxues(
     axios.create({
       baseURL: 'https://axues.io'
     })
@@ -15,7 +15,7 @@ describe('basic', () => {
   function getWrap (component: any) {
     return mount(component, {
       global: {
-        plugins: [axuesPlugin]
+        plugins: [axues1]
       }
     })
   }
@@ -221,5 +221,15 @@ describe('basic', () => {
   test('axues.get', async () => {
     const data = await axues.get('/get')
     expect(data).toEqual({ test: 1 })
+  })
+
+  test('axues1.get', async () => {
+    const data = await axues1.get('/get')
+    expect(data).toEqual({ test: 1 })
+  })
+
+  test('axues.post', async () => {
+    const data = await axues.post('/postWithJsonData', { foo: 'bar' })
+    expect(data.body).toEqual({ foo: 'bar' })
   })
 })

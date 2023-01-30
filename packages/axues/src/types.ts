@@ -41,17 +41,17 @@ export type ErrorOverlayOptions<T> = MaybeComputedRef<string | SuccessOrErrorOve
 
 export interface Axues {
   <TI = any, TO = any>(config: AxuesRequestConfig<TI>): Promise<TO>
-  request?: <TI = any, TO = any>(config: AxuesRequestConfig<TI>) => Promise<TO>
-  get?: <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  delete?: <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  head?: <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  options?: <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  post?: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  put?: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  patch?: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  postForm?: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  putForm?: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  patchForm?: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  request: <TI = any, TO = any>(config: AxuesRequestConfig<TI>) => Promise<TO>
+  get: <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  delete: <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  head: <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  options: <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  post: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  put: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  patch: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  postForm: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  putForm: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
+  patchForm: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
 }
 export interface CreateAxuesOptions {
   requestConfig?: () => AxiosRequestConfig

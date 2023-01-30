@@ -10,6 +10,7 @@ export const key = Symbol('') as InjectionKey<Provider>
 const noop = () => {
   throw new Error('Please create axues instance first')
 }
+// @ts-expect-error
 export let axues: Axues = noop
 axues.request = noop
 axues.get = noop
@@ -29,6 +30,7 @@ function throwErr (err: string | Error) {
 
 export function createAxues (axiosInstance: AxiosInstance, createOptions?: CreateAxuesOptions) {
   const { requestConfig, responseHandle, errorHandle, cacheInstance, errorReport, loadingDelay = 300, overlayImplement: baseOverlayImplement } = createOptions || {}
+  // @ts-expect-error
   const request: Axues = config => {
     const baseConfig = requestConfig?.() || {}
     const axiosConfig: AxiosRequestConfig = {

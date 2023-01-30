@@ -1,5 +1,5 @@
 import { describe, test, expect, vi } from 'vitest'
-import { createAxues, useAxues, useOverlayImplement } from '../src'
+import { createAxues, useAxues, useOverlayImplement, axues as axues1 } from '../src'
 import axios from 'axios'
 import { computed, defineComponent, ref } from 'vue'
 import { mount, flushPromises } from '@vue/test-utils'
@@ -322,5 +322,32 @@ describe('createAxuesOptions', () => {
       content: '',
       callback: undefined
     })
+  })
+
+  test('axues', async () => {
+    const data = await axues({
+      url: '/get'
+    })
+    expect(data).toEqual({ test: 1 })
+  })
+
+  test('axues.get', async () => {
+    const data = await axues.get('/get')
+    expect(data).toEqual({ test: 1 })
+  })
+
+  test('axues.post', async () => {
+    const data = await axues.post('/postWithJsonData', { foo: 'bar' })
+    expect(data.body).toEqual({ foo: 'bar' })
+  })
+
+  test('axues with errorHandle', () => {
+    expect(() => axues.get('/getError')).rejects.toThrowError()
+    expect(() => axues.get('/getError')).rejects.toBeInstanceOf(NotFoundError)
+  })
+
+  test('axues1 with errorHandle', () => {
+    expect(() => axues1.get('/getError')).rejects.toThrowError()
+    expect(() => axues1.get('/getError')).rejects.toBeInstanceOf(NotFoundError)
   })
 })
