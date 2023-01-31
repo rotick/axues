@@ -1,4 +1,4 @@
-import { ref, computed, toRaw, shallowRef } from 'vue'
+import { ref, computed, toRaw, shallowRef, defineComponent, reactive } from 'vue'
 import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptions, transformErrorOptions, transformLoadingOptions, transformSuccessOptions, resolveComputedOrActionRef, CancelablePromise } from './util'
 import { debounce } from './debounce'
 import type { Ref, InjectionKey } from 'vue'
@@ -401,6 +401,18 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       patch: actionAlias('patch')
     }
   }
+
+  const logicComponent = defineComponent({
+    name: 'Axues',
+    setup (props, { slots }) {
+      const data = reactive(useFn(props))
+      return () => {
+        console.log(props, slots.default)
+        if (slots.default) return slots.default(data)
+      }
+    }
+  })
+
   const createReturn: CreateReturn = axues as CreateReturn
   createReturn.install = app => {
     app.provide(key, {
@@ -408,6 +420,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       overlayImplement,
       useFn
     })
+    app.component(logicComponent.name, logicComponent)
   }
   return createReturn
 }
