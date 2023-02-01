@@ -404,10 +404,37 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
 
   const logicComponent = defineComponent({
     name: 'Axues',
+    props: [
+      'url',
+      'baseURL',
+      'method',
+      'params',
+      'data',
+      'contentType',
+      'headers',
+      'timeout',
+      'promise',
+      'immediate',
+      'initialData',
+      'shallow',
+      'debounceMode',
+      'debounceTime',
+      'autoRetryTimes',
+      'autoRetryInterval',
+      'cacheKey',
+      'throwOnActionFailed',
+      'confirmOverlay',
+      'loadingOverlay',
+      'successOverlay',
+      'errorOverlay',
+      'onData',
+      'onSuccess',
+      'onError',
+      'onFinally'
+    ],
     setup (props, { slots }) {
-      const data = reactive(useFn(props))
+      const data = reactive(useFn(props as AxuesRequestConfig))
       return () => {
-        console.log(props, slots.default)
         if (slots.default) return slots.default(data)
       }
     }

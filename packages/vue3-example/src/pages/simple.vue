@@ -121,4 +121,13 @@ const test7 = reactive(useAxues('/delay/10'))
     <div v-if="test7.success">{{ test7.data }}</div>
     <div v-if="test7.error">{{ test7.error }}</div>
   </div>
+
+  <div class="bg-card p-6 mt-6">
+    <h3 class="font-semibold text-xl mb-4">component</h3>
+    <axues v-slot="{ pending, success: success1, data: data1, action: action1 }" url="/get">
+      <p v-if="pending">pending...</p>
+      <div v-if="success1">{{ data1 }}</div>
+      <button class="h-10 px-6 font-semibold rounded-md bg-primary text-white" @click="action1">execute</button>
+    </axues>
+  </div>
 </template>
