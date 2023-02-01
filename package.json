@@ -8,6 +8,7 @@
   "scripts": {
     "prepare": "husky install",
     "preinstall": "npx only-allow pnpm",
+    "build": "pnpm -C packages/axues run build",
     "dev:vue3": "pnpm -C packages/vue3-example run dev",
     "build:vue3": "pnpm -C packages/vue3-example run build",
     "typecheck:vue3": "pnpm -C packages/vue3-example run typecheck",
