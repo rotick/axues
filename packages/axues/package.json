@@ -1,9 +1,33 @@
 {
   "name": "axues",
-  "version": "1.0.0",
-  "main": "src/index.ts",
-  "types": "src/types.ts",
+  "version": "0.0.1",
+  "description": "Composable axios for vue, axios + vue = axues ✌️",
+  "keywords": [
+    "axios",
+    "vue",
+    "axues"
+  ],
+  "author": "dongnaebi",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    }
+  },
+  "homepage": "https://github.com/rotick/axues#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/rotick/axues.git"
+  },
+  "bugs": {
+    "url": "https://github.com/rotick/axues/issues"
+  },
+  "license": "MIT",
   "scripts": {
+    "dev": "tsup --watch",
     "build": "tsup"
   },
   "devDependencies": {
