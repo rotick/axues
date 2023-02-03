@@ -1,3 +1,10 @@
 # axues still working in progress
 
-axios + vue = axues
+Composable axios for vue, axios + vue = axues ✌️
+
+## Features
+
+- Full axios features
+- Global request config, response handle and error handle
+- Response cacheable
+- Global interactive components
