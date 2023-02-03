@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.2](https://github.com/rotick/axues/compare/0.4.1...0.4.2) (2023-02-03)
+
+### Bug Fixes
+
+- copy after bump ([746ee13](https://github.com/rotick/axues/commit/746ee13e5617d5f48bcaaedb17becba7bf9de51a))
+
 ## [0.4.1](https://github.com/rotick/axues/compare/0.4.0...0.4.1) (2023-02-03)
 
 # [0.4.0](https://github.com/rotick/axues/compare/0.3.0...0.4.0) (2023-02-03)
