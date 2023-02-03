@@ -1,5 +1,11 @@
 # Changelog
 
+# [0.4.0](https://github.com/rotick/axues/compare/0.3.0...0.4.0) (2023-02-03)
+
+### Features
+
+- ci mode ([4a8a452](https://github.com/rotick/axues/commit/4a8a45238acd7d4faa960284fdb3c46a80f91b3b))
+
 # [0.3.0](https://github.com/rotick/axues/compare/0.1.4...0.3.0) (2023-02-03)
 
 ### Features
