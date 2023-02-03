@@ -75,8 +75,7 @@
       }
     },
     "hooks": {
-      "before:init": "npm run copyREADEME",
-      "after:bump": "npm run build",
+      "after:bump": "npm run build && npm run copyREADEME",
       "after:release": "echo Successfully released ${name} v${version}."
     }
   }
