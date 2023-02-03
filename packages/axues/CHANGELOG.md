@@ -1,5 +1,7 @@
 # Changelog
 
+## [0.1.1](https://github.com/rotick/axues/compare/0.1.0...0.1.1) (2023-02-03)
+
 # 0.1.0 (2023-02-03)
 
 ### Bug Fixes
