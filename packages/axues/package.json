@@ -22,7 +22,9 @@
   },
   "files": [
     "src",
-    "dist"
+    "dist",
+    "CHANGELOG.md",
+    "README.md"
   ],
   "sideEffects": false,
   "homepage": "https://github.com/rotick/axues#readme",
