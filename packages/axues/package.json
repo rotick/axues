@@ -1,6 +1,6 @@
 {
   "name": "axues",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Composable axios for vue, axios + vue = axues ✌️",
   "keywords": [
     "axios",
