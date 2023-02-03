@@ -29,7 +29,7 @@
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
-    "release": "release-it --only-version",
+    "release": "release-it --ci",
     "copyREADEME": "cp -f ../../README.md README.md"
   },
   "devDependencies": {
