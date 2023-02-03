@@ -54,7 +54,8 @@
       "publish": true
     },
     "github": {
-      "release": true
+      "release": true,
+      "draft": true
     },
     "plugins": {
       "@release-it/conventional-changelog": {
