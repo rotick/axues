@@ -1,6 +1,6 @@
 {
   "name": "axues",
-  "version": "0.0.1",
+  "version": "0.0.0",
   "description": "Composable axios for vue, axios + vue = axues ✌️",
   "keywords": [
     "axios",
@@ -28,16 +28,35 @@
   "license": "MIT",
   "scripts": {
     "dev": "tsup --watch",
-    "build": "tsup"
+    "build": "tsup",
+    "release": "release-it"
   },
   "devDependencies": {
     "axios": "^1.2.1",
     "vue": "^3.2.45",
     "@vue/test-utils": "^2.2.7",
     "lru-cache": "^7.14.1",
-    "tsup": "^6.5.0"
+    "tsup": "^6.5.0",
+    "release-it": "^15.6.0",
+    "@release-it/conventional-changelog": "^5.1.1"
   },
   "peerDependencies": {
     "axios": ">=1.0.0"
+  },
+  "release-it": {
+    "git": {
+      "commitMessage": "chore: release ${version}"
+    },
+    "npm": {
+      "publish": true
+    },
+    "github": {
+      "release": true
+    },
+    "plugins": {
+      "@release-it/conventional-changelog": {
+        "preset": "angular"
+      }
+    }
   }
 }
