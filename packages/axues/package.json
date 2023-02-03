@@ -29,7 +29,8 @@
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
-    "release": "release-it"
+    "release": "release-it",
+    "copyREADEME": "cp -f ../../README.md README.md"
   },
   "devDependencies": {
     "axios": "^1.2.1",
@@ -64,6 +65,7 @@
       }
     },
     "hooks": {
+      "before:init": "npm run copyREADEME",
       "after:bump": "npm run build",
       "after:release": "echo Successfully released ${name} v${version}."
     }
