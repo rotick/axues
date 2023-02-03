@@ -1,5 +1,12 @@
 # Changelog
 
+# [0.3.0](https://github.com/rotick/axues/compare/0.1.4...0.3.0) (2023-02-03)
+
+### Features
+
+- copy readme ([2d3bab2](https://github.com/rotick/axues/commit/2d3bab2a20237b3e5cfc53bb4e3f76fd9ebc20b6))
+- select version ([74df4e6](https://github.com/rotick/axues/commit/74df4e67cb6b013eaaee9fa677ddd53333ef26d5))
+
 # [0.2.0](https://github.com/rotick/axues/compare/0.1.4...0.2.0) (2023-02-03)
 
 ### Features
