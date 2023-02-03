@@ -5,7 +5,9 @@
   "keywords": [
     "axios",
     "vue",
-    "axues"
+    "axues",
+    "composition-api",
+    "composables"
   ],
   "author": "dongnaebi",
   "main": "./dist/index.js",
@@ -15,8 +17,14 @@
     ".": {
       "import": "./dist/index.mjs",
       "require": "./dist/index.js"
-    }
+    },
+    "./*": "./*"
   },
+  "files": [
+    "src",
+    "dist"
+  ],
+  "sideEffects": false,
   "homepage": "https://github.com/rotick/axues#readme",
   "repository": {
     "type": "git",
