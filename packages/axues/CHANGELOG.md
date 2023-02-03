@@ -1,5 +1,7 @@
 # Changelog
 
+## [0.4.1](https://github.com/rotick/axues/compare/0.4.0...0.4.1) (2023-02-03)
+
 # [0.4.0](https://github.com/rotick/axues/compare/0.3.0...0.4.0) (2023-02-03)
 
 ### Features
