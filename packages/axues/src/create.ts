@@ -2,7 +2,7 @@ import { ref, computed, toRaw, shallowRef, defineComponent, reactive } from 'vue
 import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptions, transformErrorOptions, transformLoadingOptions, transformSuccessOptions, resolveComputedOrActionRef, CancelablePromise } from './util'
 import { debounce } from './debounce'
 import type { Ref, InjectionKey } from 'vue'
-import type { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
+import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 import type { Axues, AxuesRequestConfig, CreateAxuesOptions, CreateReturn, OverlayImplement, MaybeComputedOrActionRef, Provider, UseAxuesOptions, UseAxuesOutput } from './types'
 
 export const key = Symbol('') as InjectionKey<Provider>
@@ -43,7 +43,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
     }
     return new Promise((resolve, reject) => {
       axiosInstance(axiosConfig)
-        .then((response: AxiosResponse) => {
+        .then(response => {
           const res = responseHandle?.(response) || response.data
           if (res instanceof Error) {
             reject(res)
@@ -51,7 +51,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
             resolve(res)
           }
         })
-        .catch((err: Error) => {
+        .catch(err => {
           const handledErr = errorHandle?.(err) || err
           reject(handledErr)
         })
