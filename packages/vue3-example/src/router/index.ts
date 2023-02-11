@@ -31,6 +31,11 @@ export function createRouter () {
                 path: 'restful',
                 component: () => import('../pages/rest.vue'),
                 meta: { title: 'restful' }
+              },
+              {
+                path: 'pagination',
+                component: () => import('../pages/pagination.vue'),
+                meta: { title: 'pagination' }
               }
             ]
           }
