@@ -71,7 +71,7 @@ const { loading, success, error, data } = useAxues('/api/foo', { immediate: true
 ```
 
 > Just looking at `useAxues`, It looks like [vueuse](https://vueuse.org/core/useFetch/) or [nuxt's](https://nuxt.com/docs/api/composables/use-fetch) `useFetch`,
-> but [why axues need to be created and registered as a plugin?](#why-axues-need-to-be-created-and-registered-as-a-plugin?)
+> but [why axues need to be created and registered as a plugin?](#why-axues-need-to-be-created-and-registered-as-a-plugin)
 
 In this case, we got the simplest usage, pass `url` to to first argument, and `options` to second argument, `useAxues` will return some very useful states and methods, so that we can easily bind to the template.
 
