@@ -1,5 +1,16 @@
 # Changelog
 
+# [0.5.0](https://github.com/rotick/axues/compare/0.4.2...0.5.0) (2023-02-12)
+
+### Bug Fixes
+
+- add vue to peer dependency ([b27316b](https://github.com/rotick/axues/commit/b27316be9034ba96f430b3ef0c961a6114d3fbb8))
+- axios error types ([1745c9a](https://github.com/rotick/axues/commit/1745c9a04d0a44241333a08e9ad96c24373fa506))
+
+### Features
+
+- add vue 2.7 support ([31ead4d](https://github.com/rotick/axues/commit/31ead4d9e6a6ae03c63002817523006b916aa252))
+
 ## [0.4.2](https://github.com/rotick/axues/compare/0.4.1...0.4.2) (2023-02-03)
 
 ### Bug Fixes
