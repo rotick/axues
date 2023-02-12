@@ -449,5 +449,33 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
     })
     app.component(logicComponent.name, logicComponent)
   }
+  createReturn.vue2Plugin = _Vue => {
+    // todo docs, types in readme
+    // copied from https://github.com/unjs/unhead/blob/main/packages/vue/src/Vue2ProvideUnheadPlugin.ts
+    _Vue.mixin({
+      beforeCreate () {
+        const options = this.$options
+        const origProvide = options.provide
+        options.provide = function () {
+          let origProvideResult
+          if (typeof origProvide === 'function') {
+            origProvideResult = origProvide.call(this)
+          } else {
+            origProvideResult = origProvide || {}
+          }
+
+          return {
+            ...origProvideResult,
+            [key as symbol]: {
+              axuesFn: axues,
+              overlayImplement,
+              useFn
+            }
+          }
+        }
+      }
+    })
+    _Vue.component(logicComponent.name, logicComponent)
+  }
   return createReturn
 }

@@ -1,5 +1,5 @@
 import type { AxiosRequestConfig, AxiosResponse, AxiosError, RawAxiosRequestHeaders } from 'axios'
-import type { App, Ref, VNodeChild, ComputedRef } from 'vue'
+import type { App, Ref, VNodeChild, ComputedRef, Plugin } from 'vue'
 
 export type MaybeRef<T> = T | Ref<T>
 export type MaybeComputedRef<T> = ComputedRef<T> | MaybeRef<T>
@@ -64,6 +64,7 @@ export interface CreateAxuesOptions {
 }
 export interface CreateReturn extends Axues {
   install: (app: App) => void
+  vue2Plugin: Plugin
 }
 export type ContentType = 'urlEncode' | 'json' | 'formData' | string
 export type Headers<TAction = any> = RawAxiosRequestHeaders | ((actionPayload?: TAction) => RawAxiosRequestHeaders)

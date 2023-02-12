@@ -13,6 +13,7 @@
     "dev:vue3": "pnpm -C packages/vue3-example run dev",
     "build:vue3": "pnpm -C packages/vue3-example run build",
     "typecheck:vue3": "pnpm -C packages/vue3-example run typecheck",
+    "dev:vue2": "pnpm -C examples/vue2 run dev",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.vue",
     "test": "vitest",
     "coverage": "vitest run --coverage"
