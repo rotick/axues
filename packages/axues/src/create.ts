@@ -450,7 +450,6 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
     app.component(logicComponent.name, logicComponent)
   }
   createReturn.vue2Plugin = _Vue => {
-    // todo docs, types in readme
     // copied from https://github.com/unjs/unhead/blob/main/packages/vue/src/Vue2ProvideUnheadPlugin.ts
     _Vue.mixin({
       beforeCreate () {

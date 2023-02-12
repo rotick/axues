@@ -19,9 +19,10 @@
 ## Features
 
 - 🦾 Full support for [axios](https://github.com/axios/axios) features
+- ✨ Supports Vue 3 and Vue 2.7
 - 🎭 Global configuration for requests, handling of responses and errors
 - 🎃 Responses cacheable, request retryable and cancellable
-- ☎️ Simple integration with global interactive components, such as loading indicators, confirm dialogs, and toasts
+- 🕰️ Simple integration with global interactive components, such as loading indicators, confirm dialogs, and toasts
 - 🏍️ Built-in request debouncing
 
 ## Install
@@ -34,11 +35,13 @@ pnpm add axues
 yarn add axues
 ```
 
-Note: axues depends on axios, so you must install it too
+Note: Requires vue >= v3 or >=2.7, and axios >=1.0
 
 ## Usage
 
 First, create axues as a plugin and pass it to app, just like [vue-router](https://github.com/vuejs/router) and [pinia](https://github.com/vuejs/pinia#usage).
+
+### Vue 3
 
 ```javascript
 // main.js
@@ -52,6 +55,23 @@ const axues = createAxues(axios)
 
 app.use(axues)
 app.mount('#app')
+```
+
+### Vue 2.7
+
+```javascript
+// main.js
+import Vue, { h } from 'vue'
+import axios from 'axios'
+import { createAxues } from 'axues'
+import App from './App.vue'
+
+const axues = createAxues(axios)
+Vue.use(axues.vue2Plugin)
+
+new Vue({
+  render: () => h(App)
+}).$mount('#app')
 ```
 
 Then we can use it in any component:
@@ -516,20 +536,9 @@ interface CreateAxuesOptions {
     confirm?: (options: ConfirmOverlayType) => Promise<unknown>
   }
 }
-interface CreateReturn {
-  <TI = any, TO = any>(config: AxuesRequestConfig<TI>): Promise<TO>
-  request: <TI = any, TO = any>(config: AxuesRequestConfig<TI>) => Promise<TO>
-  get: <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  delete: <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  head: <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  options: <TI = any, TO = any>(url: string, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  post: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  put: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  patch: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  postForm: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  putForm: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
-  patchForm: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
+interface CreateReturn extends Axues {
   install: (app: App) => void
+  vue2Plugin: Plugin
 }
 declare function createAxues(axiosInstance: AxiosInstance, createOptions?: CreateAxuesOptions): CreateReturn
 ```
