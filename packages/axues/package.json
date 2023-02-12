@@ -52,6 +52,7 @@
     "@release-it/conventional-changelog": "^5.1.1"
   },
   "peerDependencies": {
+    "vue": ">=2.7 || >=3",
     "axios": ">=1.0.0"
   },
   "release-it": {
