@@ -3,5 +3,5 @@
   "compilerOptions": {
     "noEmit": true
   },
-  "include": ["src", "scripts", "test", "examples", ".eslintrc.js", "commitlint.config.js", "vitest.config.ts"]
+  "include": ["src", "test", "examples", ".eslintrc.js", "vitest.config.ts"]
 }
