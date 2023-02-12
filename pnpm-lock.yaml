@@ -62,7 +62,7 @@ importers:
     specifiers:
       '@vitejs/plugin-vue2': ^2.2.0
       axios: ^1.2.1
-      axues: workspace:*
+      axues: ^0.5.0
       vite: ^4.1.1
       vue: ^2.7.14
     dependencies:
@@ -72,6 +72,25 @@ importers:
     devDependencies:
       '@vitejs/plugin-vue2': 2.2.0_vite@4.1.1+vue@2.7.14
       vite: 4.1.1
+
+  examples/vue3:
+    specifiers:
+      '@vitejs/plugin-vue': ^4.0.0
+      axios: ^1.2.1
+      axues: ^0.5.0
+      typescript: ^4.9.3
+      vite: ^4.1.1
+      vue: ^3.2.47
+      vue-tsc: ^1.0.24
+    dependencies:
+      axios: 1.2.1
+      axues: link:../../packages/axues
+      vue: 3.2.47
+    devDependencies:
+      '@vitejs/plugin-vue': 4.0.0_vite@4.1.1+vue@3.2.47
+      typescript: 4.9.3
+      vite: 4.1.1
+      vue-tsc: 1.0.24_typescript@4.9.3
 
   packages/axues:
     specifiers:
@@ -1516,7 +1535,7 @@ packages:
       vite: ^4.0.0
       vue: ^3.2.25
     dependencies:
-      vite: 4.1.1_less@4.1.3
+      vite: 4.1.1
       vue: 3.2.47
     dev: true
 
