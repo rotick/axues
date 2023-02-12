@@ -5,8 +5,8 @@
       <div class="flex items-center">
         <n-dropdown :options="themeOptions" :on-select="setColorScheme">
           <a href="javascript:;">
-            <IcOutlineDarkMode v-if="colorScheme === 'dark'" />
-            <IcTwotoneLightMode v-if="colorScheme === 'light'" />
+            <!--            <IcOutlineDarkMode v-if="colorScheme === 'dark'" />-->
+            <!--            <IcTwotoneLightMode v-if="colorScheme === 'light'" />-->
           </a>
         </n-dropdown>
       </div>
@@ -29,9 +29,10 @@ export default defineComponent({
   name: 'Index',
   components: {
     NDropdown,
-    NaiveProvider,
-    IcOutlineDarkMode,
-    IcTwotoneLightMode
+    NaiveProvider
+    // todo error
+    // IcOutlineDarkMode,
+    // IcTwotoneLightMode
   },
   setup () {
     const { colorScheme, setColorScheme } = useColorScheme()

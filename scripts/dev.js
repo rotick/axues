@@ -4,7 +4,7 @@ process.env.NODE_ENV = 'development'
 
 async function runDev () {
   try {
-    await execa('pnpm', ['run', 'dev', '--filter', './packages/vue3-example'])
+    await execa('pnpm', ['run', 'dev', '--filter', './packages/demo'])
   } catch (error) {
     console.log(error)
   }

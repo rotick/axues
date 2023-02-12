@@ -3,9 +3,7 @@ import { ref } from 'vue'
 let followSystem = 'light'
 const colorScheme = ref('light')
 if (typeof window !== 'undefined') {
-  followSystem = window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light'
+  followSystem = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
   colorScheme.value = localStorage.theme || followSystem
 }
 

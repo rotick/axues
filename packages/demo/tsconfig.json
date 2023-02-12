@@ -1,0 +1,9 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "types": ["node", "vite/client", "unplugin-icons/types/vue", "naive-ui/volar"],
+    "paths": {
+      "~/*": ["src/*"]
+    }
+  }
+}

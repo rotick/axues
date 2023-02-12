@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "axios": "^1.2.1",
-    "vue": "^3.2.45",
+    "vue": "^3.2.47",
     "@vue/test-utils": "^2.2.7",
     "lru-cache": "^7.14.1",
     "tsup": "^6.5.0",
