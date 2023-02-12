@@ -12,13 +12,13 @@
   <img src="https://badgen.net/badge/License/MIT/green" />
 </p>
 
-<p align="center">Vue composables that is implemented based on <a href="https://github.com/axios/axios">axios</a>, making request state management simpler.</p>
+<p align="center">Vue composables powered by <a href="https://github.com/axios/axios">axios</a> for easier request state management</p>
 
 <p align="center">Axios + Vue = Axues ✌️</p>
 
 ## Features
 
-- 🦾 Full support for [axios](https://github.com/axios/axios) features
+- 🦾 Full [axios](https://github.com/axios/axios) feature support
 - ✨ Supports Vue 3 and Vue 2.7
 - 🎭 Global configuration for requests, handling of responses and errors
 - 🎃 Responses cacheable, request retryable and cancellable
