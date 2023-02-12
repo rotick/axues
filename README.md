@@ -282,9 +282,14 @@ const { loading, action, canAbort, abort, aborted } = useAxues('/api/foo')
 
 We can also provide a cancel operation for the promise method that is passed in.
 
-```vue
-import { useAxues, axues } from 'axues' const fetchUsers = (actionPayload, signal) => fetch('/api/users', { signal }) const { loading, canAbort, abort } = useAxues(fetchUsers, { immediate: true }) const fetchBooks = (actionPayload,
-signal) => axues.get('/api/books', { signal }) const { loading: loading2, abort: abort2 } = useAxues({ promise: fetchBooks, immediate: true })
+```javascript
+import { useAxues, axues } from 'axues'
+
+const fetchUsers = (actionPayload, signal) => fetch('/api/users', { signal })
+const { loading, canAbort, abort } = useAxues(fetchUsers, { immediate: true })
+
+const fetchBooks = (actionPayload, signal) => axues.get('/api/books', { signal })
+const { loading: loading2, abort: abort2 } = useAxues({ promise: fetchBooks, immediate: true })
 ```
 
 ### Pagination query
