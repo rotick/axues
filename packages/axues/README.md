@@ -12,7 +12,7 @@
   <img src="https://badgen.net/badge/License/MIT/green" />
 </p>
 
-<p align="center">Vue composables powered by <a href="https://github.com/axios/axios">axios</a> for easier request state management</p>
+<p align="center">Vue composable powered by <a href="https://github.com/axios/axios">axios</a> for easier request state management</p>
 
 <p align="center">Axios + Vue = Axues ✌️</p>
 
@@ -110,6 +110,20 @@ const { loading, success, error, data } = useAxues('/api/foo', {
   data: { foo: 'bar' },
   immediate: true
 })
+```
+
+Of course, we can also use the renderless component.
+
+```vue
+<template>
+  <axues url="/api/foo" :immediate="true" v-slot="{ loading, success, data, error }">
+    <div>
+      <p v-if="loading">loading...</p>
+      <div v-if="success">{{ data }}</div>
+      <p v-if="error">Something went error: {{ error.message }}</p>
+    </div>
+  </axues>
+</template>
 ```
 
 ### Take over the state of promise
@@ -282,9 +296,14 @@ const { loading, action, canAbort, abort, aborted } = useAxues('/api/foo')
 
 We can also provide a cancel operation for the promise method that is passed in.
 
-```vue
-import { useAxues, axues } from 'axues' const fetchUsers = (actionPayload, signal) => fetch('/api/users', { signal }) const { loading, canAbort, abort } = useAxues(fetchUsers, { immediate: true }) const fetchBooks = (actionPayload,
-signal) => axues.get('/api/books', { signal }) const { loading: loading2, abort: abort2 } = useAxues({ promise: fetchBooks, immediate: true })
+```javascript
+import { useAxues, axues } from 'axues'
+
+const fetchUsers = (actionPayload, signal) => fetch('/api/users', { signal })
+const { loading, canAbort, abort } = useAxues(fetchUsers, { immediate: true })
+
+const fetchBooks = (actionPayload, signal) => axues.get('/api/books', { signal })
+const { loading: loading2, abort: abort2 } = useAxues({ promise: fetchBooks, immediate: true })
 ```
 
 ### Pagination query

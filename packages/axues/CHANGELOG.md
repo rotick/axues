@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.5.1](https://github.com/rotick/axues/compare/0.5.0...0.5.1) (2023-02-14)
+
+### Bug Fixes
+
+- vue2Plugin's type ([81e4e3a](https://github.com/rotick/axues/commit/81e4e3a35ec16a5a752cc5a096b72e2437aacb8c))
+
+### Performance Improvements
+
+- axios reject handle ([86d12ed](https://github.com/rotick/axues/commit/86d12edd819570fe3656afa4dc86d72e667867c8))
+
 # [0.5.0](https://github.com/rotick/axues/compare/0.4.2...0.5.0) (2023-02-12)
 
 ### Bug Fixes
