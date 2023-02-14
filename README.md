@@ -12,7 +12,7 @@
   <img src="https://badgen.net/badge/License/MIT/green" />
 </p>
 
-<p align="center">Vue composables powered by <a href="https://github.com/axios/axios">axios</a> for easier request state management</p>
+<p align="center">Vue composable powered by <a href="https://github.com/axios/axios">axios</a> for easier request state management</p>
 
 <p align="center">Axios + Vue = Axues ✌️</p>
 
@@ -110,6 +110,20 @@ const { loading, success, error, data } = useAxues('/api/foo', {
   data: { foo: 'bar' },
   immediate: true
 })
+```
+
+Of course, we can also use the renderless component.
+
+```vue
+<template>
+  <axues url="/api/foo" :immediate="true" v-slot="{ loading, success, data, error }">
+    <div>
+      <p v-if="loading">loading...</p>
+      <div v-if="success">{{ data }}</div>
+      <p v-if="error">Something went error: {{ error.message }}</p>
+    </div>
+  </axues>
+</template>
 ```
 
 ### Take over the state of promise
