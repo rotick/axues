@@ -42,19 +42,20 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       headers: mergeHeaders(baseConfig?.headers, config.headers, config.contentType)
     }
     return new Promise((resolve, reject) => {
-      axiosInstance(axiosConfig)
-        .then(response => {
+      axiosInstance(axiosConfig).then(
+        response => {
           const res = responseHandle?.(response) || response.data
           if (res instanceof Error) {
             reject(res)
           } else {
             resolve(res)
           }
-        })
-        .catch(err => {
+        },
+        err => {
           const handledErr = errorHandle?.(err) || err
           reject(handledErr)
-        })
+        }
+      )
     })
   }
   function addAlias (method: string) {
