@@ -9,7 +9,7 @@
     "prepare": "husky install",
     "preinstall": "npx only-allow pnpm",
     "build": "pnpm -C packages/axues run build",
-    "release": "pnpm -C packages/axues run release",
+    "release": "vitest --run && pnpm -C packages/axues run release",
     "dev:demo": "pnpm -C packages/demo run dev",
     "build:demo": "pnpm -C packages/demo run build",
     "dev:vue2": "pnpm -C examples/vue2 run dev",
