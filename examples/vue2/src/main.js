@@ -1,4 +1,4 @@
-import Vue, { h } from 'vue'
+import Vue from 'vue'
 import './style.css'
 import App from './App.vue'
 import axios from 'axios'
@@ -18,5 +18,5 @@ const axues = createAxues(axiosInstance, {
 Vue.use(axues.vue2Plugin)
 
 new Vue({
-  render: () => h(App)
+  render: h => h(App)
 }).$mount('#app')
