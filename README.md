@@ -146,7 +146,7 @@ const { loading: loading3, data: bookData } = useAxues({
 })
 ```
 
-### Manual execute
+### Manually execute
 
 The above examples all pass an `immediate` configuration, which means it will be executed immediately. If want to execute it manually, we need to call the `action` method returned by `useAxues`.
 
@@ -185,6 +185,10 @@ const { loading, action } = useAxues({
   </div>
 </template>
 ```
+
+> ### Why named as `action` instead of `execute` or others?
+>
+> The process from the beginning of a request to the completion of rendering is like a play, where the browser serves as the theater, the JS code as the script, HTML as the actors, and CSS as the props and costumes. As long as the director issues `action` instructions, the actors will perform according to the script. So who is the director? Of course, it's our user.
 
 ### Built-in debounce
 
