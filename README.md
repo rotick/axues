@@ -61,7 +61,7 @@ app.mount('#app')
 
 ```javascript
 // main.js
-import Vue, { h } from 'vue'
+import Vue from 'vue'
 import axios from 'axios'
 import { createAxues } from 'axues'
 import App from './App.vue'
@@ -70,7 +70,7 @@ const axues = createAxues(axios)
 Vue.use(axues.vue2Plugin)
 
 new Vue({
-  render: () => h(App)
+  render: h => h(App)
 }).$mount('#app')
 ```
 
