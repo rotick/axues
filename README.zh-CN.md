@@ -12,40 +12,40 @@
   <img src="https://badgen.net/badge/License/MIT/green" />
 </p>
 
-<p align="center">Vue composable powered by <a href="https://github.com/axios/axios">axios</a> for easier request state management</p>
+<p align="center">基于 <a href="https://github.com/axios/axios">axios</a> 实现的 Vue 组合式函数，使请求状态管理变得更简单</p>
 
 <p align="center">Axios + Vue = Axues ✌️</p>
 
 <p align="center">
-  <span>English</span>
+  <a href="./README.md">英文</a>
   |
-  <a href="./README.zh-CN.md">简体中文</a>
+  <span>简体中文</span>
 </p>
 
-## Features
+## 特性
 
-- 🦾 Full [axios](https://github.com/axios/axios) feature support
-- ✨ Supports Vue 3 and Vue 2.7
-- 🎭 Global configuration for requests, handling of responses and errors
-- 🎃 Responses cacheable, request retryable and cancellable
-- 🕰️ Simple integration with global interactive components, such as loading indicators, confirm dialogs, and toasts
-- 🏍️ Built-in request debouncing
+- 🦾 支持 [axios](https://github.com/axios/axios) 的所有特性
+- ✨ 同时支持 Vue 3 和 Vue 2.7
+- 🎭 全局的请求配置、响应处理及错误处理
+- 🎃 响应数据可缓存，请求可重试、可取消
+- 🕰️ 易于集成全局交互组件，例如 loading、confirm 弹窗，或者 toast 等
+- 🏍️ 内置防抖
 
-## Install
+## 安装
 
 ```bash
 npm i axues
-# or
+# 或者
 pnpm add axues
-# or
+# 或者
 yarn add axues
 ```
 
-Note: Requires vue >= v3 or >=2.7, and axios >=1.0
+注意: 必须安装 vue >= v3 或 >= 2.7, 且 axios >= 1.0
 
-## Usage
+## 使用示例
 
-First, create axues as a plugin and pass it to app, just like [vue-router](https://github.com/vuejs/router) and [pinia](https://github.com/vuejs/pinia#usage).
+首先，创建 axues 实例，并把他当成一个插件注册到 app 中，就像使用[vue-router](https://github.com/vuejs/router) and [pinia](https://github.com/vuejs/pinia#usage) 一样。
 
 ### Vue 3
 
@@ -80,7 +80,7 @@ new Vue({
 }).$mount('#app')
 ```
 
-Then we can use it in any component:
+然后我们就可以在任意组件使用它：
 
 ```vue
 <script setup>
@@ -96,12 +96,13 @@ const { loading, success, error, data } = useAxues('/api/foo', { immediate: true
 </template>
 ```
 
-> Just looking at `useAxues`, It looks like [vueuse](https://vueuse.org/core/useFetch/) or [nuxt's](https://nuxt.com/docs/api/composables/use-fetch) `useFetch`,
-> but [why axues need to be created and registered as a plugin?](#why-axues-need-to-be-created-and-registered-as-a-plugin)
+> 单看 `useAxues`, 它看起来很像 [vueuse](https://vueuse.org/core/useFetch/) 或 [nuxt](https://nuxt.com/docs/api/composables/use-fetch) 的 `useFetch`,
+> 那 [为什么 axues 需要创建并且注册成组件？](#why-axues-need-to-be-created-and-registered-as-a-plugin)
 
-In this case, we got the simplest usage, pass `url` to to first argument, and `options` to second argument, `useAxues` will return some very useful states and methods, so that we can easily bind to the template.
+这个例子就是最简单的使用示例，将 `url` 传给第一个参数，`options` 传给第二个参数，
+`useAxues` 将返回一些非常好用的状态和方法，我们可以将这些状态、方法直接绑定到模板中。
 
-The `options` also can be pass to first argument.
+`options` 可以传给第一个参数：
 
 ```typescript
 const { loading, success, error, data } = useAxues({
@@ -110,7 +111,7 @@ const { loading, success, error, data } = useAxues({
   data: { foo: 'bar' },
   immediate: true
 })
-// equivalent to
+// 等同于
 const { loading, success, error, data } = useAxues('/api/foo', {
   method: 'post',
   data: { foo: 'bar' },
@@ -118,7 +119,7 @@ const { loading, success, error, data } = useAxues('/api/foo', {
 })
 ```
 
-Of course, we can also use the renderless component.
+当然，我们也可以直接使用无渲染组件：
 
 ```vue
 <template>
@@ -132,9 +133,9 @@ Of course, we can also use the renderless component.
 </template>
 ```
 
-### Take over the state of promise
+### 接管 promise 的状态
 
-Sometimes it might be a good idea to wrap the request, `useAxues` can also pass in an any promise function.
+有些场景下我们需要将请求封装起来以便复用，所以 `useAxues` 也支持传入任意的返回 promise 的函数。
 
 ```javascript
 import { useAxues, axues } from 'axues'
@@ -152,9 +153,9 @@ const { loading: loading3, data: bookData } = useAxues({
 })
 ```
 
-### Manually execute
+### 手动执行
 
-The above examples all pass an `immediate` configuration, which means it will be executed immediately. If want to execute it manually, we need to call the `action` method returned by `useAxues`.
+以上的例子都传入 `immediate` 这个配置项，意味着一载入即发起请求。如果想要手动触发请求，我们需要调用 `useAxues` 返回的 `action` 方法。
 
 ```vue
 <script setup>
@@ -171,7 +172,7 @@ const { loading, success, error, data, action } = useAxues('/api/foo')
 </template>
 ```
 
-If the `action` is to be called multiple times, it is necessary to support parameter passing.
+如果 `action` 可能会被多次调用，那么 `action` 支持传参是很有必要的：
 
 ```vue
 <script setup>
@@ -192,18 +193,18 @@ const { loading, action } = useAxues({
 </template>
 ```
 
-> ### Why named as `action` instead of `execute` or others?
+> ### 为什么命名为 `action` 而不是 `execute` 或其他？
 >
-> The process from the beginning of a request to the completion of rendering is like a play, where the browser serves as the theater, the JS code as the script, HTML as the actors, and CSS as the props and costumes. As long as the director issues `action` instructions, the actors will perform according to the script. So who is the director? Of course, it's our user.
+> 每次从请求开始到渲染完成的过程，就像是一场戏，浏览器是剧场，JS 代码是剧本，HTML 是演员，css 是道具和装扮，只要导演发出 action 指令，演员们就会根据剧本完成演绎，那谁是那个导演呢？当然是我们的用户啦。
 
-### Built-in debounce
+### 内置的防抖（debounce）
 
-By default, when the `action` is called frequently, it will only be executed if the previous request is completed, otherwise it will be ignored.
+默认情况下，如果 `action` 调用频率过高，axues 只会执行第一次请求，在第一次请求完成前，调用 `action` 都是无效的。
 
 ```vue
 <script setup>
 import { useAxues } from 'axues'
-// will only send request once
+// 只会发起一次请求
 const { action } = useAxues('/api/foo')
 </script>
 <template>
@@ -213,7 +214,7 @@ const { action } = useAxues('/api/foo')
 </template>
 ```
 
-If we are doing search suggestions, we need to reverse, only the last call triggers the request.
+如果是做搜索建议，我们需要反过来，只让最后一次调用去触发请求：
 
 ```vue
 <script setup>
@@ -236,37 +237,37 @@ const { data, action } = useAxues({
 </template>
 ```
 
-### Retry and refresh
+### 重试及刷新
 
-Retries are very important for users in weak network environments.
+在弱网环境下，请求错误后可重试对用户来说非常重要。
 
 ```vue
 <script setup>
 import { useAxues } from 'axues'
 const { error, action, retryTimes, retryCountdown, retry, retrying } = useAxues({
   url: '/api/foo',
-  autoRetryTimes: 2,
-  autoRetryInterval: 3 // default: 2 (s)
+  autoRetryTimes: 2, // 自动重试次数
+  autoRetryInterval: 3 // 自动重试间隔，默认: 2 (s)
 })
 </script>
 <template>
   <div>
     <div v-if="error">
-      <p>Something went error: {{ error.message }}</p>
+      <p>请求出错: {{ error.message }}</p>
       <p>
-        retryTimes: {{ retryTimes }}
-        <button @click="retry">retry now</button>
+        重试次数: {{ retryTimes }}
+        <button @click="retry">立即重试</button>
       </p>
     </div>
     <p v-if="retryCountdown > 0">
-      {{ `will auto retry after ${retryCountdown}s` }}
+      {{ `将在 ${retryCountdown} 秒后重试` }}
     </p>
-    <p v-if="retrying">retrying...</p>
+    <p v-if="retrying">正在重试...</p>
   </div>
 </template>
 ```
 
-Refresh is also essential.
+刷新也是基操。
 
 ```vue
 <script setup>
@@ -275,19 +276,19 @@ const { loading, success, error, data, action, refresh, refreshing } = useAxues(
 </script>
 <template>
   <div>
-    <p v-if="loading">loading...</p>
-    <p v-if="refreshing">refreshing...</p>
+    <p v-if="loading">正在加载...</p>
+    <p v-if="refreshing">正在刷新...</p>
     <div v-if="success">{{ data }}</div>
-    <p v-if="error">Something went error: {{ error.message }}</p>
-    <button @click="action">execute</button>
-    <button @click="refresh">refresh</button>
+    <p v-if="error">请求出错: {{ error.message }}</p>
+    <button @click="action">执行</button>
+    <button @click="refresh">刷新</button>
   </div>
 </template>
 ```
 
-### Abort request
+### 取消请求
 
-Providing the option for undo is also a fundamental aspect of a great user experience.
+提供反悔撤消操作也是良好用户体验的基础。
 
 ```vue
 <script setup>
@@ -296,15 +297,15 @@ const { loading, action, canAbort, abort, aborted } = useAxues('/api/foo')
 </script>
 <template>
   <div>
-    <p v-if="loading">loading...</p>
-    <p v-if="aborted">aborted</p>
-    <button @click="action">execute</button>
-    <button @click="abort" v-if="canAbort">abort</button>
+    <p v-if="loading">加载中...</p>
+    <p v-if="aborted">已取消</p>
+    <button @click="action">执行</button>
+    <button @click="abort" v-if="canAbort">取消请求</button>
   </div>
 </template>
 ```
 
-We can also provide a cancel operation for the promise method that is passed in.
+我们还可以为传入的 promise 方法提供取消操作。
 
 ```javascript
 import { useAxues, axues } from 'axues'
@@ -316,9 +317,9 @@ const fetchBooks = (actionPayload, signal) => axues.get('/api/books', { signal }
 const { loading: loading2, abort: abort2 } = useAxues({ promise: fetchBooks, immediate: true })
 ```
 
-### Pagination query
+### 分页查询
 
-Pagination queries are a very common scenario in web development and using axues to do pagination is also very simple.
+分页查询是 web 开发中非常常见的场景，使用 axues 做分页也很简单。
 
 ```vue
 <script setup>
@@ -342,16 +343,16 @@ const { loading, action, data } = useAxues({
 </script>
 <template>
   <div>
-    <p v-if="loading">loading...</p>
+    <p v-if="loading">加载中...</p>
     <p>current page: {{ pagination.current }}</p>
     <p>{{ data }}</p>
-    <button v-if="pagination.current > 1" @click="action(-1)">prev page</button>
-    <button @click="action(1)">next page</button>
+    <button v-if="pagination.current > 1" @click="action(-1)">上一页</button>
+    <button @click="action(1)">下一页</button>
   </div>
 </template>
 ```
 
-If you want to append rather than replace the data.
+如果是要做追加分页（无限滚动分页）：
 
 ```vue
 <script setup>
@@ -365,29 +366,30 @@ const { loading, action, data } = useAxues({
 </script>
 ```
 
-### With interactive components
+### 集成交互组件
 
-For consistency with UI and interaction, we often write common interactive components. These components are called during requests, upon successful or failed request, to inform the user of the request status. For example, in a scenario of deleting data, if done in a traditional manner, we would write it like this:
+为了与 UI 与交互的一致性，我们通常会编写通用的交互组件。 这些组件在请求期间被调用，根据请求成功或失败通知用户请求状态。 比如一个删除数据的场景，如果按照传统的方式，我们会这样写：
 
 ```vue
 <script setup>
 import { Loading, Confirm, Toast } from 'some-UI-lib'
 import axios from 'axios'
 function deleteItem(id) {
-  Confirm('are you sure to delete it?').then(
+  Confirm('确定要删除这条数据吗?').then(
+    // 让用户确认以防误操作
     () => {
-      Loading.open()
+      Loading.open() // 调用loading动画组件
       axios
         .delete(`/api/delete/${id}`)
         .then(
           res => {
-            Toast('deleted')
+            Toast('已删除') // 提示用户当前状态
           },
           err => {
-            Toast.error(`delete id: [${id}] got an error: ${err}`)
+            Toast.error(`删除id为: [${id}] 时出错: ${err}`) // 告知用户出错
           }
         )
-        .finally(Loading.close)
+        .finally(Loading.close) // 关闭loading动画
     },
     () => {}
   )
@@ -400,7 +402,7 @@ function deleteItem(id) {
 </template>
 ```
 
-The procedural invocation code looks like spaghetti, but now with axues, you can greatly simplify your code using a declarative approach.
+过程式的调用代码看起来就像意大利面，现在有了 axues，你可以使用声明式极大的简化代码。
 
 ```vue
 <script setup>
@@ -408,10 +410,10 @@ import { useAxues } from 'axues'
 const { action } = useAxues({
   url: id => `/api/delete/${id}`,
   method: 'delete',
-  confirmOverlay: 'are you sure to delete it?',
+  confirmOverlay: '确定要删除这条数据吗?',
   loadingOverlay: true,
-  successOverlay: 'deleted',
-  errorOverlay: (id, err) => `delete id: [${id}] got an error: ${err}`
+  successOverlay: '已删除',
+  errorOverlay: (id, err) => `删除id为: [${id}] 时出错: ${err}`
 })
 </script>
 <template>
@@ -421,7 +423,7 @@ const { action } = useAxues({
 </template>
 ```
 
-Of course, all of this is predicated on the fact that you must register these interactive components in the root component. Registering in the root component is always better than registering each time you call, right?
+当然，这一切的前提是你必须在根组件中注册这些交互组件。 在根组件中注册一次总是比每次调用都注册要好，对吧？
 
 ```vue
 <!-- App.vue -->
@@ -443,6 +445,7 @@ useOverlayImplement({
   },
   success(options) {
     if (options.style === 1) {
+      // 可以使用多种样式
       Toast(options.title)
     } else {
       Modal({
@@ -468,11 +471,10 @@ useOverlayImplement({
 </template>
 ```
 
-## why axues need to be created and registered as a plugin?
+## 为什么 axues 需要创建并且注册成组件?
 
-In practical application, we usually need to process request and response in a unified place,
-For example, carry Authorization in each request header, convert the response data,
-or handle error and report error.
+在实际应用中，我们通常需要在一个统一的地方处理请求和响应，
+比如在每个请求头中携带 Authorization，转换响应数据，或处理错误并上报错误。
 
 ```javascript
 // main.js
@@ -497,8 +499,7 @@ const axues = createAxues(axios, {
 app.use(axues)
 ```
 
-You may think that executing the requestConfig method for each request will consume a bit of performance,
-it might be a better idea to use `axios.create` directly to create the axios instance
+你可能认为对每个请求都执行 requestConfig 方法会损耗一点性能，直接使用 `axios.create` 来创建 axios 实例可能是一个更好的主意.
 
 ```javascript
 // main.js
@@ -509,6 +510,7 @@ const axiosInstance = axios.create({
 })
 const axues = createAxues(axiosInstance, {
   requestConfig: () => ({
+    // Authorization 可能会变化，这类可能变化的数据就不应该放到 axios.create 中
     headers: { Authorization: localStorage.getItem('Authorization') }
   })
   // ...
@@ -516,7 +518,7 @@ const axues = createAxues(axiosInstance, {
 app.use(axues)
 ```
 
-As you can see, `createAxues` will return an instance of axues so that we can share the global configuration when creating the application, for example, requesting it in the router:
+如你所见，`createAxues` 会返回一个 `axues` 的实例，这样我们在创建应用的时候就可以共享全局的请求配置，比如在 `router` 中调用请求：
 
 ```typescript
 // main.js
@@ -537,9 +539,9 @@ router.beforeEach((to, from, next) => {
 app.use(axues).use(router)
 ```
 
-That is why axues need to be created first.
+这就是要先创建 `axues` 实例的原因.
 
-## Types
+## 类型（typescript）
 
 <details>
 <summary>Click to show</summary>
