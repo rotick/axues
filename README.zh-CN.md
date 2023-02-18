@@ -17,7 +17,7 @@
 <p align="center">Axios + Vue = Axues ✌️</p>
 
 <p align="center">
-  <a href="./README.md">英文</a>
+  <a href="./README.md">English</a>
   |
   <span>简体中文</span>
 </p>
@@ -97,7 +97,7 @@ const { loading, success, error, data } = useAxues('/api/foo', { immediate: true
 ```
 
 > 单看 `useAxues`, 它看起来很像 [vueuse](https://vueuse.org/core/useFetch/) 或 [nuxt](https://nuxt.com/docs/api/composables/use-fetch) 的 `useFetch`,
-> 那 [为什么 axues 需要创建并且注册成组件？](#why-axues-need-to-be-created-and-registered-as-a-plugin)
+> 那 [为什么 axues 需要创建并且注册成组件？](#为什么-axues-需要创建并且注册成组件)
 
 这个例子就是最简单的使用示例，将 `url` 传给第一个参数，`options` 传给第二个参数，
 `useAxues` 将返回一些非常好用的状态和方法，我们可以将这些状态、方法直接绑定到模板中。
