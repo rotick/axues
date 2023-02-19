@@ -580,8 +580,8 @@ declare function createAxues(axiosInstance: AxiosInstance, createOptions?: Creat
 
 ```typescript
 type MaybeRef<T> = T | Ref<T>
-type MaybeComputedRef<T> = ComputedRef<T> | MaybeRef<T>
-type MaybeComputedOrActionRef<T, TAction = any> = MaybeComputedRef<T> | ((actionPayload?: TAction) => T)
+type MaybeComputedRefWithoutFn<T> = ComputedRef<T> | MaybeRef<T>
+type MaybeComputedOrActionRef<T, TAction = any> = MaybeComputedRefWithoutFn<T> | ((actionPayload?: TAction) => T)
 
 interface AxuesRequestConfig<TI = any, TAction = any> extends Omit<AxiosRequestConfig, 'url' | 'headers'> {
   url?: MaybeComputedOrActionRef<string, TAction>
@@ -633,7 +633,7 @@ interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends AxuesReques
   onError?: (err: Error, actionPayload?: TAction) => void
   onFinally?: (actionPayload?: TAction) => void
 }
-type UseAxuesFirstArg<TI, TO, TAction> = MaybeComputedRef<string> | ((actionPayload?: TAction, signal?: AbortSignal) => Promise<TO>) | UseAxuesOptions<TI, TO, TAction>
+type UseAxuesFirstArg<TI, TO, TAction> = MaybeComputedRefWithoutFn<string> | ((actionPayload?: TAction, signal?: AbortSignal) => Promise<TO>) | UseAxuesOptions<TI, TO, TAction>
 interface UseAxuesOutput<TI, TO, TAction = any> {
   pending: Ref<boolean>
   loading: Ref<boolean>

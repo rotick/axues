@@ -2,8 +2,8 @@ import type { AxiosRequestConfig, AxiosResponse, AxiosError, RawAxiosRequestHead
 import type { App, Ref, VNodeChild, ComputedRef } from 'vue'
 
 export type MaybeRef<T> = T | Ref<T>
-export type MaybeComputedRef<T> = ComputedRef<T> | MaybeRef<T>
-export type MaybeComputedOrActionRef<T, TAction = any> = MaybeComputedRef<T> | ((actionPayload?: TAction) => T)
+export type MaybeComputedRefWithoutFn<T> = ComputedRef<T> | MaybeRef<T>
+export type MaybeComputedOrActionRef<T, TAction = any> = MaybeComputedRefWithoutFn<T> | ((actionPayload?: TAction) => T)
 interface CacheInstance {
   get: (key: string) => unknown
   set: (key: string, value: string) => void
@@ -36,8 +36,8 @@ export interface OverlayImplement {
 
 export type ConfirmOverlayOptions<T> = MaybeComputedOrActionRef<string | ConfirmOverlayType, T>
 export type LoadingOverlayOptions<T> = MaybeComputedOrActionRef<boolean | string | LoadingOverlayType, T>
-export type SuccessOverlayOptions<TAction, TO> = MaybeComputedRef<string | SuccessOrErrorOverlayType> | ((actionPayload?: TAction, data?: TO) => string | SuccessOrErrorOverlayType)
-export type ErrorOverlayOptions<T> = MaybeComputedRef<string | SuccessOrErrorOverlayType> | ((actionPayload?: T, err?: Error) => string | SuccessOrErrorOverlayType)
+export type SuccessOverlayOptions<TAction, TO> = MaybeComputedRefWithoutFn<string | SuccessOrErrorOverlayType> | ((actionPayload?: TAction, data?: TO) => string | SuccessOrErrorOverlayType)
+export type ErrorOverlayOptions<T> = MaybeComputedRefWithoutFn<string | SuccessOrErrorOverlayType> | ((actionPayload?: T, err?: Error) => string | SuccessOrErrorOverlayType)
 
 export interface Axues {
   <TI = any, TO = any>(config: AxuesRequestConfig<TI>): Promise<TO>
@@ -152,7 +152,7 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
   onError?: (err: Error, actionPayload?: TAction) => void
   onFinally?: (actionPayload?: TAction) => void
 }
-export type UseAxuesFirstArg<TI, TO, TAction> = MaybeComputedRef<string> | ((actionPayload?: TAction, signal?: AbortSignal) => Promise<TO>) | UseAxuesOptions<TI, TO, TAction>
+export type UseAxuesFirstArg<TI, TO, TAction> = MaybeComputedRefWithoutFn<string> | ((actionPayload?: TAction, signal?: AbortSignal) => Promise<TO>) | UseAxuesOptions<TI, TO, TAction>
 export interface UseAxuesOutput<TI, TO, TAction = any> {
   pending: Ref<boolean>
   loading: Ref<boolean>
