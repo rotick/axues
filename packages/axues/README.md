@@ -16,6 +16,12 @@
 
 <p align="center">Axios + Vue = Axues ✌️</p>
 
+<p align="center">
+  <span>English</span>
+  |
+  <a href="./README.zh-CN.md">简体中文</a>
+</p>
+
 ## Features
 
 - 🦾 Full [axios](https://github.com/axios/axios) feature support
@@ -61,7 +67,7 @@ app.mount('#app')
 
 ```javascript
 // main.js
-import Vue, { h } from 'vue'
+import Vue from 'vue'
 import axios from 'axios'
 import { createAxues } from 'axues'
 import App from './App.vue'
@@ -70,7 +76,7 @@ const axues = createAxues(axios)
 Vue.use(axues.vue2Plugin)
 
 new Vue({
-  render: () => h(App)
+  render: h => h(App)
 }).$mount('#app')
 ```
 
@@ -146,7 +152,7 @@ const { loading: loading3, data: bookData } = useAxues({
 })
 ```
 
-### Manual execute
+### Manually execute
 
 The above examples all pass an `immediate` configuration, which means it will be executed immediately. If want to execute it manually, we need to call the `action` method returned by `useAxues`.
 
@@ -185,6 +191,10 @@ const { loading, action } = useAxues({
   </div>
 </template>
 ```
+
+> ### Why named as `action` instead of `execute` or others?
+>
+> The process from the beginning of a request to the completion of rendering is like a play, where the browser serves as the theater, the JS code as the script, HTML as the actors, and CSS as the props and costumes. As long as the director issues `action` instructions, the actors will perform according to the script. So who is the director? Of course, it's our user.
 
 ### Built-in debounce
 
@@ -242,7 +252,7 @@ const { error, action, retryTimes, retryCountdown, retry, retrying } = useAxues(
 <template>
   <div>
     <div v-if="error">
-      <p>Something went error: {{ error }}</p>
+      <p>Something went error: {{ error.message }}</p>
       <p>
         retryTimes: {{ retryTimes }}
         <button @click="retry">retry now</button>
@@ -308,7 +318,7 @@ const { loading: loading2, abort: abort2 } = useAxues({ promise: fetchBooks, imm
 
 ### Pagination query
 
-Pagination queries are a very common scenario in web development and using Axios to do pagination is also very simple.
+Pagination queries are a very common scenario in web development and using axues to do pagination is also very simple.
 
 ```vue
 <script setup>
@@ -316,13 +326,13 @@ import { reactive } from 'vue'
 import { useAxues } from 'axues'
 
 const pagination = reactive({
-  current: 0,
+  current: 1,
   pageSize: 20,
   total: 0
 })
 const { loading, action, data } = useAxues({
   url: '/api/pagination',
-  params: p => ({ p: pagination.current + p, s: pagination.pageSize }),
+  params: p => ({ p: pagination.current + ~~p, s: pagination.pageSize }),
   immediate: true,
   onSuccess(data) {
     pagination.current = data.current
@@ -348,6 +358,7 @@ If you want to append rather than replace the data.
 // ...
 const { loading, action, data } = useAxues({
   // ...
+  initialData: [],
   onData: (data, newData) => data.value.push(...newData)
   // ...
 })
@@ -389,7 +400,7 @@ function deleteItem(id) {
 </template>
 ```
 
-The procedural invocation code looks like spaghetti, but now with Axios, you can greatly simplify your code using a declarative approach.
+The procedural invocation code looks like spaghetti, but now with axues, you can greatly simplify your code using a declarative approach.
 
 ```vue
 <script setup>
@@ -480,7 +491,7 @@ const axues = createAxues(axios, {
     return response.data
   },
   errorHandle(err) {
-    return new Error(`[${err.response.code}]${err.request.url}: ${err.message}`)
+    return new Error(`[${err.response.status}]${err.config.url}: ${err.message}`)
   }
 })
 app.use(axues)
@@ -538,8 +549,9 @@ That is why axues need to be created first.
 ```typescript
 interface CreateAxuesOptions {
   requestConfig?: () => AxiosRequestConfig
-  responseHandle?: (response: AxiosResponse) => unknown
-  errorHandle?: (err: AxiosError) => Error
+  transformUseOptions?: (options: UseAxuesOptions) => UseAxuesOptions
+  responseHandle?: (response: AxiosResponse, requestConfig: AxuesRequestConfig) => unknown
+  errorHandle?: (err: AxiosError, requestConfig: AxuesRequestConfig) => Error
   cacheInstance?: {
     get: (key: string) => unknown
     set: (key: string, value: string) => void
@@ -575,6 +587,8 @@ interface AxuesRequestConfig<TI = any, TAction = any> extends Omit<AxiosRequestC
   data?: MaybeComputedOrActionRef<TI, TAction>
   contentType?: MaybeComputedOrActionRef<ContentType, TAction>
   headers?: MaybeComputedOrActionRef<RawAxiosRequestHeaders, TAction>
+  responseHandlingStrategy?: any
+  errorHandlingStrategy?: any
 }
 
 interface Axues {

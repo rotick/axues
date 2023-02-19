@@ -1,5 +1,11 @@
 # Changelog
 
+# [0.6.0](https://github.com/rotick/axues/compare/0.5.1...0.6.0) (2023-02-19)
+
+### Features
+
+- responseHandlingStrategy & errorHandlingStrategy & transformUseOptions ([2d21496](https://github.com/rotick/axues/commit/2d214968198619839686bc730a0f45a7aae7f451))
+
 ## [0.5.1](https://github.com/rotick/axues/compare/0.5.0...0.5.1) (2023-02-14)
 
 ### Bug Fixes
