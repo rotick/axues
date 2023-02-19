@@ -14,6 +14,7 @@
     "build:demo": "pnpm -C packages/demo run build",
     "dev:vue2": "pnpm -C examples/vue2 run dev",
     "dev:vue3": "pnpm -C examples/vue3 run dev",
+    "dev:nuxt": "pnpm -C examples/nuxt run dev",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.vue",
     "test": "vitest",
     "coverage": "vitest run --coverage"
