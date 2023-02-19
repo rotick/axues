@@ -29,7 +29,7 @@ function throwErr (err: string | Error) {
 }
 
 export function createAxues (axiosInstance: AxiosInstance, createOptions?: CreateAxuesOptions) {
-  const { requestConfig, responseHandle, errorHandle, cacheInstance, errorReport, loadingDelay = 300, overlayImplement: baseOverlayImplement } = createOptions || {}
+  const { requestConfig, transformUseOptions, responseHandle, errorHandle, cacheInstance, errorReport, loadingDelay = 300, overlayImplement: baseOverlayImplement } = createOptions || {}
   // @ts-expect-error
   const request: Axues = config => {
     const baseConfig = requestConfig?.() || {}
@@ -44,7 +44,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
     return new Promise((resolve, reject) => {
       axiosInstance(axiosConfig).then(
         response => {
-          const res = responseHandle?.(response) || response.data
+          const res = responseHandle?.(response, axiosConfig) || response.data
           if (res instanceof Error) {
             reject(res)
           } else {
@@ -52,7 +52,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
           }
         },
         err => {
-          const handledErr = errorHandle?.(err) || err
+          const handledErr = errorHandle?.(err, axiosConfig) || err
           reject(handledErr)
         }
       )
@@ -99,6 +99,9 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
 
   const useFn = <TI, TO, TAction>(options: UseAxuesOptions<TI, TO, TAction>): UseAxuesOutput<TI, TO, TAction> => {
     if (!options) throw new Error('options is required')
+    if (transformUseOptions) {
+      options = transformUseOptions(options)
+    }
     const {
       promise,
       immediate = false,
@@ -214,6 +217,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
         if (promise) {
           requestApi = promise(actionPayload, ac?.signal)
         } else {
+          // call transformUseOptions
           let requestOptions = resolveRequestOptions(options, actionPayload)
           if (ac) {
             requestOptions = {

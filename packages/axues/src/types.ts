@@ -55,8 +55,9 @@ export interface Axues {
 }
 export interface CreateAxuesOptions {
   requestConfig?: () => AxiosRequestConfig
-  responseHandle?: (response: AxiosResponse) => unknown
-  errorHandle?: (err: AxiosError) => Error
+  transformUseOptions?: (options: UseAxuesOptions) => UseAxuesOptions
+  responseHandle?: (response: AxiosResponse, requestConfig: AxuesRequestConfig) => unknown
+  errorHandle?: (err: AxiosError, requestConfig: AxuesRequestConfig) => Error
   cacheInstance?: CacheInstance
   errorReport?: (err: Error) => void
   loadingDelay?: number
@@ -75,6 +76,8 @@ export interface AxuesRequestConfig<TI = any, TAction = any> extends Omit<AxiosR
   data?: MaybeComputedOrActionRef<TI, TAction>
   contentType?: MaybeComputedOrActionRef<ContentType, TAction>
   headers?: MaybeComputedOrActionRef<RawAxiosRequestHeaders, TAction>
+  responseHandlingStrategy?: any
+  errorHandlingStrategy?: any
 }
 
 export type DebounceMode = 'firstPass' | 'lastPass' | 'none'
