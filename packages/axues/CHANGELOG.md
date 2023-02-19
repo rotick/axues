@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.6.1](https://github.com/rotick/axues/compare/0.6.0...0.6.1) (2023-02-19)
+
+### Performance Improvements
+
+- rename MaybeComputedRef to MaybeComputedRefWithoutFn ([b828278](https://github.com/rotick/axues/commit/b8282788e9089721ad153af07e6debc8fac8370a))
+- the type of requestConfig is changed to MaybeComputedRef ([4cdf972](https://github.com/rotick/axues/commit/4cdf972b9fc9d0d366b1f9e6c5aa51e6cc534a23))
+
 # [0.6.0](https://github.com/rotick/axues/compare/0.5.1...0.6.0) (2023-02-19)
 
 ### Features
