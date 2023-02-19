@@ -549,8 +549,9 @@ That is why axues need to be created first.
 ```typescript
 interface CreateAxuesOptions {
   requestConfig?: () => AxiosRequestConfig
-  responseHandle?: (response: AxiosResponse) => unknown
-  errorHandle?: (err: AxiosError) => Error
+  transformUseOptions?: (options: UseAxuesOptions) => UseAxuesOptions
+  responseHandle?: (response: AxiosResponse, requestConfig: AxuesRequestConfig) => unknown
+  errorHandle?: (err: AxiosError, requestConfig: AxuesRequestConfig) => Error
   cacheInstance?: {
     get: (key: string) => unknown
     set: (key: string, value: string) => void
@@ -586,6 +587,8 @@ interface AxuesRequestConfig<TI = any, TAction = any> extends Omit<AxiosRequestC
   data?: MaybeComputedOrActionRef<TI, TAction>
   contentType?: MaybeComputedOrActionRef<ContentType, TAction>
   headers?: MaybeComputedOrActionRef<RawAxiosRequestHeaders, TAction>
+  responseHandlingStrategy?: any
+  errorHandlingStrategy?: any
 }
 
 interface Axues {
