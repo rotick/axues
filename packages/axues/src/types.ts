@@ -2,6 +2,7 @@ import type { AxiosRequestConfig, AxiosResponse, AxiosError, RawAxiosRequestHead
 import type { App, Ref, VNodeChild, ComputedRef } from 'vue'
 
 export type MaybeRef<T> = T | Ref<T>
+export type MaybeComputedRef<T> = MaybeRef<T> | (() => T) | ComputedRef<T>
 export type MaybeComputedRefWithoutFn<T> = ComputedRef<T> | MaybeRef<T>
 export type MaybeComputedOrActionRef<T, TAction = any> = MaybeComputedRefWithoutFn<T> | ((actionPayload?: TAction) => T)
 interface CacheInstance {
@@ -54,7 +55,7 @@ export interface Axues {
   patchForm: <TI = any, TO = any>(url: string, data?: TI, config?: AxuesRequestConfig<TI>) => Promise<TO>
 }
 export interface CreateAxuesOptions {
-  requestConfig?: () => AxiosRequestConfig
+  requestConfig?: MaybeComputedRef<AxiosRequestConfig>
   transformUseOptions?: (options: UseAxuesOptions) => UseAxuesOptions
   responseHandle?: (response: AxiosResponse, requestConfig: AxuesRequestConfig) => unknown
   errorHandle?: (err: AxiosError, requestConfig: AxuesRequestConfig) => Error

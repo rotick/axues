@@ -1,5 +1,16 @@
 import { ref, computed, toRaw, shallowRef, defineComponent, reactive } from 'vue'
-import { getCacheKey, mergeHeaders, resolveRequestOptions, transformConfirmOptions, transformErrorOptions, transformLoadingOptions, transformSuccessOptions, resolveComputedOrActionRef, CancelablePromise } from './util'
+import {
+  getCacheKey,
+  mergeHeaders,
+  resolveRequestOptions,
+  transformConfirmOptions,
+  transformErrorOptions,
+  transformLoadingOptions,
+  transformSuccessOptions,
+  resolveComputedOrActionRef,
+  CancelablePromise,
+  resolveComputedRef
+} from './util'
 import { debounce } from './debounce'
 import type { Ref, InjectionKey } from 'vue'
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
@@ -32,7 +43,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
   const { requestConfig, transformUseOptions, responseHandle, errorHandle, cacheInstance, errorReport, loadingDelay = 300, overlayImplement: baseOverlayImplement } = createOptions || {}
   // @ts-expect-error
   const request: Axues = config => {
-    const baseConfig = requestConfig?.() || {}
+    const baseConfig = requestConfig ? resolveComputedRef(requestConfig).value : {}
     const axiosConfig: AxiosRequestConfig = {
       ...baseConfig,
       ...config,

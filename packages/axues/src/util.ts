@@ -1,7 +1,22 @@
-import { ConfirmOverlayOptions, ConfirmOverlayType, ContentType, ErrorOverlayOptions, Headers, LoadingOverlayOptions, LoadingOverlayType, MaybeComputedOrActionRef, SuccessOrErrorOverlayType, SuccessOverlayOptions } from './types'
-import { ref } from 'vue'
+import {
+  ConfirmOverlayOptions,
+  ConfirmOverlayType,
+  ContentType,
+  ErrorOverlayOptions,
+  Headers,
+  LoadingOverlayOptions,
+  LoadingOverlayType,
+  MaybeComputedOrActionRef,
+  MaybeComputedRef,
+  SuccessOrErrorOverlayType,
+  SuccessOverlayOptions
+} from './types'
+import { ref, computed } from 'vue'
 import type { Ref } from 'vue'
 
+export function resolveComputedRef<T> (input: MaybeComputedRef<T>) {
+  return input instanceof Function ? computed(input) : ref(input)
+}
 export function resolveComputedOrActionRef<T, TAction = any> (input: MaybeComputedOrActionRef<T>, actionPayload?: TAction): Ref<T> {
   const resolved = input instanceof Function ? input(actionPayload) : input
   return ref(resolved) as Ref<T>

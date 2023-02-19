@@ -547,8 +547,10 @@ That is why axues need to be created first.
 ### createAxues
 
 ```typescript
+type MaybeComputedRef<T> = MaybeRef<T> | (() => T) | ComputedRef<T>
+
 interface CreateAxuesOptions {
-  requestConfig?: () => AxiosRequestConfig
+  requestConfig?: MaybeComputedRef<AxiosRequestConfig>
   transformUseOptions?: (options: UseAxuesOptions) => UseAxuesOptions
   responseHandle?: (response: AxiosResponse, requestConfig: AxuesRequestConfig) => unknown
   errorHandle?: (err: AxiosError, requestConfig: AxuesRequestConfig) => Error
