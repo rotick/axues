@@ -11,3 +11,4 @@ mc_exmaple/
 coverage/
 backup/
 .env
+cache

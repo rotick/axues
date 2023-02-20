@@ -16,7 +16,8 @@
     "dev:vue3": "pnpm -C examples/vue3 run dev",
     "lint": "eslint . --ext .ts,.tsx,.js,.jsx,.vue",
     "test": "vitest",
-    "coverage": "vitest run --coverage"
+    "coverage": "vitest run --coverage",
+    "docs:dev": "pnpm -C packages/docs run docs:dev"
   },
   "engines": {
     "node": ">=16"
