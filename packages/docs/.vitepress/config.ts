@@ -93,7 +93,7 @@ function sidebarGuide(lang?: string) {
       text: 'Guide',
       text_zh: '深度指引',
       collapsed: false,
-      items: [{ text: 'What is Axues?', text_zh: '使用 Axues 的多种方式', link: '/introduction' }]
+      items: [{ text: 'Basic usage', text_zh: '基础用法', link: '/guide/basic-usage' }]
     }
   ]
   if (lang === 'zh') {

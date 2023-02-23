@@ -106,7 +106,7 @@ const { loading, success, error, data, action } = useAxues('/api/foo')
 </template>
 ```
 
-更多便捷的用法，请参考 [使用 Axues 的多种方式]() 章节。
+更多便捷的用法，请参考 [基础用法](./guide/basic-usage) 章节。
 
 ## 组件生命周期外使用
 
