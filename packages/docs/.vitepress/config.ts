@@ -93,7 +93,10 @@ function sidebarGuide(lang?: string) {
       text: 'Guide',
       text_zh: '深度指引',
       collapsed: false,
-      items: [{ text: 'Basic usage', text_zh: '基础用法', link: '/guide/basic-usage' }]
+      items: [
+        { text: 'Basic usage', text_zh: '基础用法', link: '/guide/basic-usage' },
+        { text: 'Request configuration', text_zh: '请求配置', link: '/guide/request-configuration' }
+      ]
     }
   ]
   if (lang === 'zh') {
