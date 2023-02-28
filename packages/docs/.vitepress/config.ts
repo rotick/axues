@@ -95,7 +95,8 @@ function sidebarGuide(lang?: string) {
       collapsed: false,
       items: [
         { text: 'Basic usage', text_zh: '基础用法', link: '/guide/basic-usage' },
-        { text: 'Request configuration', text_zh: '请求配置', link: '/guide/request-configuration' }
+        { text: 'Request configuration', text_zh: '请求配置', link: '/guide/request-configuration' },
+        { text: 'Debounce', text_zh: '防抖', link: '/guide/debounce' }
       ]
     }
   ]

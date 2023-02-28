@@ -2,11 +2,11 @@
 
 ## 继承于 Axios 的请求配置
 
-Axues 基于 Axios，所以是支持 Axios 的所有请求配置的，如果还不是太了解 Axios 的请求配置，请阅读他们的 [文档](https://axios-http.com/zh/docs/req_config)
+Axues 基于 Axios，支持 Axios 的所有请求配置，如果还不是太了解 Axios 的请求配置，请阅读他们的 [文档](https://axios-http.com/zh/docs/req_config)，这里就不再赘述。
 
 ## Axues 扩展的配置
 
-为了更好的配置 Vue 的组合式 API，提升代码的简洁性，我们在 Axios 扩展了一些请求配置：
+为了更好的配合 Vue 的组合式 API，提升代码的简洁性，我们在 Axios 的基础上扩展了一些请求配置：
 
 ### url
 
@@ -21,26 +21,24 @@ axios.get(url.value)
 
 ```javascript
 const url = ref(`/api/user/${route.params.id}`)
-const { action } = useAxues(url)
+const { action } = useAxues({ url })
 action()
 
 const url2 = computed(() => `/api/user/${route.params.id}`)
-const { action: action2 } = useAxues(url2)
+const { action: action2 } = useAxues({ url: url2 })
 action2()
 ```
 
-有时，我们希望 url 随着调用方的变化而变化，所以我们还得 `getter` 函数：
+有时，我们希望 url 随着调用方的变化而变化，那么我们只需定义一个 `getter` 函数，接收来自 `action` 的传参即可：
 
 ```javascript
-const { action } = useAxues({
-  url: id => `/api/user/${id}`
-})
+const { action } = useAxues({ url: id => `/api/user/${id}` })
 action(1) // 将发起 url 为 /api/user/1 的请求
 action(2) // 将发起 url 为 /api/user/2 的请求
 ```
 
 ::: warning
-url 是一个函数时，不能当做第一个参数传给 useAxues，比如放在请求配置对象里传
+url 是一个函数时，不能当做第一个参数传给 useAxues，必须放在请求配置对象里传
 :::
 
 ### params & data & headers

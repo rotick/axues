@@ -64,7 +64,7 @@ const { loading, error, data } = useAxues({
 `useAxues` 的配置项继承并扩展了 `axios` 的配置。
 
 - 👉 [查看完整的 axios 配置项](https://axios-http.com/zh/docs/req_config)
-- 👉 [查看 useAxues 扩展的配置项]()
+- 👉 [查看 useAxues 扩展的配置项](./request-configuration)
 
 ## 将请求和状态分开
 
