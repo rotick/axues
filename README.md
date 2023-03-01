@@ -221,7 +221,7 @@ import { useAxues } from 'axues'
 const keyword = ref('')
 const { data, action } = useAxues({
   url: '/api/foo',
-  params: { keyword },
+  params: () => ({ keyword: keyword.value }),
   debounceMode: 'lastPass',
   debounceTime: 600 // default: 500 (ms)
 })

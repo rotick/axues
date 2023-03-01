@@ -18,7 +18,7 @@
 
 其实最佳的做法是两者的结合，因为我们不希望用户一点击按钮就弹出 loading，而是延时个 100~200ms 再弹出（Axues 默认支持 loading 延时，[详情]()），这样的话只要请求足够快，用户是不用看到令人焦虑的 loading 动画的。这种做法不能说有什么弊端，只能说：麻烦！
 
-所以 Axues 的默认防抖策略就是防止重复请求，无需任何配置。
+Axues 的默认防抖策略就是防止重复请求，无需任何配置。在第一次请求返回结果前，不管调用多少次 action，都不会触发重复的请求
 
 ```vue
 <script setup>
@@ -44,7 +44,9 @@ const keyword = ref('')
 const suggest = ref([])
 
 function request() {
-  axios.get('/api/foo', { keyword: keyword.value })
+  axios.get('/api/foo', { keyword: keyword.value }).then(res => {
+    suggest.value = res.data
+  })
 }
 
 const action = debounce(request, 500)
@@ -57,4 +59,30 @@ const action = debounce(request, 500)
 </template>
 ```
 
-在这个例子中，当用户在 input 中输入文字时，仅当 500ms 内没有再输入任何文字，才会触发请求。
+在这个例子中，当用户在 input 中输入文字时，会开启一个 500ms 的定时器，如果 500ms 内没有再输入任何文字，就发起请求。反之则清除上一个定时器，然后再开启一个新的定时器。
+
+如果你经验足够丰富，一定知道这段代码是有问题的，问题是：如果接口返回结果的速度不一致，比如说输入停顿再输入时，我们预期是返回最后一次输入的建议，但如果前几次的请求比最后一次慢，那么 `suggest` 最终的值就不是最后一次输入的建议，从而导致错误的结果。
+
+所以 Axues 在设计时就通过机制避免了这个问题，将 `debounceMode` 配置为 `lastPass`，则切换到防止频繁请求模式，还可以通过 `debounceTime` 来改变防抖的间隔。
+
+```vue
+<script setup>
+import { useAxues } from 'axues'
+
+const keyword = ref('')
+const { data: suggest, action } = useAxues({
+  url: '/api/foo',
+  params: () => ({ keyword: keyword.value }),
+  debounceMode: 'lastPass',
+  debounceTime: 600 // 默认: 500 (ms)
+})
+</script>
+<template>
+  <div>
+    <input v-model="keyword" @input="action" />
+    <div>
+      <p v-for="k in suggest" @click="() => (keyword = k)">{{ k }}</p>
+    </div>
+  </div>
+</template>
+```
