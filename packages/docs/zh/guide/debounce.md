@@ -78,11 +78,21 @@ const { data: suggest, action } = useAxues({
 })
 </script>
 <template>
+  <input v-model="keyword" @input="action" />
   <div>
-    <input v-model="keyword" @input="action" />
-    <div>
-      <p v-for="k in suggest" @click="() => (keyword = k)">{{ k }}</p>
-    </div>
+    <p v-for="k in suggest" @click="() => (keyword = k)">{{ k }}</p>
   </div>
 </template>
+```
+
+## 禁用防抖
+
+总有特殊的场景不需要任何的防抖机制，所以我们也得支持关掉防抖，只要给 `debounceMode` 赋值为 `none` 即可禁用防抖。
+
+```javascript
+import { useAxues } from 'axues'
+const { data: suggest, action } = useAxues({
+  url: '/api/foo',
+  debounceMode: 'none'
+})
 ```
