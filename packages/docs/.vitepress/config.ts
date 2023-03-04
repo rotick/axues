@@ -91,19 +91,20 @@ function sidebarGuide(lang?: string) {
     },
     {
       text: 'Guide',
-      text_zh: '深度指引',
+      text_zh: '使用指引',
       collapsed: false,
       items: [
         { text: 'Basic usage', text_zh: '基础用法', link: '/guide/basic-usage' },
-        { text: 'Request configuration', text_zh: '请求配置', link: '/guide/request-configuration' },
-        { text: 'Request states and operation', text_zh: '请求状态及操作', link: '/guide/request-configuration' },
+        { text: 'Request configuration', text_zh: '请求配置扩展', link: '/guide/request-configuration' },
+        { text: 'Request states and methods', text_zh: '请求状态及方法', link: '/guide/request-states-and-operation' },
+        { text: 'Separate request and states', text_zh: '将请求和状态分开', link: '/guide/request-states-and-operation' },
         { text: 'Debounce', text_zh: '防抖', link: '/guide/debounce' },
-        { text: 'Pagination request', text_zh: '分页请求', link: '/guide/debounce' },
+        { text: 'Pagination request', text_zh: '分页查询', link: '/guide/debounce' },
         { text: 'Error retries', text_zh: '错误重试', link: '/guide/debounce' },
         { text: 'Response caching', text_zh: '缓存请求结果', link: '/guide/debounce' },
         { text: 'Interactive components', text_zh: '集成交互组件', link: '/guide/debounce' },
         { text: 'Request callback', text_zh: '请求完成后的回调', link: '/guide/debounce' },
-        { text: 'Use outside of components', text_zh: '组件外使用', link: '/guide/debounce' }
+        { text: 'Use outside of components', text_zh: '组件生命周期外使用', link: '/guide/debounce' }
       ]
     },
     {
