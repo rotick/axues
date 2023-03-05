@@ -30,7 +30,7 @@ const test3 = reactive(
 const test4 = reactive(
   useAxues({
     url: '/delay/10',
-    debounceMode: 'lastPass',
+    debounce: true,
     onSuccess (data: any) {
       console.log(Date.now(), data)
     }

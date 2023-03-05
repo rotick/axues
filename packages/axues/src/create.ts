@@ -11,7 +11,7 @@ import {
   CancelablePromise,
   resolveComputedRef
 } from './util'
-import { debounce } from './debounce'
+import { debounce as debounceFn } from './debounce'
 import type { Ref, InjectionKey } from 'vue'
 import type { AxiosInstance, AxiosRequestConfig } from 'axios'
 import type { Axues, AxuesRequestConfig, CreateAxuesOptions, CreateReturn, OverlayImplement, MaybeComputedOrActionRef, Provider, UseAxuesOptions, UseAxuesOutput } from './types'
@@ -119,6 +119,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       initialData = null as TO,
       shallow = false,
       debounceMode = 'firstPass',
+      debounce,
       debounceTime = 500,
       autoRetryTimes = 0,
       autoRetryInterval = 2,
@@ -289,9 +290,9 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
     }
 
     let debounceHandle = run
-    if (debounceMode === 'lastPass') {
+    if (debounceMode === 'lastPass' || debounce === true) {
       // eslint-disable-next-line
-      debounceHandle = debounce(run, debounceTime)
+      debounceHandle = debounceFn(run, debounceTime)
     }
     let initialPayload: TAction
     let lastPayload: TAction
@@ -332,7 +333,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
 
     const action = (actionPayload?: TAction) => {
       return new CancelablePromise<TO>((resolve, reject, cancel) => {
-        if ((pending.value && debounceMode === 'firstPass') || retrying.value || refreshing.value || retryCountdown.value > 0) return cancel()
+        if ((pending.value && debounceMode === 'firstPass' && debounce === undefined) || retrying.value || refreshing.value || retryCountdown.value > 0) return cancel()
         if (actionPayload) {
           if (requestTimes.value === 0) {
             initialPayload = actionPayload
@@ -434,6 +435,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       'initialData',
       'shallow',
       'debounceMode',
+      'debounce',
       'debounceTime',
       'autoRetryTimes',
       'autoRetryInterval',

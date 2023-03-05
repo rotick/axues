@@ -223,7 +223,7 @@ const keyword = ref('')
 const { data, action } = useAxues({
   url: '/api/foo',
   params: () => ({ keyword: keyword.value }),
-  debounceMode: 'lastPass',
+  debounce: true,
   debounceTime: 600 // default: 500 (ms)
 })
 </script>
@@ -620,7 +620,7 @@ interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends AxuesReques
   immediate?: boolean
   initialData?: TO
   shallow?: boolean
-  debounceMode?: 'firstPass' | 'lastPass' | 'none'
+  debounce?: boolean
   debounceTime?: number
   autoRetryTimes?: number
   autoRetryInterval?: number

@@ -28,6 +28,7 @@ export function resolveRequestOptions (options: any, actionPayload?: any) {
     'initialData',
     'shallow',
     'debounceMode',
+    'debounce',
     'debounceTime',
     'autoRetryTimes',
     'autoRetryInterval',

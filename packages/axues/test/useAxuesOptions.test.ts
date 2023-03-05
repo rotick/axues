@@ -644,7 +644,7 @@ describe('axues only options', () => {
     expect(wrapper.find('div').text()).toBe('1')
   })
 
-  test('debounceMode: firstPass(default)', async () => {
+  test('debounce: undefined(default)', async () => {
     const TestComponent = defineComponent({
       setup () {
         const { pending, action, requestTimes } = useAxues({
@@ -662,13 +662,13 @@ describe('axues only options', () => {
     expect(wrapper.vm.requestTimes).toBe(1)
   })
 
-  test('debounceMode: lastPass', async () => {
+  test('debounce: true', async () => {
     vi.useFakeTimers()
     const TestComponent = defineComponent({
       setup () {
         const { pending, action, requestTimes } = useAxues({
           url: '/get',
-          debounceMode: 'lastPass'
+          debounce: true
         })
         return { pending, action, requestTimes }
       },
@@ -689,13 +689,13 @@ describe('axues only options', () => {
     expect(wrapper.vm.requestTimes).toBe(1)
   })
 
-  test('debounceMode: lastPass with debounceTime', async () => {
+  test('debounce: true with debounceTime', async () => {
     vi.useFakeTimers()
     const TestComponent = defineComponent({
       setup () {
         const { pending, action, requestTimes } = useAxues({
           url: '/get',
-          debounceMode: 'lastPass',
+          debounce: true,
           debounceTime: 1000
         })
         return { pending, action, requestTimes }
@@ -717,12 +717,12 @@ describe('axues only options', () => {
     expect(wrapper.vm.requestTimes).toBe(1)
   })
 
-  test('debounceMode: none', async () => {
+  test('debounce: false', async () => {
     const TestComponent = defineComponent({
       setup () {
         const { pending, action, requestTimes } = useAxues({
           url: '/get',
-          debounceMode: 'none'
+          debounce: false
         })
         return { pending, action, requestTimes }
       },

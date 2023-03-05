@@ -106,10 +106,12 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
   /*
    * only accept first or last call to action
    * default: firstPass
+   * todo: debounceMode will be deprecated in next major version, please use debounce instead of it
    * */
   debounceMode?: DebounceMode
+  debounce?: boolean
   /*
-   * only effect when debounceMode is lastPass
+   * only effect when debounce = true
    * default: 500 (ms)
    * */
   debounceTime?: number

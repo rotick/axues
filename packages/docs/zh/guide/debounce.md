@@ -63,7 +63,9 @@ const action = debounce(request, 500)
 
 如果你经验足够丰富，一定知道这段代码是有问题的，问题是：如果接口返回结果的速度不一致，比如说输入停顿再输入时，我们预期是返回最后一次输入的建议，但如果前几次的请求比最后一次慢，那么 `suggest` 最终的值就不是最后一次输入的建议，从而导致错误的结果。
 
-所以 Axues 在设计时就通过机制避免了这个问题，将 `debounceMode` 配置为 `lastPass`，则切换到防止频繁请求模式，还可以通过 `debounceTime` 来改变防抖的间隔。
+所以 Axues 在设计时就通过机制避免了这个问题，不管多次请求的返回顺序如何，最后给 data 赋值的，一定是最后发起的那个请求。
+
+你只需将 `debounce` 配置为 `true`，则切换到 `防止频繁请求模式`，在这个模式下，我们还可以通过配置 `debounceTime` 来改变防抖的间隔。
 
 ```vue
 <script setup>
@@ -73,7 +75,7 @@ const keyword = ref('')
 const { data: suggest, action } = useAxues({
   url: '/api/foo',
   params: () => ({ keyword: keyword.value }),
-  debounceMode: 'lastPass',
+  debounce: true,
   debounceTime: 600 // 默认: 500 (ms)
 })
 </script>
@@ -87,12 +89,12 @@ const { data: suggest, action } = useAxues({
 
 ## 禁用防抖
 
-总有特殊的场景不需要任何的防抖机制，只需要给 `debounceMode` 赋值为 `none` 即可禁用防抖。
+总有特殊的场景不需要任何的防抖机制，只需要给 `debounce` 显式的赋值为 `false` 即可禁用防抖。
 
 ```javascript
 import { useAxues } from 'axues'
 const { data: suggest, action } = useAxues({
   url: '/api/foo',
-  debounceMode: 'none'
+  debounce: false
 })
 ```
