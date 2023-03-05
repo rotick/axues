@@ -7,9 +7,9 @@ hero:
   name: Axues
   text: axios + vue = axues
   tagline: Vue composable powered by axios for easier request state management.
-  #  image:
-  #   src: /logo.svg
-  #  alt: Axues
+  image:
+    src: ./assets/diagram.png
+    alt: Axues
   actions:
     - theme: brand
       text: Get Started

@@ -96,7 +96,7 @@ function sidebarGuide(lang?: string) {
       items: [
         { text: 'Basic usage', text_zh: '基础用法', link: '/guide/basic-usage' },
         { text: 'Request configuration', text_zh: '请求配置扩展', link: '/guide/request-configuration' },
-        { text: 'Request states and methods', text_zh: '请求状态及方法', link: '/guide/request-states-and-operation' },
+        { text: 'Request states and methods', text_zh: '请求状态及方法', link: '/guide/request-states-and-methods' },
         { text: 'Separate request and states', text_zh: '将请求和状态分开', link: '/guide/request-states-and-operation' },
         { text: 'Debounce', text_zh: '防抖', link: '/guide/debounce' },
         { text: 'Pagination request', text_zh: '分页查询', link: '/guide/debounce' },
