@@ -1,6 +1,6 @@
 {
   "name": "axues",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "Vue composable powered by axios for easier request state management, axios + vue = axues ✌️",
   "keywords": [
     "axios",

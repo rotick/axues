@@ -1,5 +1,11 @@
 # Changelog
 
+# [0.7.0](https://github.com/rotick/axues/compare/0.6.1...0.7.0) (2023-03-05)
+
+### Features
+
+- use `debounce` instead of `debounceMode`, it will be deprecated in next major version ([ce25ee8](https://github.com/rotick/axues/commit/ce25ee8f0daf16f3fb13d64bf0d2962eca1b8b76))
+
 ## [0.6.1](https://github.com/rotick/axues/compare/0.6.0...0.6.1) (2023-02-19)
 
 ### Performance Improvements
