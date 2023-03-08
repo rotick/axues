@@ -57,9 +57,59 @@ Axues 提供了配置项 `autoRetryInterval` 来供你配置重试间隔，默�
 ```javascript
 // 重试间隔 * 重试次数 + 重试次数
 const retryTimeout = autoRetryInterval * retryTimes + retryTimes
-// 所以默认情况下，第一次重试是 3s 后，第二次是 6s 后，第三次是 9s后，以此类推...
 ```
 
-重试间隔小于 1 则取 1，大于 30 则取 30。所以如果无特殊需求，一般情况下你不用配置它。
+所以默认情况下，第一次重试是 3s 后，第二次是 6s 后，第三次是 9s 后，以此类推...如果没有特殊的需求，一般情况下你不用配置它。
 
-## 重试倒计时
+除此之外，Axues 还限制了重试间隔的最大值和最小值，重试间隔小于 1 则取 1，大于 30 则取 30。
+
+## 自动重试倒计时
+
+静默的自动重试可能会让用户感到困惑，一般情况下我们会给一个倒计时告知用户：将在 x 秒后进行重试，所以我们还需要一个不断递减的倒计时状态。
+
+Axues 提供了 `retryCountdown` 来做重试倒计时，结合重试次数及重试中状态，我们就能做一个完整的自动重试功能：
+
+```vue
+<script setup>
+import { useAxues } from 'axues'
+const { error, retryTimes, retryCountdown, retry, retrying } = useAxues({
+  url: '/api/foo',
+  immediate: true,
+  autoRetryTimes: 2, // 自动重试次数
+  autoRetryInterval: 3 // 自动重试间隔，默认: 2 (s)
+})
+</script>
+<template>
+  <div>
+    <p v-if="retrying">正在重试...</p>
+    <p v-if="error">请求出错: {{ error.message }}</p>
+    <p v-if="retryCountdown > 0">{{ `将在 ${retryCountdown} 秒后进行第 {{ retryTimes }} 次重试` }}</p>
+  </div>
+</template>
+```
+
+## 手自一体
+
+出错就只能等着倒计时完成才自动重试，对用户来说也是一种煎熬。所以在做自动重试的同时，我们不妨也给用户提供手动重试的按钮：
+
+```vue
+<script setup>
+import { useAxues } from 'axues'
+const { pending, error, retryTimes, retryCountdown, retry, retrying } = useAxues({
+  url: '/api/foo',
+  immediate: true,
+  autoRetryTimes: 2
+})
+</script>
+<template>
+  <div>
+    <p v-if="pending">正在请求...</p>
+    <p v-if="retrying">正在重试...</p>
+    <p v-if="error">请求出错: {{ error.message }}</p>
+    <p v-if="retryCountdown > 0">
+      {{ `将在 ${retryCountdown} 秒后进行第 {{ retryTimes }} 次重试` }}
+      <button @click="retry">立即重试</button>
+    </p>
+  </div>
+</template>
+```
