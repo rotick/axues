@@ -99,7 +99,7 @@ function sidebarGuide(lang?: string) {
         // { text: 'Separate request and states', text_zh: '将请求和状态分开', link: '/guide/request-states-and-operation' },
         { text: 'Debounce', text_zh: '防抖', link: '/guide/debounce' },
         { text: 'Error retries', text_zh: '错误重试', link: '/guide/error-retries' },
-        { text: 'Response caching', text_zh: '缓存请求结果', link: '/guide/debounce' },
+        { text: 'Response caching', text_zh: '缓存请求结果', link: '/guide/response-caching' },
         { text: 'Interactive components', text_zh: '集成交互组件', link: '/guide/debounce' },
         { text: 'Request callback', text_zh: '请求完成后的回调', link: '/guide/debounce' },
         { text: 'Paginated queries', text_zh: '分页查询', link: '/guide/paginated-queries' },
