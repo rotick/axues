@@ -257,7 +257,7 @@ action().then().catch(console.log) // 会打印错误
 限于篇幅，以及配置项的复杂程度，对于上文未提到的配置项，我们将专门使用一个章节来讲解，你可以点击以下的链接直达。
 
 - [防抖](./debounce)：debounce, debounceTime
-- [错误重试](./debounce)：autoRetryTimes, autoRetryInterval
+- [错误重试](./debounce)：autoRetryTimes, autoRetryInterval, retryCountdown
 - [缓存请求结果](./debounce)：cacheKey
 - [集成交互组件](./debounce)：confirmOverlay, loadingOverlay, successOverlay, errorOverlay
 - [请求完成后的回调](./debounce)：onSuccess, onError, onFinally
