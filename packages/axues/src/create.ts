@@ -40,7 +40,7 @@ function throwErr (err: string | Error) {
 }
 
 export function createAxues (axiosInstance: AxiosInstance, createOptions?: CreateAxuesOptions) {
-  const { requestConfig, transformUseOptions, responseHandle, errorHandle, cacheInstance, errorReport, loadingDelay = 300, overlayImplement: baseOverlayImplement, rewriteDefault } = createOptions || {}
+  const { requestConfig, transformUseOptions, responseHandle, errorHandle, cacheInstance, errorReport, loadingDelay: deprecatedLoadingDelay, overlayImplement: baseOverlayImplement, rewriteDefault } = createOptions || {}
   // @ts-expect-error
   const request: Axues = config => {
     const baseConfig = requestConfig ? resolveComputedRef(requestConfig).value : {}
@@ -118,6 +118,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       immediate = rewriteDefault?.immediate || false,
       initialData = null as TO,
       shallow = rewriteDefault?.shallow || false,
+      loadingDelay = rewriteDefault?.loadingDelay || deprecatedLoadingDelay || 200,
       debounceMode = 'firstPass',
       debounce = rewriteDefault?.debounce,
       debounceTime = rewriteDefault?.debounceTime || 500,

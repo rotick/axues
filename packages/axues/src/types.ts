@@ -61,11 +61,12 @@ export interface CreateAxuesOptions {
   errorHandle?: (err: AxiosError, requestConfig: AxuesRequestConfig) => Error
   cacheInstance?: CacheInstance
   errorReport?: (err: Error) => void
-  loadingDelay?: number
+  loadingDelay?: number // deprecated
   overlayImplement?: OverlayImplement
   rewriteDefault?: {
     immediate?: boolean
     shallow?: boolean
+    loadingDelay?: number
     debounce?: boolean
     debounceTime?: number
     autoRetryTimes?: number
@@ -112,6 +113,7 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
    * default: false
    * */
   shallow?: boolean
+  loadingDelay?: number
   /*
    * only accept first or last call to action
    * default: firstPass

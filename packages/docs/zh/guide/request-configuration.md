@@ -159,6 +159,20 @@ action(2) // 将发起请求：/api/user/2
 - [immediate](./request-states-and-methods#触发请求-action) 表示立即发起请求，而不是等着手动调用 action 方法
 - [initialData](./request-states-and-methods#响应数据-data) 给定 data 的初始值，如果不给，则 data 默认是 null
 
+## loadingDelay
+
+配置 loading 状态的延迟，上一章节我们讲过，当请求发起时，`pending` 会立即变为 `true`，而 `loading` 会延迟 200ms（默认）后变为 `true`，如果你觉得 200ms 不太合理，那么你可以更改 `loadingDelay` 的值。
+
+```javascript
+import { useAxues } from 'axues'
+const { loading, success, error, data } = useAxues({
+  url: '/api/foo',
+  loadingDelay: 300
+})
+```
+
+如果你期望的延迟都一样，那么在每个请求都配置 `loadingDelay` 会非常麻烦，我们也可以直接在创建 Axues 实例时 [更改 loadingDelay 默认值]()
+
 ## shallow
 
 Vue 为我们提供了性能优化的 [`shallowRef`](https://cn.vuejs.org/guide/best-practices/performance.html#reduce-reactivity-overhead-for-large-immutable-structures)，当响应数据量巨大或结构复杂时，通过配置 shallow 为 `true`，可以将 data 对象类型从 `ref` 变成 `shallowRef`，从而达到性能优化的目的。

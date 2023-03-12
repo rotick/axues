@@ -105,6 +105,57 @@ describe('rewriteDefault', () => {
     expect(wrapper.vm.requestTimes).toBe(3)
   })
 
+  test('loadingDelay', async () => {
+    const axues = createAxues(instance, {
+      rewriteDefault: {
+        loadingDelay: 500
+      }
+    })
+
+    function getWrap (component: any) {
+      return mount(component, {
+        global: {
+          plugins: [axues]
+        }
+      })
+    }
+    vi.useFakeTimers()
+    const TestComponent = defineComponent({
+      setup () {
+        const { pending, loading, success, error, data, action } = useAxues({
+          url: '/get'
+        })
+        return { pending, loading, success, error, data, action }
+      },
+      template: '<button @click="action">action</button>'
+    })
+    const wrapper = getWrap(TestComponent)
+
+    expect(wrapper.vm.pending).toBe(false)
+    expect(wrapper.vm.loading).toBe(false)
+    await wrapper.get('button').trigger('click')
+    expect(wrapper.vm.pending).toBe(true)
+    expect(wrapper.vm.success).toBe(false)
+    expect(wrapper.vm.error).toBeNull()
+
+    setTimeout(() => {
+      expect(wrapper.vm.loading).toBe(false)
+    }, 300)
+    setTimeout(() => {
+      expect(wrapper.vm.loading).toBe(true)
+    }, 500)
+
+    vi.runAllTimers()
+
+    await flushPromises()
+
+    expect(wrapper.vm.pending).toBe(false)
+    expect(wrapper.vm.loading).toBe(false)
+    expect(wrapper.vm.success).toBe(true)
+    expect(wrapper.vm.error).toBeNull()
+    expect(wrapper.vm.data).toEqual({ test: 1 })
+  })
+
   test('debounceTime', async () => {
     const axues = createAxues(instance, {
       rewriteDefault: {
