@@ -63,6 +63,15 @@ export interface CreateAxuesOptions {
   errorReport?: (err: Error) => void
   loadingDelay?: number
   overlayImplement?: OverlayImplement
+  rewriteDefault?: {
+    immediate?: boolean
+    shallow?: boolean
+    debounce?: boolean
+    debounceTime?: number
+    autoRetryTimes?: number
+    autoRetryInterval?: number
+    throwOnActionFailed?: boolean
+  }
 }
 export interface CreateReturn extends Axues {
   install: (app: App) => void
