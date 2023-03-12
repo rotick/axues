@@ -54,7 +54,7 @@ action(2)
 
 ## 请求中（pending & loading）
 
-请求发起到请求完成，中间的状态就是请求中状态，Axues 有两个请求中状态：`pending` 和 `loading`，默认都为 `false`。当发起请求时，`pending` 会立即变为 `true`，而 `loading` 会延迟 200ms（默认，[可配置]()）后变为 `true`，当请求完成后，又会重置为 `false`。
+请求发起到请求完成，中间的状态就是请求中状态，Axues 有两个请求中状态：`pending` 和 `loading`，默认都为 `false`。当发起请求时，`pending` 会立即变为 `true`，而 `loading` 会延迟 300ms（默认，[可配置](./request-configuration#loadingdelay)）后变为 `true`，当请求完成后，又会重置为 `false`。
 
 ```javascript
 import { useAxues } from 'axues'
@@ -65,10 +65,10 @@ console.log(pending.value, loading.value) // false, false
 action()
 console.log(pending.value, loading.value) // true, false
 
-// 假设请求超过200ms
+// 假设请求超过300ms
 setTimeout(() => {
   console.log(pending.value, loading.value) // true, true
-}, 200)
+}, 300)
 ```
 
 ::: tip 为什么要用两个状态来标识请求中？

@@ -161,13 +161,13 @@ action(2) // 将发起请求：/api/user/2
 
 ## loadingDelay
 
-配置 loading 状态的延迟，上一章节我们讲过，当请求发起时，`pending` 会立即变为 `true`，而 `loading` 会延迟 200ms（默认）后变为 `true`，如果你觉得 200ms 不太合理，那么你可以更改 `loadingDelay` 的值。
+配置 loading 状态的延迟，上一章节我们讲过，当请求发起时，`pending` 会立即变为 `true`，而 `loading` 会延迟 300ms（默认）后变为 `true`，如果你觉得 300ms 不太合理，那么你可以更改 `loadingDelay` 的值。
 
 ```javascript
 import { useAxues } from 'axues'
 const { loading, success, error, data } = useAxues({
   url: '/api/foo',
-  loadingDelay: 300
+  loadingDelay: 200
 })
 ```
 

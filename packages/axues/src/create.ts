@@ -118,7 +118,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       immediate = rewriteDefault?.immediate || false,
       initialData = null as TO,
       shallow = rewriteDefault?.shallow || false,
-      loadingDelay = rewriteDefault?.loadingDelay || deprecatedLoadingDelay || 200,
+      loadingDelay = rewriteDefault?.loadingDelay || deprecatedLoadingDelay || 300,
       debounceMode = 'firstPass',
       debounce = rewriteDefault?.debounce,
       debounceTime = rewriteDefault?.debounceTime || 500,
