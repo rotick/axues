@@ -1,5 +1,17 @@
 # Changelog
 
+# [0.8.0](https://github.com/rotick/axues/compare/0.7.0...0.8.0) (2023-03-12)
+
+### Bug Fixes
+
+- 300ms is better ([6fde50a](https://github.com/rotick/axues/commit/6fde50ab74ec88c15a888fbdec0ad6160aaada08))
+
+### Features
+
+- error retries(wip) ([e0a2706](https://github.com/rotick/axues/commit/e0a2706b5878bccc0bd1a3c0cba5c04579bc71ad))
+- move loadingDelay to request config and make it rewritable, change delay to 200 ([156d7dd](https://github.com/rotick/axues/commit/156d7ddeacfca6d0d153612f4621be77501a1901))
+- rewriteDefault, you can rewrite some default value of axues request config now ([5c1b9d7](https://github.com/rotick/axues/commit/5c1b9d75733b7195f80c95e4553bb431d8efc1da))
+
 # [0.7.0](https://github.com/rotick/axues/compare/0.6.1...0.7.0) (2023-03-05)
 
 ### Features
