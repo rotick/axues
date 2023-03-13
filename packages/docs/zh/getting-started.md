@@ -206,7 +206,7 @@ const { loading: loading2 } = useAxues(anyPromiseFn, { immediate: true })
 
 ## 组件生命周期外使用
 
-在路由中间件中调用 HTTP 请求是一个非常常见的场景，你可以直接引用 axues 的共享实例来实现这一需求。
+在路由中间件中调用 HTTP 请求是一个非常常见的场景，你可以直接引用 axues 的共享实例来实现这一需求。更多用法请参考 [组件生命周期外使用](./guide/use-outside-of-components) 章节。
 
 ```javascript
 // main.js
@@ -229,11 +229,10 @@ export default function createMyRouter() {
   const router = createRouter({
     // ...
   })
-  router.beforeEach((to, from, next) => {
+  router.beforeEach(to => {
     if (to.meta.sendToAnalytics) {
       axues.post('/api/sendToAnalytics', { path: to.fullPath })
     }
-    next()
   })
   return router
 }
