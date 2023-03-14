@@ -111,8 +111,9 @@ function sidebarGuide(lang?: string) {
       text_zh: '全局配置',
       collapsed: false,
       items: [
-        { text: 'Request configuration', text_zh: '请求配置', link: '/guide/request-configuration' },
-        { text: 'Response / error handling', text_zh: '响应 / 错误处理', link: '/guide/request-configuration' },
+        { text: 'Overview', text_zh: '概览', link: '/guide/global-configurations' },
+        { text: 'Global request configuration', text_zh: '全局请求配置', link: '/guide/request-configuration' },
+        { text: 'Global response / error handling', text_zh: '全局响应 / 错误处理', link: '/guide/request-configuration' },
         { text: 'Rewrite default values', text_zh: '重写默认值', link: '/guide/debounce' }
       ]
     }
