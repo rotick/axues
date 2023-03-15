@@ -97,7 +97,7 @@ axios.get('/user/12345').then(response => {
 })
 ```
 
-想象一下，如果每个请求都这样写，且如果响应数据层级过深，代码就会变得又臭又长，即使响应数据比较简单，你也不得不每次都写重复的 `response.data`。
+想象一下，如果每个请求都这样写，且如果响应数据层级过深，代码就会变得又臭又长，即便是响应数据结构比较简单，你也不得不每次都写重复的 `response.data`。
 
 你可能想到了解决办法，Axios 提供了 `transformResponse` 配置项，使我们可以转换响应数据，但也仅仅只是转换响应数据，如果我们想根据请求配置来转换，或者说在响应数据里处理业务错误，`transformResponse` 是做不到的。
 
@@ -129,4 +129,135 @@ const { data, error } = useAxues('/user/12345')
 
 这样的话，我们就将繁琐的数据转换挪到了全局配置里，只配一次，所有请求都能共享到，而不是每次请求都去处理。`responseHandle` 能做到很多，你可以尽情发挥你的想象力。
 
-## 转换组合式函数的配置项 - transformUseOptions
+// todo 处理策略
+
+## 错误处理 - errorHandle
+
+有数据处理就得对应的有错误处理，Axues 提供了全局配置项 `errorHandle` 来进行错误处理，`errorHandle` 也是接收两个参数：[Axios 的错误对象](https://axios-http.com/zh/docs/handling_errors) 和请求配置，最终返回一个错误对象。
+
+和响应数据处理一样，全局处理之后，就不用每个请求都去写错误处理的逻辑，比如说我们的应用比较简单，发生错误时直接弹出错误信息告知用户即可。
+
+```javascript
+const axues = createAxues(axios, {
+  errorHandle(error, requestConfig) {
+    Toast.error(error.message)
+    return error // 不管多简单，这里也必须将错误 return 出去，因为有时我们可能想在页面内展示错误信息
+  }
+})
+```
+
+当然真实应用中的错误处理可能比较复杂，比如我们时常需要对于不同的错误做出不同的处理，所以首先要把错误分一分类型，方便我们进行判断。以下是个例子，我们自己继承 Error 对象实现了 `UnauthorizedError`、`BusinessError` 和 `NotFoundError`：
+
+```javascript
+import { createAxues } from 'axues'
+import { UnauthorizedError, BusinessError, NotFoundError } from './util/err-extend'
+
+const axues = createAxues(axios, {
+  responseHandle(response, requestConfig) {
+    if (response.data.myBusinessCode === 0) {
+      return response.data.myBusinessData
+    } else if (response.data.myBusinessCode === 100401) {
+      return new UnauthorizedError('unauthorized')
+    } else {
+      return new BusinessError(response.data.myBusinessErrorMsg)
+    }
+  },
+  errorHandle(error, requestConfig) {
+    if (error.response.status === 404) {
+      return new NotFoundError(error.message)
+    }
+    return error
+  }
+})
+```
+
+这样我们就可以在组件中根据错误的类型来展示不同的样式。
+
+```vue
+<script setup>
+import { useAxues } from 'axues'
+const { error } = useAxues('/api/foo')
+</script>
+<template>
+  <div>
+    <p v-if="error.name === 'UnauthorizedError'">Unauthorized</p>
+    <p v-if="error.name === 'BusinessError'">{{ error.message }}</p>
+    <p v-if="error.name === 'NotFoundError'">404 not found</p>
+  </div>
+</template>
+```
+
+## 错误报告 - errorReport
+
+将请求错误上报到服务端，是最常见的应用监控手段。在 `errorHandle` 进行上报是不够的，因为我们的 `responseHandle` 也可能会返回错误，所以为了方便 Axues 又提供了 `errorReport` 配置项，用来统一的处理 `responseHandle` 和 `errorHandle` 返回的错误对象。
+
+```javascript
+import { createAxues } from 'axues'
+import { BusinessError, NotFoundError } from './util/err-extend'
+
+const axues = createAxues(axios, {
+  responseHandle(response, requestConfig) {
+    if (response.data.myBusinessCode === 0) return response.data.myBusinessData
+    return new BusinessError(response.data.myBusinessErrorMsg)
+  },
+  errorHandle(error, requestConfig) {
+    if (error.response.status === 404) return new NotFoundError(error.message)
+    return error
+  },
+  errorReport(error) {
+    axios.post('/api/errorReport', { err: error })
+  }
+})
+```
+
+也不要被它的名字限制思路，你也可以在 `errorReport` 处理错误，或者做更多有趣的事情。
+
+## 缓存实例 - cacheInstance
+
+Axues 提供将请求结果缓存的能力，前提是在全局配置中实现并配置一个缓存实例 `cacheInstance`。在 [缓存请求结果](./response-caching) 章节我们会详细的讲解缓存实例的配置，烦请移步查看。
+
+## 实现反馈组件 - overlayImplement
+
+Axues 可以很方便的集成交互组件，只需实现交互组件的调用即可，实现方式有两种：全局配置或在根组件中实现，我们在 [集成反馈组件](./with-feedback-components) 章节也会详细的介绍，烦请移步查看。
+
+## 重写默认值 - rewriteDefault
+
+为了简化请求配置，Axues 给一些请求配置项赋了默认值，这些默认值偏向于大部分应用场景，但你的应用可能刚好是覆盖不到的那一小部分，造成的结果就是每个请求都要显式的去配置一些配置项。
+
+比如说 `immediate`，Axues 提供的默认值是 `false`，但如果你的应用大多数都组件创建时就需发起请求，那么你就不得不为每个请求都配置 `immediate`：
+
+```javascript
+import { useAxues } from 'axues'
+const { data } = useAxues('/api/foo', { immediate: true })
+```
+
+这当然是我们不能接受的，所以 Axues 提供了重写默认值的能力，你只需在全局配置中给 `rewriteDefault` 配置为你期望的值即可。比如上上面这个例子，我们在 `rewriteDefault` 中将 `immediate` 重写为 `true`，就不用在每个请求中去配置了。
+
+```javascript
+const axues = createAxues(axios, {
+  rewriteDefault: {
+    immediate: true
+  }
+})
+```
+
+当然不是所有的配置项都有默认值，也不是所有的默认值都支持重写，以下是支持重写默认值的配置项以及它们的默认值，如果你觉得应该增加某个配置项的重写，请提 issue 告诉我们。
+
+```typescript
+{
+  immediate?: boolean // default: false
+  shallow?: boolean // default: false
+  loadingDelay?: number // default: 300
+  debounce?: boolean // default: undefined
+  debounceTime?: number // default: 500
+  autoRetryTimes?: number // default: 0
+  autoRetryInterval?: number // default: 2
+  throwOnActionFailed?: boolean // default: false
+}
+```
+
+## 转换配置项 - transformUseOptions
+
+这是一个比较底层的 API，设计这个 API 最初的目的只是为了更方便的自动给 `responseHandlingStrategy` 或 `errorHandlingStrategy` 赋值。
+
+比如说，如果我们的应用是全局处理错误：将错误信息弹出告知用户，而有些页面我们又想使用不同的弹出样式
