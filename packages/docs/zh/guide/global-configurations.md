@@ -125,7 +125,7 @@ const axues = createAxues(axios, {
 const { data, error } = useAxues('/user/12345')
 ```
 
-这里的 data 就是 `response.data.myBusinessData`，error 就是 `responseHandle` 返回的 Error 对象。
+这里的 data 是 `response.data.myBusinessData`，而 error 则是 `responseHandle` 返回的 Error 对象。
 
 这样的话，我们就将繁琐的数据转换挪到了全局配置里，只配一次，所有请求都能共享到，而不是每次请求都去处理。`responseHandle` 能做到很多，你可以尽情发挥你的想象力。
 
@@ -260,4 +260,26 @@ const axues = createAxues(axios, {
 
 这是一个比较底层的 API，设计这个 API 最初的目的只是为了更方便的自动给 `responseHandlingStrategy` 或 `errorHandlingStrategy` 赋值。
 
-比如说，如果我们的应用是全局处理错误：将错误信息弹出告知用户，而有些页面我们又想使用不同的弹出样式
+比如说，如果我们的应用是全局处理错误：将错误信息弹出告知用户，但有些页面我们又想使用不同的弹窗样式，那么我们可以配合反馈组件和转换配置项来实现：
+
+- 在 `transformUseOptions` 判断如果传了 `errorOverlay`，就把 `errorHandlingStrategy` 设为 2
+- 在 `errorHandle` 里判断如果 `errorHandlingStrategy` 为 2 则不弹出全局的弹窗
+
+```javascript
+const axues = createAxues(axios, {
+  transformUseOptions(options) {
+    if (options.errorOverlay) {
+      options.errorHandlingStrategy = 2
+    }
+    return options
+  },
+  errorHandle(error, { errorHandlingStrategy }) {
+    errorHandlingStrategy !== 2 && Toast.error(error.message)
+    return error
+  }
+})
+```
+
+这样的话，当请求发生错误时，如果请求配置了 `errorOverlay`，我们就使用 overlayImplement 里实现的错误处理，否则使用 `Toast.error` 将错误信息弹出。
+
+`transformUseOptions` 的作用在于转换组合式函数的请求配置，除了上面的例子，你还可以做很多事情，但请权衡利弊后再使用，毕竟它作用于全局，可能会造成违反协作者直觉的后果，我们希望你永远用不到它。
