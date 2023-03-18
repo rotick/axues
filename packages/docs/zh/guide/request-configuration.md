@@ -1,47 +1,25 @@
 # 请求配置
 
-Axues 基于 Axios，支持 Axios 的所有请求配置，并在此基础上扩展了丰富的配置项，帮助你更好的管理请求状态。如果你还不太了解 Axios 的请求配置，请阅读他们的 [文档](https://axios-http.com/zh/docs/req_config)，这里不再赘述。
+Axues 基于 Axios，支持 Axios 的所有请求配置，在此基础上扩展了丰富的配置项，并将某些配置项扩展为响应式对象，帮助你更好的管理请求状态。
+
+::: tip
+开始之前，请确保你已经非常熟悉 [Axios 的请求配置](https://axios-http.com/zh/docs/req_config)。
+:::
 
 ## Axios 配置项扩展
 
-为了更好的配合 Vue 的组合式 API，丰富配置项的可传值类型，并实现响应式链接，Axues 对 Axios 的 `url` & `params` & `data` & `headers` 四个配置项进行了扩展。
+为了更好的配合 Vue 的组合式 API，丰富配置项的可传值类型，并实现响应式链接，Axues 对 Axios 最常用的的四个配置项 `url & params & data & headers` 进行了扩展，四个选项的扩展都是一样的，我们就放在一起来讲，为了方便，下文我们称它们为 `F4`。
 
-### url 扩展
+### 扩展为响应式对象
 
-Axios 的 url 仅支持传字符串，但有时候我们的 url 可能需要定义为响应式的 `ref` 或 `computed` 对象，在传参时，每次都要写 `.value` 颇为麻烦。
+一个最简单的痛点：Axios 的 url 仅支持传字符串，但有时候我们的 url 可能需要定义为响应式的 `ref` 或 `computed` 对象，那么在写这个配置时，每次都要写 `.value`，颇为麻烦。
 
 ```javascript
 const url = ref(`/api/user/${route.params.id}`)
 axios.get(url.value)
 ```
 
-所以，`useAxues` 直接支持了 url 作为 `ref` 或 `computed` 对象传入，不管 `url` 怎么变，每次请求都是最新的 url：
-
-```javascript
-const url = ref(`/api/user/${route.params.id}`)
-const { action } = useAxues({ url })
-action()
-
-const url2 = computed(() => `/api/user/${route.params.id}`)
-const { action: action2 } = useAxues(url2)
-action2()
-```
-
-有时，我们希望 url 随着调用方的变化而变化，上一章我们提到 `action` 是支持传参数的，那么我们只需定义一个 `getter` 函数，接收来自 `action` 的传参即可：
-
-```javascript
-const { action } = useAxues({ url: id => `/api/user/${id}` })
-action(1) // 将发起 url 为 /api/user/1 的请求
-action(2) // 将发起 url 为 /api/user/2 的请求
-```
-
-::: warning
-url 是一个函数时，不能当做第一个参数传给 useAxues，必须放在请求配置对象里传
-:::
-
-### params & data & headers 扩展
-
-和 url 一样，`params`, `data` 及 `headers` 也都支持 `ref`、`computed` 或 `getter` 函数：
+所以，`useAxues` 的 `F4` 直接就可传入响应式对象，当然这不止是解决 `.value` 这么简单的问题，就如 [Vue 组合式函数文档](https://cn.vuejs.org/guide/reusability/composables.html#async-state-example) 里提到的那样，我们希望配置项变化即发起新的请求，那么当配置项传入 `ref` 或 `computed` 对象时，我们才有监听他们变化的可能。
 
 ```javascript
 const { action } = useAxues({
@@ -52,21 +30,46 @@ const { action } = useAxues({
 action()
 ```
 
+### 扩展为 getter 函数
+
+有时，我们希望 `F4` 随着调用方的变化而变化，比如说直接在列表中来更新每一项的字段，它们调用的接口完全相同，只是传入的参数不同，所以理想情况下我们应该只用只定义一次请求，在调用请求时传入不同的参数。
+
+上一章我们提到 action 是支持传入参数的，Axues 也将 `F4` 扩展为可以直接传入函数，所以我们只需定义一个 getter 函数，接收来自 action 的传参即可：
+
 ```javascript
 const { action } = useAxues({
-  url: ref('/api/users/update'),
+  url: '/api/users/update',
   method: 'post',
   data: id => ({ id }),
   headers: id => ({ id })
 })
 action(1)
+action(2)
+action(3)
 ```
 
-url, params, data, headers 的类型都是 `MaybeComputedOrActionRef`，他们的用法完全一致。
+这里 action 可以传入任意类型的参数，如果你使用 TypeScript，也可以定义它的类型。详情请参考 API。
+
+getter 函数的意义不仅仅是接收 action 的传参，也是为了保证每次调用请求都能获取到最新的值，传入 getter 函数可能也比直接传入响应式对象更符合我们传统的直觉：
+
+```javascript
+const { action } = useAxues({
+  url: () => `/api/users/update?foo=${route.params.foo}`,
+  method: 'post',
+  data: id => ({ id })
+})
+action(1)
+```
+
+### F4 的类型
 
 ```typescript
 type MaybeComputedOrActionRef<T, TAction = any> = T | Ref<T> | ComputedRef<T> | ((actionPayload?: TAction) => T)
 ```
+
+::: warning
+如果 url 是一个函数，不能当做第一个参数传给 useAxues，必须放在请求配置对象里传。
+:::
 
 ## contentType
 
@@ -209,7 +212,7 @@ const { loading, success, error, data } = useAxues({
 
 ## onData
 
-在上一章的 [响应数据](./request-states-and-methods#响应数据-data) 小节中，我们提到了 `onData`，上一个小节也有用到。`onData` 给我们提供了自定义 data 赋值的能力，让我们可以在每个请求中先处理请求返回的数据，再给 data 赋值。
+在上一章的 [响应数据](./request-states-and-methods#响应数据-data) 小节中，我们提到 `onData` 给我们提供了自定义 data 赋值的能力，让我们可以在每个请求中先处理请求返回的数据，再给 data 赋值。
 
 ```javascript
 import { useAxues } from 'axues'
@@ -265,6 +268,15 @@ const { action } = useAxues({
 })
 action().then().catch(console.log) // 会打印错误
 ```
+
+## responseHandlingStrategy & errorHandlingStrategy
+
+Axues 提供了全局处理响应数据及错误的能力，但单一的处理策略可能不能满足我们的需求，而通过配置来控制每一个请求使用什么策略，能让我们代码简洁的同时，也更灵活。
+
+`responseHandlingStrategy` 和 `errorHandlingStrategy` 可传入任意的值，取决于你怎么在全局处理函数中处理它，详情请参考：
+
+- [全局响应数据处理](./global-configurations#响应数据处理-responsehandle)
+- [转换配置项](./global-configurations#转换配置项-transformuseoptions)
 
 ## 更多配置项
 

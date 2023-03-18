@@ -96,6 +96,7 @@ function sidebarGuide(lang?: string) {
       items: [
         { text: 'Request states and methods', text_zh: '请求状态及方法', link: '/guide/request-states-and-methods' },
         { text: 'Request configuration', text_zh: '请求配置', link: '/guide/request-configuration' },
+        { text: 'Global configurations', text_zh: '全局配置', link: '/guide/global-configurations' },
         // { text: 'Separate request and states', text_zh: '将请求和状态分开', link: '/guide/request-states-and-operation' },
         { text: 'Debounce', text_zh: '防抖', link: '/guide/debounce' },
         { text: 'Error retries', text_zh: '错误重试', link: '/guide/error-retries' },
@@ -107,14 +108,12 @@ function sidebarGuide(lang?: string) {
       ]
     },
     {
-      text: 'Global configurations',
-      text_zh: '全局配置',
+      text: 'Best Practices',
+      text_zh: '最佳实践',
       collapsed: false,
       items: [
-        { text: 'Overview', text_zh: '概览', link: '/guide/global-configurations' },
-        { text: 'Global request configuration', text_zh: '全局请求配置', link: '/guide/request-configuration' },
-        { text: 'Global response / error handling', text_zh: '全局响应 / 错误处理', link: '/guide/request-configuration' },
-        { text: 'Rewrite default values', text_zh: '重写默认值', link: '/guide/debounce' }
+        { text: 'Request error handling', text_zh: '请求错误处理', link: '/guide/global-configurations' },
+        { text: 'Write a full paginated list page', text_zh: '写一个完整的分页列表页', link: '/guide/request-configuration' }
       ]
     }
   ]

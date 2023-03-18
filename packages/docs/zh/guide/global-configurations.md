@@ -4,7 +4,7 @@
 
 ## 请求配置 - requestConfig
 
-我们在前面的章节多次提到了全局请求配置，你可以将 **`每个请求都会用到的 Axios 配置项`** 写在全局的请求配置里，比如说请求超时时间、固定的请求头等等，更多配置项请参考 [Axios 请求配置](https://axios-http.com/zh/docs/req_config)
+你可以将 **`每个请求都会用到的 Axios 配置项`** 写在全局的请求配置里，比如说请求超时时间、固定的请求头等等，更多配置项请参考 [Axios 请求配置](https://axios-http.com/zh/docs/req_config)
 
 ```javascript
 const axues = createAxues(axios, {
@@ -17,7 +17,7 @@ const axues = createAxues(axios, {
 
 你可能会问，`axios.create` 同样也可以传入固定的配置项，为什么不直接用 `axios.create` 呢？
 
-这是因为，`axios.create` 创建实例后，请求配置就无法再更改了，比如说用户登录后我们需要给 headers 里的 Authorization 重新赋值，但 Axios 实例创建后就无法再更改。
+这是因为，`axios.create` 创建实例后，请求配置就无法再更改了，比如说用户登录后我们需要给 headers 里的 Authorization 重新赋值，但 Axios 实例创建后就无法再更改，我们不得不刷新页面才能实现这一需求。
 
 ```javascript
 const Authorization = ref(localStorage.getItem('Authorization'))
@@ -34,7 +34,7 @@ function login() {
 }
 ```
 
-上面的例子中，调用 login 方法并不会改变 Axios 实例里的 headers。而 Axues 的全局请求配置是每个请求发起时都会实时读取并合并到请求配置里，这为我们提供了更多的可能性。
+上面的例子中，调用 login 方法并不会改变 Axios 实例里的 headers。而 Axues 的全局请求配置是 **`每个请求发起前`** 都会实时读取并合并到请求配置里，这为我们提供了更多的可能性。
 
 ```javascript
 const Authorization = ref(localStorage.getItem('Authorization'))
@@ -52,7 +52,11 @@ function login() {
 }
 ```
 
-以上示例我们给 `requestConfig` 传入了一个返回请求配置的方法，Axues 在每次发起请求时都会先执行这个方法，拿到全局配置后合并到请求配置中。
+以上示例我们给 `requestConfig` 传入了一个返回请求配置的方法，Axues 在每次发起请求前都会先执行这个方法，拿到全局配置后合并到请求配置中。
+
+::: danger 合并策略
+全局的请求配置只有 headers 会与组合式函数的请求配置合并，其余的均会被组合式函数的配置项覆盖。
+:::
 
 除了传入方法，我们也可以传入一个 `ref` 或 `computed` 对象，当然如果你的请求配置都是固定的，你也可以传入一个原始对象。
 
@@ -125,11 +129,52 @@ const axues = createAxues(axios, {
 const { data, error } = useAxues('/user/12345')
 ```
 
-这里的 data 是 `response.data.myBusinessData`，而 error 则是 `responseHandle` 返回的 Error 对象。
+这里的 data 就是 `response.data.myBusinessData`，而 error 则是 `responseHandle` 返回的 Error 对象。
 
-这样的话，我们就将繁琐的数据转换挪到了全局配置里，只配一次，所有请求都能共享到，而不是每次请求都去处理。`responseHandle` 能做到很多，你可以尽情发挥你的想象力。
+你可能会担忧，当应用足够复杂时，一个全局的数据处理可能不能满足需求，比如说我们需要直接请求第三方的接口，不可能要求他们按照我们的响应格式来。为了解决这一问题，Axues 在请求配置中扩展了响应数据处理策略配置项：`responseHandlingStrategy`，看一个简单的例子你就知道怎么用了：
 
-// todo 处理策略
+```javascript {5}
+// main.js
+import { createAxues } from 'axues'
+const axues = createAxues(axios, {
+  responseHandle(response, { responseHandlingStrategy }) {
+    if (responseHandlingStrategy === 'googleMapsApi') {
+      if (response.data.status === 'OK') {
+        return response.data.results
+      } else {
+        return new Error(response.data.error_message)
+      }
+    }
+    if (response.data.myBusinessCode === 0) {
+      return response.data.myBusinessData
+    } else {
+      return new Error(response.data.myBusinessErrorMsg)
+    }
+  }
+})
+```
+
+```javascript {11}
+// some-page.vue
+import { useAxues } from 'axues'
+
+const { data: muBusinessData, error: muBusinessError } = useAxues('/api/myApi')
+const { data: googleMapsData, error: googleMapsError } = useAxues({
+  url: 'https://maps.googleapis.com/maps/api/geocode/json',
+  params: {
+    place_id: 'ChIJeRpOeF67j4AR9ydy_PIzPuM',
+    key: 'YOUR_API_KEY'
+  },
+  responseHandlingStrategy: 'googleMapsApi'
+})
+```
+
+在这个例子中，我们发起了两个请求，一个是我们自己的 API，另一个是谷歌地图的 API，这两个 API 响应格式各不相同，但我们使用 `responseHandlingStrategy` 在全局响应处理函数里都很好的将它转换成我们想要的数据或错误对象，而不是在组件中去写繁琐的判断逻辑。
+::: tip
+你可能会想，直接判断域名做不同处理就好了，但有时候同样的域名也可能返回不一致的响应格式。以上这个例子其实还可以更简单，比如 API key 也放到全局配置中，根据域名给 `responseHandlingStrategy` 赋不同的值等等，详情请参考 [转换配置项](#转换配置项-transformuseoptions)
+:::
+
+这样的话，我们就将繁琐的数据转换挪到了全局配置里，只配一次，所有请求都能共享到，而不是每次请求都去处理。`responseHandle` 能做到更多，你可以尽情发挥你的想象力。
 
 ## 错误处理 - errorHandle
 
@@ -186,6 +231,8 @@ const { error } = useAxues('/api/foo')
   </div>
 </template>
 ```
+
+和上面提到的 `responseHandlingStrategy` 一样，你也可以使用 `errorHandlingStrategy` 配置来做不同策略的错误处理，相关示例请参考 [转换配置项](#转换配置项-transformuseoptions)，这里就不再展开。
 
 ## 错误报告 - errorReport
 
@@ -258,9 +305,64 @@ const axues = createAxues(axios, {
 
 ## 转换配置项 - transformUseOptions
 
-这是一个比较底层的 API，设计这个 API 最初的目的只是为了更方便的自动给 `responseHandlingStrategy` 或 `errorHandlingStrategy` 赋值。
+我们的配置项看起来还是挺多，虽然我们有可以更改的默认值，但很多时候配置项之间是互相关联的，比如说我们希望配置了某个配置项，另一个配置项就自动变成某个值，这对于代码简化来说是非常有用的。
 
-比如说，如果我们的应用是全局处理错误：将错误信息弹出告知用户，但有些页面我们又想使用不同的弹窗样式，那么我们可以配合反馈组件和转换配置项来实现：
+> 当然你可能会不喜欢这种不确定的感觉，那么请你忽视这个 API 的存在
+
+用上面那个谷歌地图响应数据处理的例子来说，每次请求都写 API key 显然很麻烦且不好更换，每次都显式的配置 `responseHandlingStrategy` 也很枯燥。Axues 提供了 `transformUseOptions` 全局配置项，供你做配置项转换或关联赋值：
+
+```javascript
+// main.js
+import { unref } from 'vue'
+import { createAxues } from 'axues'
+const axues = createAxues(axios, {
+  transformUseOptions(options) {
+    if (options.url.startWith('https://maps.googleapis.com')) {
+      // 因为 params 的类型可能是方法也可能是 ref 对象，所以我们都要处理它
+      if (typeof options.params === 'function') {
+        const oldFn = options.params
+        options.params = () => {
+          const originalResult = oldFn.apply(oldFn, arguments)
+          return Object.assign({ key: 'YOUR_API_KEY' }, originalResult)
+        }
+      } else {
+        options.params = Object.assign({ key: 'YOUR_API_KEY' }, unref(options.params))
+      }
+      options.responseHandlingStrategy = 'googleMapsApi'
+    }
+    return options
+  },
+  responseHandle(response, { responseHandlingStrategy }) {
+    if (responseHandlingStrategy === 'googleMapsApi') {
+      if (response.data.status === 'OK') {
+        return response.data.results
+      } else {
+        return new Error(response.data.error_message)
+      }
+    }
+    if (response.data.myBusinessCode === 0) {
+      return response.data.myBusinessData
+    } else {
+      return new Error(response.data.myBusinessErrorMsg)
+    }
+  }
+})
+```
+
+我们在转换配置项时判断，如果是谷歌地图的域名，则将 API key 合并到请求参数中，并将 `responseHandlingStrategy` 自动设置为 `googleMapsApi`。这样配置之后，在组件中就不再需要配置 API key 和 responseHandlingStrategy。
+
+```javascript
+// some-page.vue
+import { useAxues } from 'axues'
+
+const { data: muBusinessData, error: muBusinessError } = useAxues('/api/myApi')
+const { data: googleMapsData, error: googleMapsError } = useAxues({
+  url: 'https://maps.googleapis.com/maps/api/geocode/json',
+  params: { place_id: 'ChIJeRpOeF67j4AR9ydy_PIzPuM' }
+})
+```
+
+再来看一个错误处理的例子，如果我们的应用是全局处理错误：将错误信息弹出告知用户，但有些页面我们又想使用不同的弹窗样式，那么我们可以配合反馈组件和转换配置项来实现：
 
 - 在 `transformUseOptions` 判断如果传了 `errorOverlay`，就把 `errorHandlingStrategy` 设为 2
 - 在 `errorHandle` 里判断如果 `errorHandlingStrategy` 为 2 则不弹出全局的弹窗
@@ -282,4 +384,4 @@ const axues = createAxues(axios, {
 
 这样的话，当请求发生错误时，如果请求配置了 `errorOverlay`，我们就使用 overlayImplement 里实现的错误处理，否则使用 `Toast.error` 将错误信息弹出。
 
-`transformUseOptions` 的作用在于转换组合式函数的请求配置，除了上面的例子，你还可以做很多事情，但请权衡利弊后再使用，毕竟它作用于全局，可能会造成违反协作者直觉的后果，我们希望你永远用不到它。
+`transformUseOptions` 的作用在于转换组合式函数的请求配置，除了上面的例子，你还可以做很多事情，但请权衡利弊后再使用，毕竟它太灵活，且作用于全局，可能会造成违反协作者的直觉。
