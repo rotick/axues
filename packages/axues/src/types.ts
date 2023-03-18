@@ -173,6 +173,7 @@ export interface UseAxuesOutput<TI, TO, TAction = any> {
   success: Ref<boolean>
   error: Ref<Error | null>
   refreshing: Ref<boolean>
+  refreshed: Ref<boolean>
   retrying: Ref<boolean>
   retryTimes: Ref<number>
   retryCountdown: Ref<number>

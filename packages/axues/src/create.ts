@@ -140,6 +140,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
     const success = ref(false)
     const error = ref<Error | null>(null)
     const refreshing = ref(false)
+    const refreshed = ref(false)
     const requestTimes = ref(0)
     const retryTimes = ref(0)
     const retrying = ref(false)
@@ -156,6 +157,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
 
     const run = (actionPayload?: TAction) => {
       pending.value = true
+      refreshed.value = false
       aborted.value = false
       clearTimeout(loadingTimer)
       clearInterval(retryTimer)
@@ -172,7 +174,15 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       }, loadingDelay)
 
       const successLogic = (res: TO) => {
+        if (refreshing.value) {
+          // reset when refresh success
+          requestTimes.value = 1
+          responseTimes = 1
+        }
         if (onData) {
+          if (refreshing.value) {
+            data.value = initialData
+          }
           onData(data, res, actionPayload)
         } else {
           data.value = res
@@ -192,6 +202,9 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       }
 
       const finallyLogic = () => {
+        if (refreshing.value) {
+          refreshed.value = true
+        }
         pending.value = false
         loading.value = false
         refreshing.value = false
@@ -280,6 +293,11 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
                   }
                 }, 1000)
               }
+              if (refreshing.value) {
+                // rollback when refresh error
+                requestTimes.value--
+                responseTimes--
+              }
               errorReport?.(err)
               reject(err)
             }
@@ -303,8 +321,8 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
         // keep state when refresh
         // data.value = initialData
         retryTimes.value = 0
-        requestTimes.value = 0
-        responseTimes = 0
+        // requestTimes.value = 0
+        // responseTimes = 0
         refreshing.value = true
         debounceHandle(initialPayload).then(resolve, err => {
           if (throwOnActionFailed) return reject(err)
@@ -398,6 +416,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       success,
       error,
       refreshing,
+      refreshed,
       retrying,
       retryTimes,
       retryCountdown,

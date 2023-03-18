@@ -59,8 +59,8 @@ describe('basic', () => {
   test('state should correct when request error', async () => {
     const TestComponent = defineComponent({
       setup () {
-        const { pending, loading, success, error, data, action, refreshing, refresh } = useAxues('/getError')
-        return { pending, loading, success, error, data, action, refreshing, refresh }
+        const { pending, loading, success, error, data, action, refreshing, refreshed, refresh, requestTimes } = useAxues('/getError')
+        return { pending, loading, success, error, data, action, refreshing, refreshed, refresh, requestTimes }
       },
       template: `<button @click="action" class="action">action</button>
       <button @click="refresh" class="refresh">refresh</button>`
@@ -81,8 +81,10 @@ describe('basic', () => {
     expect(wrapper.vm.success).toBe(false)
     expect(wrapper.vm.error).toBeInstanceOf(Error)
     expect(wrapper.vm.data).toBeNull()
+    expect(wrapper.vm.requestTimes).toBe(1)
 
     expect(wrapper.vm.refreshing).toBe(false)
+    expect(wrapper.vm.refreshed).toBe(false)
     await wrapper.get('.refresh').trigger('click')
     expect(wrapper.vm.refreshing).toBe(true)
     expect(wrapper.vm.pending).toBe(true)
@@ -92,6 +94,8 @@ describe('basic', () => {
     await flushPromises()
 
     expect(wrapper.vm.refreshing).toBe(false)
+    expect(wrapper.vm.refreshed).toBe(true)
+    expect(wrapper.vm.requestTimes).toBe(1)
     expect(wrapper.vm.pending).toBe(false)
     expect(wrapper.vm.loading).toBe(false)
     expect(wrapper.vm.success).toBe(false)
@@ -163,11 +167,11 @@ describe('basic', () => {
   test('refresh', async () => {
     const TestComponent = defineComponent({
       setup () {
-        const { success, data, action, refreshing, refresh } = useAxues('/get')
-        return { success, data, action, refreshing, refresh }
+        const { success, data, action, refreshing, refresh, refreshed, requestTimes } = useAxues('/get')
+        return { success, data, action, refreshing, refresh, refreshed, requestTimes }
       },
       template: `<button @click="action" class="action">action</button>
-      <button @click="refresh" class="refresh">retry</button>`
+      <button @click="refresh" class="refresh">refresh</button>`
     })
     const wrapper = getWrap(TestComponent)
 
@@ -176,6 +180,8 @@ describe('basic', () => {
     await flushPromises()
     expect(wrapper.vm.success).toBe(true)
     expect(wrapper.vm.refreshing).toBe(false)
+    expect(wrapper.vm.refreshed).toBe(false)
+    expect(wrapper.vm.requestTimes).toBe(1)
 
     await wrapper.get('.refresh').trigger('click')
     expect(wrapper.vm.refreshing).toBe(true)
@@ -184,6 +190,8 @@ describe('basic', () => {
 
     await flushPromises()
     expect(wrapper.vm.refreshing).toBe(false)
+    expect(wrapper.vm.refreshed).toBe(true)
+    expect(wrapper.vm.requestTimes).toBe(1)
     expect(wrapper.vm.data).toEqual({ test: 1 })
     expect(wrapper.vm.success).toBe(true)
   })
