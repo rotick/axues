@@ -34,9 +34,9 @@ const { loading, success, error, data } = useAxues('/api/foo', { immediate: true
 
 看上面的例子，你肯定会想，又是一个闲不住的仿造轮子。
 
-其实 Axues 的诞生正是因为当下社区中存在的轮子有些不够生产力，有些直接搬 React，引入了很多复杂的概念，且不符合 Vue 的美学（简单、符合直觉）。
+其实 Axues 的诞生正是因为当下社区中存在的轮子要么不够生产力，要么直接搬 React，引入了很多复杂的概念。有的为了灵活舍弃了简单，有点则是为了简单舍弃了灵活。
 
-举个例子：几乎的大中型项目请求头都需要携带 Authorization，但很多相关的组合式函数要么直接不提供统一配置的地方，要么需要自己去封装请求方法。而这一需求，在 Axues 中实现起来非常简单：
+举个例子：几乎所有的应用请求头都需要携带 Authorization，但很多类似的组合式函数要么直接不提供统一配置的地方，要么需要自己去封装请求方法。而这一需求，在 Axues 中实现起来非常简单：
 
 ```javascript
 // main.js
@@ -73,5 +73,6 @@ const axues = createAxues(axiosInstance)
 
 ## Axues 适用于哪些场景？
 
-理论上，所有的 Vue 版本 >= 2.7 的项目都可以使用 Axues，得益于 `axios` 良好的服务端支持，Axues 也可以用在 SSR 项目中（比如 nuxt），
+Axues 仅适用于完整的 web 应用中，因为它和 vue-router 一样，都需要创建实例并注册为插件。使用时，保证你的 Vue 版本 >= 2.7，且安装了 `axios`。得益于 `axios` 良好的服务端支持，Axues 也可以用在 SSR 项目中（比如 nuxt）。
+
 Axues 实际上就是 Vue 和 Axios 的粘合剂，只要是他们支持的环境，都可以使用 Axues
