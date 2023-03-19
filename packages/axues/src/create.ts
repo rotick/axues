@@ -383,6 +383,24 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       })
     }
 
+    const resetAction = (actionPayload?: TAction) => {
+      canAbort.value && abort()
+      pending.value = false
+      loading.value = false
+      success.value = false
+      error.value = null
+      refreshing.value = false
+      refreshed.value = false
+      requestTimes.value = 0
+      retryTimes.value = 0
+      retrying.value = false
+      retryCountdown.value = 0
+      aborted.value = false
+      data.value = initialData
+      responseTimes = 0
+      return action(actionPayload)
+    }
+
     const actionAlias = (method: string) => {
       if (['get', 'head', 'options', 'delete'].includes(method)) {
         return (params?: MaybeComputedOrActionRef<any, TAction>, actionPayload?: TAction) => {
@@ -425,6 +443,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       aborted,
       data,
       action,
+      resetAction,
       refresh,
       retry,
       abort,

@@ -182,6 +182,7 @@ export interface UseAxuesOutput<TI, TO, TAction = any> {
   aborted: Ref<boolean>
   data: Ref<TO>
   action: (actionPayload?: TAction) => PromiseLike<TO>
+  resetAction: (actionPayload?: TAction) => PromiseLike<TO>
   retry: () => PromiseLike<TO>
   refresh: () => PromiseLike<TO>
   abort: () => void
