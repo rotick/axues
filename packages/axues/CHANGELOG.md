@@ -1,5 +1,17 @@
 # Changelog
 
+# [0.9.0](https://github.com/rotick/axues/compare/0.8.0...0.9.0) (2023-03-19)
+
+### Features
+
+- add refreshed state and finer grained requestTimes ([98307d4](https://github.com/rotick/axues/commit/98307d470349f9d07c8ece2e2e419e90db3ed10d))
+- add resetAction method so that we can return to the initial state ([9dc2a45](https://github.com/rotick/axues/commit/9dc2a45cc293efaced39874863ee36d495297011))
+- add watch option to listen for changes in url, params, data, headers and initiate requests ([35d6a16](https://github.com/rotick/axues/commit/35d6a16a02f11fdec77b500d4c91df7beef59e44))
+
+### Performance Improvements
+
+- add warning to deprecated API ([24ad21b](https://github.com/rotick/axues/commit/24ad21b4748ab3636027329c098bb20a3bf4d423))
+
 # [0.8.0](https://github.com/rotick/axues/compare/0.7.0...0.8.0) (2023-03-12)
 
 ### Bug Fixes
