@@ -76,7 +76,7 @@ axues.get('/url').then(res => {
 // ...
 ```
 
-如你所料，`createAxues` 也可以传入 `axios` 的自定义实例。除此之外，我们还可以给第二个参数传入一些全局配置项，比如在每个请求的 header 中携带 Authorization，或者全局处理返回值等。更多配置请参考 [全局配置]() 章节。
+如你所料，`createAxues` 也可以传入 `axios` 的自定义实例。除此之外，我们还可以给第二个参数传入一些全局配置项，比如在每个请求的 header 中携带 Authorization，或者全局处理返回值等。更多配置请参考 [全局配置](./global-configurations) 章节。
 
 ```javascript
 // main.js
@@ -124,7 +124,7 @@ const { loading, error, data } = useAxues('/api/foo', { immediate: true })
 ```
 
 ::: tip
-如果大多数请求都需要组件创建时就发起，那么每次都传 `immediate: true` 会比较麻烦，那我们只需把它的默认值设为 `true` 就好了，详情请参考 [重写默认值]() 章节
+如果大多数请求都需要组件创建时就发起，那么每次都传 `immediate: true` 会比较麻烦，那我们只需把它的默认值设为 `true` 就好了，详情请参考 [重写默认值](./global-configurations#重写默认值-rewritedefault) 章节
 :::
 
 `useAxues` 的第二个参数提供了非常丰富的配置项，除了 `immediate`，我们还可以配置请求的方法、参数等等：
@@ -172,7 +172,7 @@ const { loading, data } = useAxues({
 })
 ```
 
-这里的 `axues` 实例和 `axios` 实例的 API 完全一样。当然，你也可以将它替换成 `axios` 或者 `fetch`，只是这样的话，请求就不能共享全局的配置（参考 [全局配置]() 章节）。
+这里的 `axues` 实例和 `axios` 实例的 API 完全一样。当然，你也可以将它替换成 `axios` 或者 `fetch`，只是这样的话，请求就不能共享全局的配置（参考 [全局配置](./global-configurations) 章节）。
 
 `useAxues` 能管理任意 promise 函数的状态：
 

@@ -19,7 +19,7 @@ const url = ref(`/api/user/${route.params.id}`)
 axios.get(url.value)
 ```
 
-所以，`useAxues` 的 `F4` 直接就可传入响应式对象，当然这不止是解决 `.value` 这么简单的问题，就如 [Vue 组合式函数文档](https://cn.vuejs.org/guide/reusability/composables.html#async-state-example) 里提到的那样，我们希望配置项变化即发起新的请求，那么当配置项传入 `ref` 或 `computed` 对象时，我们才有监听他们变化的可能。
+所以，`useAxues` 的 `F4` 直接就可传入响应式对象，当然这不止是解决 `.value` 这么简单的问题，就如 [Vue 组合式函数文档](https://cn.vuejs.org/guide/reusability/composables.html#async-state-example) 里提到的那样，我们希望配置项变化即发起新的请求，那么当配置项传入 `ref` 或 `computed` 对象时，我们才有监听他们变化的可能，参考 [watch](#watch)。
 
 ```javascript
 const { action } = useAxues({
@@ -70,6 +70,80 @@ type MaybeComputedOrActionRef<T, TAction = any> = T | Ref<T> | ComputedRef<T> | 
 ::: warning
 如果 url 是一个函数，不能当做第一个参数传给 useAxues，必须放在请求配置对象里传。
 :::
+
+## watch
+
+上一节我们讲到，Axues 将 `url & params & data & headers` 四个配置项扩展为可传入响应式对象，当传入响应式对象时，我们就可以监听它们的变化，从而发起新的请求。
+
+默认的情况下，Axues 不会监听四个配置项，仅当你显式的配置了 `watch`，Axues 才会启动响应式侦听器。`watch` 可传入的值有四个：`url | params | data | headers`，如其名，分别对应四个配置项。
+
+```javascript
+const url = ref('/api/foo')
+const { data } = useAxues({
+  url,
+  watch: 'url'
+})
+function changeUrl() {
+  // 将发起 url 为 /api/bar 的心情求
+  url.value = '/api/bar'
+}
+```
+
+如果你想同时监听多个响应式对象的变化，也可以传入一个数组。
+
+```javascript
+const url = ref('/api/foo')
+const params = ref({
+  foo: 1
+})
+const headers = computed(() => ({
+  bar: params.value.foo
+}))
+const { data } = useAxues({
+  url,
+  params,
+  headers,
+  watch: ['url', 'headers']
+})
+function changeParams() {
+  // 将发起 url 为 /api/bar 的心情求
+  params.value.foo = 2
+}
+```
+
+::: tip
+使用 watch，请确保你想 watch 的配置项是 ref 或 computed 对象。
+:::
+当你配置了 `watch`，Axues 会使用 Vue 的 watch API 来监听响应式对象的变化，且会默认配置 watch 的选项为：
+
+```javascript
+{
+  immediate: true,
+  deep: true
+}
+```
+
+这意味着，Axues 会在组件创建时立即发起请求，并且对响应式对象的侦听的深层的。
+
+如果你对这个默认行为不满意，或者你还想更细粒度的控制（比如配置 `flush`），那么你其实也可以自己写一个 watch：
+
+```javascript
+const url = ref('/api/foo')
+const { data, action } = useAxues({
+  url
+})
+watch(
+  url,
+  () => {
+    action()
+  },
+  {
+    immediate: true,
+    deep: true,
+    flush: 'post'
+  }
+)
+```
 
 ## contentType
 
@@ -159,7 +233,7 @@ action(2) // 将发起请求：/api/user/2
 
 上一章节有提到这两个配置项的用法，如果忘了，就去回顾一下吧：
 
-- [immediate](./request-states-and-methods#触发请求-action) 表示立即发起请求，而不是等着手动调用 action 方法
+- [immediate](./request-states-and-methods#触发请求-action-resetaction) 表示立即发起请求，而不是等着手动调用 action 方法
 - [initialData](./request-states-and-methods#响应数据-data) 给定 data 的初始值，如果不给，则 data 默认是 null
 
 ## loadingDelay
@@ -174,7 +248,7 @@ const { loading, success, error, data } = useAxues({
 })
 ```
 
-如果你期望的延迟都一样，那么在每个请求都配置 `loadingDelay` 会非常麻烦，我们也可以直接在创建 Axues 实例时 [更改 loadingDelay 默认值]()
+如果你期望的延迟都一样，那么在每个请求都配置 `loadingDelay` 会非常麻烦，我们也可以直接在创建 Axues 实例时 [更改 loadingDelay 默认值](./global-configurations#重写默认值-rewritedefault)
 
 ## shallow
 
