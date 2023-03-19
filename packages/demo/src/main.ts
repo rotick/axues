@@ -52,7 +52,9 @@ const axues = createAxues(axiosInstance, {
     return new Error('unknown error')
   },
   cacheInstance,
-  loadingDelay: 200,
+  rewriteDefault: {
+    loadingDelay: 200
+  },
   overlayImplement: {
     loadingOpen (options) {
       console.log(options)

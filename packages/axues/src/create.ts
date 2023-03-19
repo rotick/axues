@@ -40,6 +40,9 @@ function throwErr (err: string | Error) {
 }
 
 export function createAxues (axiosInstance: AxiosInstance, createOptions?: CreateAxuesOptions) {
+  if (createOptions && 'loadingDelay' in createOptions) {
+    console.warn('loadingDelay will be deprecated in next major version, please use rewriteDefault instead of it')
+  }
   const { requestConfig, transformUseOptions, responseHandle, errorHandle, cacheInstance, errorReport, loadingDelay: deprecatedLoadingDelay, overlayImplement: baseOverlayImplement, rewriteDefault } = createOptions || {}
   // @ts-expect-error
   const request: Axues = config => {
@@ -110,6 +113,9 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
 
   const useFn = <TI, TO, TAction>(options: UseAxuesOptions<TI, TO, TAction>): UseAxuesOutput<TI, TO, TAction> => {
     if (!options) throw new Error('options is required')
+    if ('debounceMode' in options && options.debounceMode !== undefined) {
+      console.warn('debounceMode will be deprecated in next major version, please use debounce instead of it')
+    }
     if (transformUseOptions) {
       options = transformUseOptions(options)
     }
