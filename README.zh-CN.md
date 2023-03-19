@@ -562,7 +562,16 @@ interface CreateAxuesOptions {
     delete: (key: string) => void
   }
   errorReport?: (err: Error) => void
-  loadingDelay?: number
+  rewriteDefault?: {
+    immediate?: boolean
+    shallow?: boolean
+    loadingDelay?: number
+    debounce?: boolean
+    debounceTime?: number
+    autoRetryTimes?: number
+    autoRetryInterval?: number
+    throwOnActionFailed?: boolean
+  }
   overlayImplement?: {
     loadingOpen?: (options: LoadingOverlayType) => void
     loadingClose?: () => void
@@ -615,9 +624,11 @@ declare let axues: Axues
 ### useAxues
 
 ```typescript
+type CanWatch = 'url' | 'params' | 'data' | 'headers'
 interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends AxuesRequestConfig<TI, TAction> {
   promise?: (actionPayload?: TAction, signal?: AbortSignal) => Promise<TO>
   immediate?: boolean
+  watch?: CanWatch | CanWatch[]
   initialData?: TO
   shallow?: boolean
   debounce?: boolean
@@ -642,6 +653,7 @@ interface UseAxuesOutput<TI, TO, TAction = any> {
   success: Ref<boolean>
   error: Ref<Error | null>
   refreshing: Ref<boolean>
+  refreshed: Ref<boolean>
   retrying: Ref<boolean>
   retryTimes: Ref<number>
   retryCountdown: Ref<number>
@@ -650,6 +662,7 @@ interface UseAxuesOutput<TI, TO, TAction = any> {
   aborted: Ref<boolean>
   data: Ref<TO>
   action: (actionPayload?: TAction) => PromiseLike<TO>
+  resetAction: (actionPayload?: TAction) => PromiseLike<TO>
   retry: () => PromiseLike<TO>
   refresh: () => PromiseLike<TO>
   abort: () => void
