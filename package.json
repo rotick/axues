@@ -8,6 +8,7 @@
   "scripts": {
     "prepare": "husky install",
     "preinstall": "npx only-allow pnpm",
+    "dev": "pnpm -C packages/axues run dev",
     "build": "pnpm -C packages/axues run build",
     "release": "vitest --run && pnpm -C packages/axues run release",
     "dev:demo": "pnpm -C packages/demo run dev",

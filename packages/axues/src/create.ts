@@ -1,4 +1,4 @@
-import { ref, computed, toRaw, shallowRef, defineComponent, reactive } from 'vue'
+import { ref, computed, toRaw, shallowRef, defineComponent, reactive, watch, isRef } from 'vue'
 import {
   getCacheKey,
   mergeHeaders,
@@ -122,6 +122,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
     const {
       promise,
       immediate = rewriteDefault?.immediate || false,
+      watch: watchKey,
       initialData = null as TO,
       shallow = rewriteDefault?.shallow || false,
       loadingDelay = rewriteDefault?.loadingDelay || deprecatedLoadingDelay || 300,
@@ -433,6 +434,30 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
     }
 
     if (immediate) action()
+
+    if (watchKey) {
+      const watchMap = {
+        url: options.url,
+        params: options.params,
+        data: options.data,
+        headers: options.headers
+      }
+      let watcher
+      if (Array.isArray(watchKey)) {
+        watcher = watchKey.map(wk => (isRef(watchMap[wk]) ? watchMap[wk] : null)).filter(w => w)
+      } else {
+        watcher = isRef(watchMap[watchKey]) ? watchMap[watchKey] : null
+      }
+      if (watcher) {
+        watch(
+          watcher as Ref | Ref[],
+          () => {
+            action()
+          },
+          { deep: true, immediate: true }
+        )
+      }
+    }
 
     return {
       pending,

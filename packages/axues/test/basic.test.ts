@@ -1,7 +1,7 @@
 import { describe, test, expect, vi } from 'vitest'
 import { createAxues, useAxues, axues } from '../src'
 import axios from 'axios'
-import { defineComponent } from 'vue'
+import { defineComponent, ref, computed } from 'vue'
 import { mount, flushPromises } from '@vue/test-utils'
 
 // @vitest-environment happy-dom
@@ -254,6 +254,53 @@ describe('basic', () => {
 
     await wrapper.get('.resetAction').trigger('click')
     expect(wrapper.vm.aborted).toBe(false)
+  })
+
+  test('watch', async () => {
+    const TestComponent = defineComponent({
+      setup () {
+        const url = ref('/get')
+        const params = ref({
+          test: 1
+        })
+        const headers = computed(() => ({
+          foo: params.value.test + 1
+        }))
+        const { pending, data, error, requestTimes } = useAxues({
+          url,
+          params,
+          headers,
+          watch: ['url', 'headers']
+        })
+        function changeUrl () {
+          url.value = '/getError'
+        }
+        function changeParams () {
+          params.value.test = 2
+        }
+
+        return { pending, data, error, requestTimes, changeUrl, changeParams }
+      },
+      template: '<button @click="changeUrl" class="changeUrl">changeUrl</button><button @click="changeParams" class="changeParams">changeParams</button>'
+    })
+    const wrapper = getWrap(TestComponent)
+
+    expect(wrapper.vm.pending).toBe(true)
+    await flushPromises()
+    expect(wrapper.vm.data).toEqual({ test: 1 })
+    expect(wrapper.vm.requestTimes).toBe(1)
+
+    await wrapper.get('.changeUrl').trigger('click')
+    expect(wrapper.vm.pending).toBe(true)
+    await flushPromises()
+    expect(wrapper.vm.error).toBeInstanceOf(Error)
+    expect(wrapper.vm.requestTimes).toBe(2)
+
+    await wrapper.get('.changeParams').trigger('click')
+    expect(wrapper.vm.pending).toBe(true)
+    await flushPromises()
+    expect(wrapper.vm.error).toBeInstanceOf(Error)
+    expect(wrapper.vm.requestTimes).toBe(3)
   })
 
   test('axues', async () => {

@@ -92,6 +92,7 @@ export interface AxuesRequestConfig<TI = any, TAction = any> extends Omit<AxiosR
 }
 
 export type DebounceMode = 'firstPass' | 'lastPass' | 'none'
+export type CanWatch = 'url' | 'params' | 'data' | 'headers'
 
 export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends AxuesRequestConfig<TI, TAction> {
   /*
@@ -103,6 +104,11 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
    * default: false
    * */
   immediate?: boolean
+  /*
+   * watch state changes and refetch
+   * default: undefined
+   * */
+  watch?: CanWatch | CanWatch[]
   /*
    * will set to data before axios response
    * default: null

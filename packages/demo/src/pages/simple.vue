@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, watch, ref } from 'vue'
+import { reactive, watch, ref, computed } from 'vue'
 import { useAxues } from 'axues'
 
 const { loading, success, error, data, action } = useAxues({ url: '/get' })
@@ -52,6 +52,32 @@ const test6 = reactive(
   })
 )
 const test7 = reactive(useAxues('/delay/10'))
+
+const url = ref('/get')
+const params = ref({
+  test: 1
+})
+const headers = computed(() => ({
+  foo: params.value.test
+}))
+const test8 = reactive(
+  useAxues({
+    url,
+    params,
+    headers,
+    watch: 'headers'
+  })
+)
+function changeTest8Url () {
+  url.value = '/status/500'
+}
+function changeTest8Params () {
+  params.value.test = 2
+}
+function changeTest8UrlAndParams () {
+  url.value = '/status/500'
+  params.value.test = 3
+}
 </script>
 
 <template>
@@ -129,5 +155,14 @@ const test7 = reactive(useAxues('/delay/10'))
       <div v-if="success1">{{ data1 }}</div>
       <button class="h-10 px-6 font-semibold rounded-md bg-primary text-white" @click="action1">execute</button>
     </axues>
+  </div>
+
+  <div class="bg-card p-6 mt-6">
+    <h3 class="font-semibold text-xl mb-4">Watch</h3>
+    <button class="h-10 px-6 font-semibold rounded-md bg-primary text-white" @click="changeTest8Url">changeTest8Url</button>
+    <button class="h-10 px-6 font-semibold rounded-md bg-primary text-white" @click="changeTest8Params">changeTest8Params</button>
+    <button class="h-10 px-6 font-semibold rounded-md bg-primary text-white" @click="changeTest8UrlAndParams">changeTest8UrlAndParams</button>
+    <div v-if="test8.data">{{ test8.data }}</div>
+    <div v-if="test8.error">{{ test8.error }}</div>
   </div>
 </template>
