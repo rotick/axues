@@ -186,7 +186,7 @@ const { action } = useAxues({
 
 ## promise
 
-在快速上手中我们提到了 [将请求和状态分开](./getting-started#将请求和状态分开) 正是给这个配置项传入一个 promise 函数实现的。当传入 promise 函数时，`useAxues` 将不再负责请求，而只是对传入的请求方法进行状态接管。也就是说，只要传入了 promise，再传任何其他的 Axios 配置都将失效。
+在快速上手中我们提到了 [将请求和状态分开](../getting-started#将请求和状态分开) 正是给这个配置项传入一个 promise 函数实现的。当传入 promise 函数时，`useAxues` 将不再负责请求，而只是对传入的请求方法进行状态接管。也就是说，只要传入了 promise，再传任何其他的 Axios 配置都将失效。
 
 所以，即使你要将请求函数单独封装，我们也推荐你使用共享全局配置的 `axues` 函数来封装，而不是直接用 `axios` 或 `fetch`。
 

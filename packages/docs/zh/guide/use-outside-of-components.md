@@ -93,7 +93,7 @@ Axues 的共享实例也可以在组件中使用，前面几个章节中我们�
 
 看到 `axues` 的 API 和 `axios` 完全一样，你可能忍不住会发问：为什么不直接用 `axios`？
 
-这是因为，我们在创建 Axues 实例时，可以配置一些 [全局配置](/global-configurations)，比如在每个请求的 header 中携带 Authorization，或者全局处理返回值等。使用 `axues`，你可以享受到这些全局的配置。
+这是因为，我们在创建 Axues 实例时，可以配置一些 [全局配置](./global-configurations)，比如在每个请求的 header 中携带 Authorization，或者全局处理返回值等。使用 `axues`，你可以享受到这些全局的配置。
 
 ```javascript
 const axues = createAxues(axios, {
@@ -102,6 +102,6 @@ const axues = createAxues(axios, {
 })
 ```
 
-虽说 Axios 也可以创建自定义实例来实现类似的全局配置，但创建和引用颇为麻烦。且 `createAxues` 提供的全局配置也不止是请求配合和请求处理，详情可以参考 [全局配置](/global-configurations)。
+虽说 Axios 也可以创建自定义实例来实现类似的全局配置，但创建和引用颇为麻烦。且 `createAxues` 提供的全局配置也不止是请求配合和请求处理，详情可以参考 [全局配置](./global-configurations)。
 
 当然，你想使用 `axios` 也没有什么不妥，但有增强版的 `axues`，为何不用它呢？
