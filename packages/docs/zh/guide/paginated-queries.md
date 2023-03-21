@@ -32,7 +32,7 @@ const { data, loading, error, retry, retrying } = useAxues({
 <template>
   <div>
     <div v-loading="loading">
-      <div>{{ data }}</div>
+      <div v-if="!error">{{ data }}</div>
       <div v-if="error">
         {{ error.message }}
         <button @click="retry" v-if="!retrying">重试</button>
@@ -43,13 +43,13 @@ const { data, loading, error, retry, retrying } = useAxues({
 </template>
 ```
 
-在这个例子中，我们使用了 [`element-plus`](https://element-plus.org/zh-CN/component/pagination.htm) 的分页组件，并定义了一个返回请求参数的计算型属性，在配置 Axues 的请求配置时，我们直接将这个计算型属性传给 `params`，并监听它。这样一来，只要你操作了分页组件，导致页码或每页条数变化，就会重新发起请求。
+在这个例子中，我们使用了 [`element-plus`](https://element-plus.org/zh-CN/component/pagination.htm) 的分页组件，并定义了一个返回请求参数的计算型属性，在配置 Axues 的请求配置时，我们直接将这个计算型属性传给 `params`，并监听它。这样一来，只要操作分页组件导致页码或每页条数变化，就会重新发起请求。
 
 由于我们不知道总条数是多少，所以在数据处理函数 `onData` 中我们必须给 total 赋值为服务端返回的值，当然你想在 `onSuccess` 中赋值也是可以的，这里因为我们要在 `onData` 里处理 `data` 的赋值，所以就放在一起了。
 
 ## 无限滚动分页
 
-上面的例子在 PC 端比较常见，而在移动端中大都是无限滚动的分页，唯一的区别是，无限滚动分页要追加，而普通的分页是替换数据，所以我们只用在 `onData` 里做不同的处理即可。
+上面的例子在 PC 端比较常见，而在移动端中大都是无限滚动的分页，唯一的区别是，无限滚动分页要追加数据，而普通的分页是替换数据，所以理论上我们只用在 `onData` 里做不同的处理即可。
 
 ```vue
 <script setup>
@@ -99,7 +99,7 @@ const currentPage = ref(0)
 const size = ref(20)
 const total = ref(0)
 
-const { data, pending } = useAxues({
+const { data, pending, error, retry } = useAxues({
   url: '/api/paginated',
   params: () => ({
     page: currentPage.value + 1,
@@ -115,7 +115,7 @@ const { data, pending } = useAxues({
 })
 </script>
 <template>
-  <load-more v-if="total > size" :loading="pending" :finish="total > 0 && currentPage * size > total" @load="action" />
+  <load-more v-if="total > size" :loading="pending" :finish="total > 0 && currentPage * size > total" @load="action" :error="error" @retry="retry" />
 </template>
 ```
 
@@ -124,3 +124,9 @@ const { data, pending } = useAxues({
 - 将 currentPage 初始值设为 0，每次发起请求时，请求参数页码的值为 currentPage + 1
 - 声明了 immediate 为 true，意味着组件创建时会立即请求第一页的数据
 - 每次请求成功后，将 currentPage 累加，确保失败后重试的页码正确
+
+这样一来，我们基本上实现了一个完整的无限滚动分页列表，得益于 Axues 的 [防抖机制](./debounce)，你甚至不用在 LoadMore 组件里实现防抖。当然你还有其他的实现办法，比如页码通过 `action` 传参来传，这取决你的 LoadMore 组件如何实现。
+
+## 更复杂的分页
+
+在实际应用中，我们的分页列表往往搭配着各种筛选条件使用，每次切换筛选，我们就得重刷整个列表
