@@ -99,7 +99,7 @@ const currentPage = ref(0)
 const size = ref(20)
 const total = ref(0)
 
-const { data, pending, error, retry } = useAxues({
+const { data, pending, error, action, retry } = useAxues({
   url: '/api/paginated',
   params: () => ({
     page: currentPage.value + 1,
@@ -129,4 +129,59 @@ const { data, pending, error, retry } = useAxues({
 
 ## 更复杂的分页
 
-在实际应用中，我们的分页列表往往搭配着各种筛选条件使用，每次切换筛选，我们就得重刷整个列表
+在实际应用中，我们的分页列表往往搭配着各种筛选条件使用，每次切换筛选，我们就得重置所有请求状态并重新加载整个列表。除此之外，我们还得提供诸如下拉刷新之类的刷新操作，供用户刷新到最新的结果。
+
+这两个需求都涉及到重置状态和重新加载，和上面那个例子一样，我们期望有一个直接可以绑定到模板的方法，来节省我们的代码。而 `action` 显然不行，在 [请求状态及方法](./request-states-and-methods#触发请求-action-resetaction) 章节我们提到一个专门做重置状态的方法：`resetAction`，和专门做刷新的方法：`refresh`，有了这两个方法，我们就可以做更复杂的状态管理了。
+
+```vue
+<script setup>
+import { useAxues } from 'axues'
+import { LoadMore } from 'my-awesome-components'
+
+const filters = reactive({
+  keyword: '',
+  condition: 1,
+  order: 'ASC'
+})
+const currentPage = ref(0)
+const size = ref(20)
+const total = ref(0)
+
+const { data, pending, error, retry, action, resetAction, refreshing, refresh } = useAxues({
+  url: '/api/paginated',
+  params: () => ({
+    ...filters,
+    page: currentPage.value + 1,
+    size: size.value
+  }),
+  immediate: true,
+  initialData: [],
+  onData(data, newData) {
+    data.value.push(...newData.records)
+    currentPage.value += 1
+    total.value = newData.totalCount
+  }
+})
+</script>
+<template>
+  <div>
+    <div class="filter">
+      <input type="text" placeholder="搜索关键字" v-model="filters.keyword" />
+      <select v-model="filters.condition">
+        <option :value="1">条件1</option>
+        <option :value="2">条件2</option>
+      </select>
+      <select v-model="filters.order">
+        <option value="ASC">升序</option>
+        <option value="DESC">降序</option>
+      </select>
+      <button @click="resetAction">查询</button>
+    </div>
+    <pull-down-refresh @refresh="refresh" :loading="refreshing"></pull-down-refresh>
+    <div>
+      {{ data }}
+    </div>
+    <load-more v-if="total > size" :loading="pending" :finish="total > 0 && currentPage * size > total" @load="action" :error="error" @retry="retry" />
+  </div>
+</template>
+```
