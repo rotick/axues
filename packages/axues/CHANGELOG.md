@@ -1,5 +1,11 @@
 # Changelog
 
+# [0.10.0](https://github.com/rotick/axues/compare/0.9.0...0.10.0) (2023-03-26)
+
+### Features
+
+- add onAction hook ([08d920a](https://github.com/rotick/axues/commit/08d920a01eb042b809694539ff97e2d9d1c92d1b))
+
 # [0.9.0](https://github.com/rotick/axues/compare/0.8.0...0.9.0) (2023-03-19)
 
 ### Features
