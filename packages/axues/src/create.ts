@@ -325,7 +325,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
     let lastPayload: TAction
     const refresh = () => {
       return new CancelablePromise<TO>((resolve, reject, cancel) => {
-        if (refreshing.value) return cancel()
+        if (pending.value) return cancel()
         onAction?.('refresh')
         // keep state when refresh
         // data.value = initialData
@@ -342,7 +342,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
 
     const retry = () => {
       return new CancelablePromise<TO>((resolve, reject, cancel) => {
-        if (retrying.value) return cancel()
+        if (pending.value) return cancel()
         if (!error.value) {
           throw new Error('Retry can only be called on error state')
         }
