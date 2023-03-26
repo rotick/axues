@@ -639,6 +639,7 @@ interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends AxuesReques
   loadingOverlay?: LoadingOverlayOptions<TAction>
   successOverlay?: SuccessOverlayOptions<TAction, TO>
   errorOverlay?: ErrorOverlayOptions<TAction>
+  onAction?: (act: 'action' | 'resetAction' | 'retry' | 'refresh' | 'abort' | 'deleteCache') => void
   onData?: (data: Ref<TO>, newData: unknown | unknown[], actionPayload?: TAction) => void
   onSuccess?: (data: TO, actionPayload?: TAction) => void
   onError?: (err: Error, actionPayload?: TAction) => void

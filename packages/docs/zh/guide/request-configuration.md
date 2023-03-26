@@ -284,6 +284,57 @@ const { loading, success, error, data } = useAxues({
 })
 ```
 
+## onAction
+
+很多时候我们希望在调用请求的同时进行一些其他的操作，常用的做法就是再写一个函数，在这个函数里调用请求并进行其他操作。
+
+```vue
+<script setup>
+import { useAxues } from 'axues'
+const { action } = useAxues('/api/foo')
+
+function actionWithSomething() {
+  doSomething()
+  action()
+}
+</script>
+<template>
+  <button @click="actionWithSomething">actionWithSomething</button>
+</template>
+```
+
+这样做没什么问题，仅仅增加了一个函数的命名成本，但如果我们在调用刷新、重试等操作时，也需要这样做，那可能就是增加了三个函数的命名成本，所以 Axues 直接提供了一个钩子函数 `onAction`，让你在调用这些方法时，能同时做一些其他事情。
+
+```vue
+<script setup>
+import { useAxues } from 'axues'
+const { action } = useAxues('/api/foo', {
+  onAction: doSomething
+})
+</script>
+<template>
+  <button @click="action">actionWithSomething</button>
+</template>
+```
+
+这样一来代码也简洁了很多，但有时我们需要区分当前是调用哪个方法触发的 `onAction`，从而做不同的操作，所以 Axues 在调用 `onAction` 钩子时也会传入当前调用方的方法名，也就是 `useAxues` 返回的 6 个方法：`'action' | 'resetAction' | 'retry' | 'refresh' | 'abort' | 'deleteCache'`。
+
+```vue
+<script setup>
+import { useAxues } from 'axues'
+const { action } = useAxues('/api/foo', {
+  onAction(act) {
+    if (act === 'resetAction') {
+      console.log('resetAction')
+    }
+  }
+})
+</script>
+<template>
+  <button @click="action">actionWithSomething</button>
+</template>
+```
+
 ## onData
 
 在上一章的 [响应数据](./request-states-and-methods#响应数据-data) 小节中，我们提到 `onData` 给我们提供了自定义 data 赋值的能力，让我们可以在每个请求中先处理请求返回的数据，再给 data 赋值。
