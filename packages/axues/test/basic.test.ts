@@ -68,8 +68,13 @@ describe('basic', () => {
   test('state should correct when request error', async () => {
     const TestComponent = defineComponent({
       setup () {
-        const { pending, loading, success, error, data, action, refreshing, refreshed, refresh, requestTimes, resetAction } = useAxues('/getError')
-        return { pending, loading, success, error, data, action, refreshing, refreshed, refresh, requestTimes, resetAction }
+        const lastAct = ref('')
+        const { pending, loading, success, error, data, action, refreshing, refreshed, refresh, requestTimes, resetAction } = useAxues('/getError', {
+          onAction (act) {
+            lastAct.value = act
+          }
+        })
+        return { pending, loading, success, error, data, action, refreshing, refreshed, refresh, requestTimes, resetAction, lastAct }
       },
       template: `<button @click="action" class="action">action</button>
       <button @click="refresh" class="refresh">refresh</button><button @click="resetAction" class="resetAction">resetAction</button>`
@@ -79,6 +84,7 @@ describe('basic', () => {
     expect(wrapper.vm.pending).toBe(false)
     expect(wrapper.vm.loading).toBe(false)
     await wrapper.get('.action').trigger('click')
+    expect(wrapper.vm.lastAct).toBe('action')
     expect(wrapper.vm.pending).toBe(true)
     expect(wrapper.vm.success).toBe(false)
     expect(wrapper.vm.error).toBeNull()
@@ -95,6 +101,7 @@ describe('basic', () => {
     expect(wrapper.vm.refreshing).toBe(false)
     expect(wrapper.vm.refreshed).toBe(false)
     await wrapper.get('.refresh').trigger('click')
+    expect(wrapper.vm.lastAct).toBe('refresh')
     expect(wrapper.vm.refreshing).toBe(true)
     expect(wrapper.vm.pending).toBe(true)
     expect(wrapper.vm.success).toBe(false)
@@ -116,6 +123,7 @@ describe('basic', () => {
     expect(wrapper.vm.error).toBeInstanceOf(Error)
 
     await wrapper.get('.resetAction').trigger('click')
+    expect(wrapper.vm.lastAct).toBe('resetAction')
     expect(wrapper.vm.refreshing).toBe(false)
     expect(wrapper.vm.error).toBe(null)
   })
@@ -123,8 +131,13 @@ describe('basic', () => {
   test('retry when error', async () => {
     const TestComponent = defineComponent({
       setup () {
-        const { pending, error, action, requestTimes, retrying, retryTimes, retry, resetAction } = useAxues('/getError')
-        return { pending, error, action, requestTimes, retrying, retryTimes, retry, resetAction }
+        const lastAct = ref('')
+        const { pending, error, action, requestTimes, retrying, retryTimes, retry, resetAction } = useAxues('/getError', {
+          onAction (act) {
+            lastAct.value = act
+          }
+        })
+        return { pending, error, action, requestTimes, retrying, retryTimes, retry, resetAction, lastAct }
       },
       template: `<button @click="action" class="action">action</button>
       <button @click="retry" class="retry">retry</button><button @click="resetAction" class="resetAction">resetAction</button>`
@@ -133,11 +146,13 @@ describe('basic', () => {
 
     await expect(() => wrapper.vm.retry()).rejects.toThrowError(/Retry can/)
     await wrapper.get('.action').trigger('click')
+    expect(wrapper.vm.lastAct).toBe('action')
 
     await flushPromises()
     expect(wrapper.vm.error).toBeInstanceOf(Error)
 
     await wrapper.get('.retry').trigger('click')
+    expect(wrapper.vm.lastAct).toBe('retry')
     expect(wrapper.vm.retrying).toBe(true)
     expect(wrapper.vm.pending).toBe(true)
     expect(wrapper.vm.retryTimes).toBe(1)
@@ -153,6 +168,7 @@ describe('basic', () => {
     expect(wrapper.vm.requestTimes).toBe(3)
 
     await wrapper.get('.resetAction').trigger('click')
+    expect(wrapper.vm.lastAct).toBe('resetAction')
     expect(wrapper.vm.retrying).toBe(false)
     expect(wrapper.vm.pending).toBe(true)
     expect(wrapper.vm.retryTimes).toBe(0)

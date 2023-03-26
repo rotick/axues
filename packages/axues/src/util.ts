@@ -38,6 +38,7 @@ export function resolveRequestOptions (options: any, actionPayload?: any) {
     'loadingOverlay',
     'successOverlay',
     'errorOverlay',
+    'onAction',
     'onData',
     'onSuccess',
     'onError',

@@ -162,6 +162,7 @@ export interface UseAxuesOptions<TI = any, TO = any, TAction = any> extends Axue
   loadingOverlay?: LoadingOverlayOptions<TAction>
   successOverlay?: SuccessOverlayOptions<TAction, TO>
   errorOverlay?: ErrorOverlayOptions<TAction>
+  onAction?: (act: 'action' | 'resetAction' | 'retry' | 'refresh' | 'abort' | 'deleteCache') => void
   /*
    * merge data when axios response
    * e.g. data.value.currentPage = newData.current

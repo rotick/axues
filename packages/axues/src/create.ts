@@ -137,6 +137,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       loadingOverlay,
       successOverlay,
       errorOverlay,
+      onAction,
       onData,
       onSuccess,
       onError,
@@ -325,6 +326,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
     const refresh = () => {
       return new CancelablePromise<TO>((resolve, reject, cancel) => {
         if (refreshing.value) return cancel()
+        onAction?.('refresh')
         // keep state when refresh
         // data.value = initialData
         retryTimes.value = 0
@@ -344,6 +346,7 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
         if (!error.value) {
           throw new Error('Retry can only be called on error state')
         }
+        onAction?.('retry')
         if ((autoRetryTimes > 0 && retryTimes.value >= autoRetryTimes) || autoRetryTimes === 0) {
           retryTimes.value++
         }
@@ -357,9 +360,15 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
       })
     }
 
+    let fromReset = false
     const action = (actionPayload?: TAction) => {
       return new CancelablePromise<TO>((resolve, reject, cancel) => {
         if ((pending.value && debounceMode === 'firstPass' && debounce === undefined) || retrying.value || refreshing.value || retryCountdown.value > 0) return cancel()
+        if (fromReset) {
+          fromReset = false
+        } else {
+          onAction?.('action')
+        }
         if (actionPayload) {
           if (requestTimes.value === 0) {
             initialPayload = actionPayload
@@ -392,6 +401,8 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
 
     const resetAction = (actionPayload?: TAction) => {
       canAbort.value && abort()
+      fromReset = true
+      onAction?.('resetAction')
       pending.value = false
       loading.value = false
       success.value = false
@@ -425,10 +436,12 @@ export function createAxues (axiosInstance: AxiosInstance, createOptions?: Creat
     }
 
     const abort = () => {
+      onAction?.('abort')
       ac?.abort()
     }
 
     const deleteCache = (actionPayload?: TAction) => {
+      onAction?.('deleteCache')
       const realCacheKey = getCacheKey<TAction>(cacheKey, actionPayload)
       realCacheKey && cacheInstance?.delete(realCacheKey)
     }
