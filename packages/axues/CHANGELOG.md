@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.10.1](https://github.com/rotick/axues/compare/0.10.0...0.10.1) (2023-03-26)
+
+### Bug Fixes
+
+- don't call refresh and retry while pending ([5f252be](https://github.com/rotick/axues/commit/5f252be0a7c61f463569961828f79e3af5ee4c7e))
+
 # [0.10.0](https://github.com/rotick/axues/compare/0.9.0...0.10.0) (2023-03-26)
 
 ### Features
