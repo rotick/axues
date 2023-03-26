@@ -12,7 +12,7 @@ Vue 的官方文档给了我们一个将请求状态封装成组合式函数的 
 
 可以看到，Axues 的状态非常多，这是 Axues 最大的特性之一：更细粒度的状态管理。这能让你做出体验更好的用户界面，也是我们标榜为生产力的原因。
 
-举个简单的例子：当请求发生错误，用户点重试时，错误状态应该保留，这样我们可以在页面中 **同时** 显示错误信息和 loading 动画。而不是一点重试，整个屏幕就只展示一个 loading 动画，这是非常偷懒的做法。有关多状态共存，请参考：[写一个完整的列表页]()
+举个简单的例子：当请求发生错误，用户点重试时，错误状态应该保留，这样我们可以在页面中 **同时** 显示错误信息和 loading 动画。而不是一点重试，整个屏幕就只展示一个 loading 动画，这是非常偷懒的做法。有关多状态共存，请参考：[写一个完整的列表页](./write-a-full-paginated-list-page)
 
 ## 触发请求（action & resetAction）
 
@@ -54,7 +54,7 @@ action(2)
 
 `action` 方法会累计 [请求次数](#请求次数-requesttimes)，且因为默认的 [防抖机制](./debounce)，你必须在上一次请求完成后才可以再次调用 `action`，这个机制在某些场景下反而是个麻烦，比如切换 tab 选项卡发起请求，我们期望切 tab 时，如果上一个 tab 还在请求，则打断并发起新的请求。
 
-所以 Axues 还提供了 `resetAction` 方法，使用方法和 `action` 完全一致，唯一不同的是每次调用 `resetAction` 都会先将所有的状态重置为初始状态，再发起请求。看到这里你可能还有疑惑，那么稍候请看看 [写一个完整的分页列表页]() 这篇文章你就明白 `resetAction` 的作用啦。
+所以 Axues 还提供了 `resetAction` 方法，使用方法和 `action` 完全一致，唯一不同的是每次调用 `resetAction` 都会先将所有的状态重置为初始状态，再发起请求。看到这里你可能还有疑惑，那么稍候请看看 [写一个完整的分页列表页](./write-a-full-paginated-list-page) 这篇文章你就明白 `resetAction` 的作用啦。
 
 ## 请求中（pending & loading）
 
@@ -212,7 +212,7 @@ const { pending, error, action, retryTimes, retry, retrying } = useAxues('/api/f
 
 除了提供手动的 retry 方法，Axues 还支持配置错误自动重试，详情请参考 [错误重试](./error-retries)。
 ::: warning
-上面的例子已经提到，重试时，Axues 不会将 error 状态重置，且 retrying 和 pending 状态也会共存，详情请参考 [写一个完整的列表页]()。当然，如果你的请求很简单，你可以完全忽视 retrying 这个状态。
+上面的例子已经提到，重试时，Axues 不会将 error 状态重置，且 retrying 和 pending 状态也会共存，详情请参考 [写一个完整的列表页](./write-a-full-paginated-list-page)。当然，如果你的请求很简单，你可以完全忽视 retrying 这个状态。
 :::
 
 ## 刷新（refresh & refreshing & refreshed）
@@ -241,7 +241,7 @@ const { loading, error, data, action, refresh, refreshing, refreshed } = useAxue
 一般情况下，我们只会在请求错误时提供重试，而刷新不同，请求成功的状态下，我们也可能需要刷新操作。从机制上来讲，重试是重新发起最后一次请求，而刷新是重新发起第一次请求。其实大部分简单的请求，你使用其中的一个就好，只有在做复杂的请求时，你才有可能同时使用它们。
 
 ::: tip
-我们上面讲过，`action` 的支持传参的，当首次调用 `action` 发起请求后，Axues 会将 action 携带的参数缓存起来，后面不管再调用多少次 `action`，一旦调用刷新，则又会回到第一次请求的状态。详情请参考 [写一个完整的列表页]()。
+我们上面讲过，`action` 的支持传参的，当首次调用 `action` 发起请求后，Axues 会将 action 携带的参数缓存起来，后面不管再调用多少次 `action`，一旦调用刷新，则又会回到第一次请求的状态。详情请参考 [写一个完整的列表页](./write-a-full-paginated-list-page)。
 :::
 
 ## 请求次数（requestTimes）

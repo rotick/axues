@@ -193,4 +193,4 @@ const { data, pending, error, retry, action, resetAction, refreshing, refresh } 
 
 相较于上一个例子，我们仅增加了 `onAction` 钩子来判断调用 `refresh` 或 `resetAction` 时则将页码重置，就实现了条件过滤和刷新功能。这就是 Axues 要提供这么多方法的原因。
 
-实际应用中，我们还需要处理刷新中、刷新失败、翻页失败等等的状态，对此我们也专门编写了一篇最佳实践：[写一个完整的分页列表页]()，在这篇文章中我们将使用 Axues 提供的状态和方法实现一个完整状态的列表页。
+实际应用中，我们还需要处理刷新中、刷新失败、翻页失败等等的状态，对此我们也专门编写了一篇最佳实践：[写一个完整的分页列表页](./write-a-full-paginated-list-page)，在这篇文章中我们将使用 Axues 提供的状态和方法实现一个完整状态的列表页。

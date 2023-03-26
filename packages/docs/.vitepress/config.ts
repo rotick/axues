@@ -112,8 +112,10 @@ function sidebarGuide(lang?: string) {
       text_zh: '最佳实践',
       collapsed: false,
       items: [
-        { text: 'Request error handling', text_zh: '请求错误处理', link: '/guide/global-configurations' },
-        { text: 'Write a full paginated list page', text_zh: '写一个完整的分页列表页', link: '/guide/request-configuration' }
+        { text: 'Request error handling', text_zh: '请求错误处理', link: '/guide/request-error-handling' },
+        { text: 'Implement a simple CRUD', text_zh: '实现简单的增删改查', link: '/guide/implement-a-simple-CRUD' },
+        { text: 'CRUD in a list', text_zh: '在列表中增删改查', link: '/guide/CRUD-in-a-list' },
+        { text: 'Write a full paginated list page', text_zh: '写一个完整的分页列表页', link: '/guide/write-a-full-paginated-list-page' }
       ]
     }
   ]
